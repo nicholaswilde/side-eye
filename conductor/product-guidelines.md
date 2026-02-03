@@ -2,6 +2,7 @@
 
 ## Design Principles
 - **Minimalism First:** The 1.14" display is small (240x135). Information must be dense but legible. Avoid unnecessary borders or decorations that reduce text size.
+  - **Banner UI:** Use a centered title on a dedicated banner for clear context (e.g., "SIDEEYE MONITOR").
 - **Functionality over Form:** The primary goal is readability. Color coding should be used semantically (e.g., Green for IP, Cyan for Hostname) rather than just for decoration.
 - **Set It and Forget It:** The host application should require zero user interaction after the initial launch. It should be invisible unless an error occurs.
 

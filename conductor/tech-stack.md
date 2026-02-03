@@ -18,6 +18,7 @@
 - **Hardware Platform:** ESP32-C6 (Waveshare ESP32-C6-GEEK).
 - **Display Driver:** `Moon On Our Nation / GFX Library for Arduino` (ST7789).
 - **Wi-Fi Management:** `tzapu/WiFiManager` for credential configuration.
+- **JSON Parsing:** `bblanchon/ArduinoJson` for structured data updates.
 - **UI Theming:** Custom `catppuccin_colors.h` (RGB565 Mocha palette).
 - **Communication:** Native ESP32-C6 USB CDC (Serial over USB-C).
 

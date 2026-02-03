@@ -13,8 +13,9 @@ SideEye is a minimalist, USB-powered hardware monitor designed to provide Linux 
 - **Wi-Fi Configuration:** Integrated `WiFiManager` for user-friendly network setup via a captive portal ("SideEye-Setup").
 - **Cross-Platform Host Agent:** A lightweight Rust binary (`side-eye-host`) that runs efficiently in the background.
 - **Multi-Device Support:** Manage connections to multiple SideEye devices simultaneously.
-- **Real-Time Updates:** Syncs Hostname, LAN IP, and MAC address every 5 seconds.
+- **Real-Time Telemetry:** Syncs rich system stats (CPU %, RAM bar, Disk usage, Uptime) every 1 second in addition to static identity info.
 - **Zero-Config Discovery:** Automatic detection and hot-plug support for all compatible devices on any USB port.
+- **Orientation Support:** Physical button toggles screen rotation by 180 degrees to support any USB port orientation.
 - **USB CDC Communication:** Uses native USB serial for power and data, requiring no extra cables or HDMI ports.
 
 ## Success Metrics
