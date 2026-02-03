@@ -15,6 +15,7 @@ SideEye is a minimalist, USB-powered hardware monitor designed to provide Linux 
 - **Multi-Device Support:** Manage connections to multiple SideEye devices simultaneously.
 - **Real-Time Telemetry:** Syncs rich system stats (CPU %, RAM bar, Disk usage, Uptime) every 1 second in addition to static identity info.
 - **Zero-Config Discovery:** Automatic detection and hot-plug support for all compatible devices on any USB port.
+- **Intelligent UI State:** Clean "Waiting for Host" mode when idle, automatically transitioning to a detailed dashboard upon connection.
 - **Orientation Support:** Physical button toggles screen rotation by 180 degrees to support any USB port orientation.
 - **USB CDC Communication:** Uses native USB serial for power and data, requiring no extra cables or HDMI ports.
 

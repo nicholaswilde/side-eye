@@ -12,6 +12,7 @@
 - **Easy Connectivity:** Wi-Fi setup should be seamless via a dedicated AP mode if credentials are missing, avoiding the need for hardcoded secrets.
 - **Resilience:** If the device is unplugged, the host software should wait patiently rather than crashing. When plugged back in, it should resume immediately.
 - **Visual Feedback:** The device should indicate a "Waiting for Host..." state on the screen if it has power but is not receiving data, distinguishing "no power" from "no data."
+  - **Contextual UI:** Only display host-specific labels and metrics when a connection is active to maintain a clean aesthetic during idle periods.
   - **On-Screen Status:** Small visual indicators (e.g., connection status dots) provide real-time feedback without cluttering the UI.
 
 ## Coding Standards
