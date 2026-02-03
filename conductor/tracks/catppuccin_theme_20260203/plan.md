@@ -17,7 +17,7 @@
         - IP: `CATPPUCCIN_GREEN`
         - MAC: `CATPPUCCIN_PINK`
 
-## Phase 3: Verification
+## Phase 3: Verification [checkpoint: cdd7ca8]
 - [x] Task: Firmware - Compile and visual check. b3baeb9
     - [x] Run `pio run` to ensure no syntax errors.
 - [x] Task: Conductor - User Manual Verification 'Theme Application' (Protocol in workflow.md) b3baeb9
