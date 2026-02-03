@@ -13,10 +13,10 @@
 ## Phase 2: Firmware Setup & Wi-Fi Integration
 - [x] Task: Firmware - Update `platformio.ini` dependencies. 85e7a89
     - [x] Add `tzapu/WiFiManager` to `lib_deps`.
-- [ ] Task: Firmware - Implement WiFiManager Logic in `main.cpp`.
-    - [ ] Include `<WiFiManager.h>`.
-    - [ ] In `setup()`, initialize `WiFiManager` and handle the auto-connect / captive portal flow.
-    - [ ] Display connection status on the LCD during boot.
+- [x] Task: Firmware - Implement WiFiManager Logic in `main.cpp`. 92285da
+    - [x] Include `<WiFiManager.h>`.
+    - [x] In `setup()`, initialize `WiFiManager` and handle the auto-connect / captive portal flow.
+    - [x] Display connection status on the LCD during boot.
 - [ ] Task: Firmware - Verify Wi-Fi Connection.
     - [ ] Flash firmware, connect to "SideEye-Setup" AP, configure Wi-Fi, and verify it reconnects on reboot.
 
