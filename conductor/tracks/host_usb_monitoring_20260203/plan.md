@@ -5,9 +5,9 @@
     - [x] Update `Cargo.toml`.
 - [x] Task: Host - Define Configuration Structure. 9ced7b7
     - [x] Create a `Config` struct with `ports`, `monitor_all`, and `target_vids`.
-- [ ] Task: Host - Implement Config Loading.
-    - [ ] Logic to load from default path (e.g., `~/.config/side-eye/config.toml`) or path specified by `--config`.
-    - [ ] Logic to merge CLI args with config file (CLI takes precedence).
+- [x] Task: Host - Implement Config Loading. 2f0a34b
+    - [x] Logic to load from default path (e.g., `~/.config/side-eye/config.toml`) or path specified by `--config`.
+    - [x] Logic to merge CLI args with config file (CLI takes precedence).
 
 ## Phase 2: Refactoring for Multi-Device Support
 - [ ] Task: Host - Refactor `main.rs` loop.
