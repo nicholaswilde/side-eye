@@ -31,6 +31,6 @@
 ## Phase 4: Integration & Documentation
 - [x] Task: Integration - End-to-End Test. eb7c595
     - [x] Run the refined Host with the new Firmware. Verify data syncs correctly and looks good.
-- [ ] Task: Documentation - Update README.
-    - [ ] Update `README.md` with new build instructions (Wi-Fi setup steps).
+- [x] Task: Documentation - Update README. 012b487
+    - [x] Update `README.md` with new build instructions (Wi-Fi setup steps).
 - [ ] Task: Conductor - User Manual Verification 'Integration & Documentation' (Protocol in workflow.md)
