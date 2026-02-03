@@ -94,25 +94,23 @@ fn main() -> Result<()> {
 
     loop {
         let stats = monitor.update_and_get_stats();
-        let payload = format!(
-            "{}|{}|{}\n",
-            static_info.hostname, static_info.ip, static_info.mac
-        );
+        let msg = monitor::HostMessage::Stats(stats);
+        let payload = serde_json::to_string(&msg).unwrap_or_else(|_| "".to_string());
 
         if args.dry_run {
             if args.verbose {
-                println!("Stats: {:?}", stats);
+                println!("Stats: {:?}", msg);
             }
-            println!("Dry-Run Payload: {}", payload.trim());
+            println!("Dry-Run Payload: {}", payload);
         } else {
             let mut cons = connections.lock().unwrap();
             let mut to_remove = Vec::new();
 
             for (name, conn) in cons.iter() {
                 if args.verbose {
-                    println!("Sending to {}: {}", name, payload.trim());
+                    println!("Sending to {}: {}", name, payload);
                 }
-                if conn.sender.send(payload.clone()).is_err() {
+                if conn.sender.send(payload.clone() + "\n").is_err() {
                     if args.verbose {
                         println!("Connection to {} lost.", name);
                     }
@@ -128,7 +126,7 @@ fn main() -> Result<()> {
         if run_once {
             break;
         }
-        thread::sleep(Duration::from_secs(5));
+        thread::sleep(Duration::from_secs(1)); // Faster updates per spec
     }
 
     Ok(())
@@ -172,6 +170,18 @@ fn discover_and_connect(
                     let port_name_inner = port_name.clone();
 
                     println!("Connected to {}.", port_name);
+
+                    // Send Identity immediately
+                    let monitor = monitor::SystemMonitor::new();
+                    let identity = monitor.get_static_info();
+                    let msg = monitor::HostMessage::Identity(identity);
+                    if let Ok(json) = serde_json::to_string(&msg) {
+                        if tx.send(json + "\n").is_err() {
+                            if verbose {
+                                eprintln!("Failed to send initial identity to {}", port_name);
+                            }
+                        }
+                    }
 
                     thread::spawn(move || {
                         let mut serial = serial;

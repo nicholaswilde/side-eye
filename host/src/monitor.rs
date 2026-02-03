@@ -30,6 +30,13 @@ pub struct SystemStats {
     pub uptime: u64,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(tag = "type", content = "data")]
+pub enum HostMessage {
+    Identity(StaticInfo),
+    Stats(SystemStats),
+}
+
 impl SystemMonitor {
     pub fn new() -> Self {
         Self {
