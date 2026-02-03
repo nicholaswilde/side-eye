@@ -10,6 +10,8 @@ local-ip-address = "0.5"
 mac_address = "1.1"
 anyhow = "1.0"
 clap = { version = "4.4", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
 
 [dev-dependencies]
 assert_cmd = "2.0"
