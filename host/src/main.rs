@@ -1,3 +1,5 @@
+mod config;
+
 use anyhow::{Context, Result};
 use clap::Parser;
 use local_ip_address::local_ip;
@@ -24,6 +26,14 @@ struct Args {
     /// Print stats to stdout without sending to serial port
     #[arg(short, long)]
     dry_run: bool,
+
+    /// Path to configuration file
+    #[arg(short, long)]
+    config: Option<String>,
+
+    /// Automatically monitor all compatible devices
+    #[arg(short, long)]
+    monitor_all: bool,
 }
 
 fn main() -> Result<()> {
