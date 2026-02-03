@@ -176,10 +176,8 @@ fn discover_and_connect(
                     let identity = monitor.get_static_info();
                     let msg = monitor::HostMessage::Identity(identity);
                     if let Ok(json) = serde_json::to_string(&msg) {
-                        if tx.send(json + "\n").is_err() {
-                            if verbose {
-                                eprintln!("Failed to send initial identity to {}", port_name);
-                            }
+                        if tx.send(json + "\n").is_err() && verbose {
+                            eprintln!("Failed to send initial identity to {}", port_name);
                         }
                     }
 
