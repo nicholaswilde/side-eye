@@ -10,12 +10,12 @@
     - [x] Logic to merge CLI args with config file (CLI takes precedence).
 
 ## Phase 2: Refactoring for Multi-Device Support
-- [ ] Task: Host - Refactor `main.rs` loop.
-    - [ ] Move the "connect and send" logic into a separate function/struct (e.g., `DeviceConnection`).
-    - [ ] Use `std::sync::mpsc` or `tokio` (if moving to async, though threads are fine for low count) to manage device states.
-- [ ] Task: Host - Implement "System Stats" Broadcaster.
-    - [ ] Create a central loop that gathers system stats once every 5 seconds.
-    - [ ] Broadcast the formatted string to all active `DeviceConnection` threads.
+- [x] Task: Host - Refactor `main.rs` loop. bf3c04d
+    - [x] Move the "connect and send" logic into a separate function/struct (e.g., `DeviceConnection`).
+    - [x] Use `std::sync::mpsc` or `tokio` (if moving to async, though threads are fine for low count) to manage device states.
+- [x] Task: Host - Implement "System Stats" Broadcaster. bf3c04d
+    - [x] Create a central loop that gathers system stats once every 5 seconds.
+    - [x] Broadcast the formatted string to all active `DeviceConnection` threads.
 
 ## Phase 3: Hot-Plug & "Monitor All" Logic
 - [ ] Task: Host - Implement Port Scanner.
