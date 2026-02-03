@@ -3,8 +3,6 @@ mod monitor;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use local_ip_address::local_ip;
-use mac_address::get_mac_address;
 use serialport::{SerialPortType, UsbPortInfo};
 use std::{
     collections::HashMap,
@@ -12,7 +10,6 @@ use std::{
     thread,
     time::Duration,
 };
-use sysinfo::System;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -63,45 +60,48 @@ fn main() -> Result<()> {
         config.baud_rate = args.baud_rate;
     }
 
-    if args.verbose {
-        println!("Configuration: {:?}", config);
-    }
-
-    let mut sys = System::new_all();
-    let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
-    let connections: Arc<Mutex<HashMap<String, DeviceConnection>>> =
-        Arc::new(Mutex::new(HashMap::new()));
-
-    // Discovery / Management Loop
-    let discovery_connections = Arc::clone(&connections);
-    let discovery_config = config.clone();
-    let verbose = args.verbose;
-
-    if !args.dry_run {
-        thread::spawn(move || loop {
-            if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose)
-            {
-                if verbose {
-                    eprintln!("Discovery error: {}", e);
+        if args.verbose {
+            println!("Configuration: {:?}", config);
+        }
+    
+        let mut monitor = monitor::SystemMonitor::new();
+        let static_info = monitor.get_static_info();
+    
+        if args.verbose {
+            println!("Static Info: {:?}", static_info);
+        }
+    
+        let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
+        let connections: Arc<Mutex<HashMap<String, DeviceConnection>>> =
+            Arc::new(Mutex::new(HashMap::new()));
+    
+        // Discovery / Management Loop
+        let discovery_connections = Arc::clone(&connections);
+        let discovery_config = config.clone();
+        let verbose = args.verbose;
+        
+        if !args.dry_run {
+            thread::spawn(move || loop {
+                if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose)
+                {
+                    if verbose {
+                        eprintln!("Discovery error: {}", e);
+                    }
                 }
-            }
-            thread::sleep(Duration::from_secs(5));
-        });
-    }
-
-    loop {
-        let payload = match gather_payload(&mut sys) {
-            Ok(p) => p,
-            Err(e) => {
-                eprintln!("Error gathering stats: {}", e);
-                continue;
-            }
-        };
-
-        if args.dry_run {
-            println!("Dry-Run Payload: {}", payload.trim());
-        } else {
-            let mut cons = connections.lock().unwrap();
+                thread::sleep(Duration::from_secs(5));
+            });
+        }
+    
+        loop {
+            let stats = monitor.update_and_get_stats();
+            let payload = format!("{}|{}|{}\n", static_info.hostname, static_info.ip, static_info.mac);
+    
+            if args.dry_run {
+                if args.verbose {
+                    println!("Stats: {:?}", stats);
+                }
+                println!("Dry-Run Payload: {}", payload.trim());
+            } else {            let mut cons = connections.lock().unwrap();
             let mut to_remove = Vec::new();
 
             for (name, conn) in cons.iter() {
@@ -202,20 +202,3 @@ fn discover_and_connect(
     Ok(())
 }
 
-fn gather_payload(sys: &mut System) -> Result<String> {
-    sys.refresh_all();
-    let hostname = System::host_name().unwrap_or_else(|| "Unknown".to_string());
-
-    let ip = match local_ip() {
-        Ok(ip) => ip.to_string(),
-        Err(_) => "No IP".to_string(),
-    };
-
-    let mac = match get_mac_address() {
-        Ok(Some(mac)) => mac.to_string(),
-        Ok(None) => "No MAC".to_string(),
-        Err(_) => "Error".to_string(),
-    };
-
-    Ok(format!("{}|{}|{}\n", hostname, ip, mac))
-}
