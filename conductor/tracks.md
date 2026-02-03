@@ -4,8 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: Firmware: UI Performance & Flicker Reduction.**
-  *Link: [./conductor/tracks/ui_performance_20260203/](./conductor/tracks/ui_performance_20260203/)*
 - [ ] **Track: Integration: Home Assistant via MQTT Discovery.**
   *Link: [./conductor/tracks/home_assistant_mqtt_20260203/](./conductor/tracks/home_assistant_mqtt_20260203/)*
 - [ ] **Track: Host: Linux System Integration & Packaging.**
