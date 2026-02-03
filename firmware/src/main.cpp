@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 #include <WiFiManager.h>
+#include "catppuccin_colors.h"
 
 #define BLACK RGB565_BLACK
 #define WHITE RGB565_WHITE
