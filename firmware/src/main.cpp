@@ -16,6 +16,8 @@
 #define LCD_BL 6
 #define BTN_PIN 9
 
+const char* VERSION = "0.1.0";
+
 Arduino_DataBus *bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
 
 // Centering 135x240 Portrait area in 240x320 RAM, then rotating to Landscape
@@ -228,6 +230,9 @@ void setup() {
     wm.setAPCallback(configModeCallback);
     
     drawBanner("BOOTING...");
+    gfx->setCursor(15, 60);
+    gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
+    gfx->printf("v%s", VERSION);
     
     if (!wm.autoConnect("SideEye-Setup")) {
         ESP.restart();
@@ -285,6 +290,14 @@ void handleJson(String json) {
 
     if (state.connected && !was_connected) {
         needs_static_draw = true;
+    }
+
+    if (strcmp(type, "GetVersion") == 0) {
+        JsonDocument res;
+        res["type"] = "Version";
+        res["version"] = VERSION;
+        serializeJson(res, Serial);
+        Serial.println();
     }
 
     updateDynamicValues();

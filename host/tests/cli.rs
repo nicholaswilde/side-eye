@@ -1,9 +1,8 @@
-use assert_cmd::Command;
 use predicates::prelude::*;
 
 #[test]
 fn file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::cargo_bin("side-eye-host")?;
+    let mut cmd = assert_cmd::cargo::cargo_bin_cmd!("side-eye-host");
 
     cmd.arg("--non-existent-flag");
     cmd.assert()
@@ -15,7 +14,7 @@ fn file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn version_flag_works() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::cargo_bin("side-eye-host")?;
+    let mut cmd = assert_cmd::cargo::cargo_bin_cmd!("side-eye-host");
 
     cmd.arg("--version");
     cmd.assert()
@@ -27,7 +26,7 @@ fn version_flag_works() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn help_flag_works() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::cargo_bin("side-eye-host")?;
+    let mut cmd = assert_cmd::cargo::cargo_bin_cmd!("side-eye-host");
 
     cmd.arg("--help");
     cmd.assert()
@@ -39,7 +38,7 @@ fn help_flag_works() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn verbose_flag_works() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::cargo_bin("side-eye-host")?;
+    let mut cmd = assert_cmd::cargo::cargo_bin_cmd!("side-eye-host");
 
     // We combine with dry-run so it doesn't block forever
     cmd.env("SIDEEYE_RUN_ONCE", "1")
@@ -54,7 +53,7 @@ fn verbose_flag_works() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn dry_run_flag_works() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::cargo_bin("side-eye-host")?;
+    let mut cmd = assert_cmd::cargo::cargo_bin_cmd!("side-eye-host");
 
     cmd.env("SIDEEYE_RUN_ONCE", "1").arg("--dry-run");
     cmd.assert()

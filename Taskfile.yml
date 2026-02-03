@@ -22,6 +22,7 @@ tasks:
 
   test:ci:
     desc: Run tests using the CI profile
+    dir: host
     cmds:
       - task: fmt:check
       - task: lint
@@ -30,16 +31,19 @@ tasks:
 
   clippy:
     desc: Run cargo clippy
+    dir: host
     cmds:
       - cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   lint:
     desc: Lint code with clippy
+    dir: host
     cmds:
       - cargo clippy -- -D warnings
 
   fmt:check:
     desc: Check code formatting with rustfmt
+    dir: host
     cmds:
       - cargo fmt -- --check
       

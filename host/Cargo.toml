@@ -18,3 +18,9 @@ toml = "0.8"
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "3.0"
+
+# Profile for CI/CD builds (inherits from dev)
+[profile.ci]
+inherits = "dev"
+incremental = false     # Disable incremental compilation for CI (often slower/buggy in CI cache)
+debug = 0               # No debug info needed for basic CI checks (speeds up build)
