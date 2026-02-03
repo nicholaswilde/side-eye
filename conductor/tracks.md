@@ -4,8 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: Host: Enhanced USB Port Monitoring & Configuration.**
-  *Link: [./conductor/tracks/host_usb_monitoring_20260203/](./conductor/tracks/host_usb_monitoring_20260203/)*
 - [ ] **Track: Feature: Display Host Network & Identity Info.**
   *Link: [./conductor/tracks/host_info_display_20260203/](./conductor/tracks/host_info_display_20260203/)*
 - [ ] **Track: Integration: Home Assistant via MQTT Discovery.**
