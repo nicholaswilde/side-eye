@@ -21,12 +21,12 @@
     - [x] Flash firmware, connect to "SideEye-Setup" AP, configure Wi-Fi, and verify it reconnects on reboot.
 
 ## Phase 3: Display UI Polish
-- [ ] Task: Firmware - Refine `updateDisplay` function.
-    - [ ] Implement the layout defined in the Spec (Header, Labels, Colors).
-    - [ ] Add a "Waiting for Host..." screen that persists until the first valid serial packet is received.
-    - [ ] Add a small footer indicator for the ESP32's own Wi-Fi status.
-- [ ] Task: Firmware - Optimize String Handling.
-    - [ ] Ensure the parsing logic is safe against buffer overflows or partial packets.
+- [x] Task: Firmware - Refine `updateDisplay` function. 0885b90
+    - [x] Implement the layout defined in the Spec (Header, Labels, Colors).
+    - [x] Add a "Waiting for Host..." screen that persists until the first valid serial packet is received.
+    - [x] Add a small footer indicator for the ESP32's own Wi-Fi status.
+- [x] Task: Firmware - Optimize String Handling. 0885b90
+    - [x] Ensure the parsing logic is safe against buffer overflows or partial packets.
 
 ## Phase 4: Integration & Documentation
 - [ ] Task: Integration - End-to-End Test.
