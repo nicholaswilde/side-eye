@@ -20,3 +20,8 @@
 - **Physical Layer:** USB-C (USB 2.0 Serial Emulation).
 - **Framing:** Newline-terminated strings (\n).
 - **Data Format:** Pipe-delimited payload: `HOSTNAME|IP|MAC`.
+
+## Build & Task Automation
+- **Task Runner:** [go-task](https://taskfile.dev/) (`Taskfile.yml`)
+- **Usage:** Used for all common project operations including building, testing, linting, and flashing.
+

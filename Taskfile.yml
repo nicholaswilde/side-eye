@@ -1,0 +1,59 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  setup:
+    desc: Install dependencies and setup environment
+    cmds:
+      - echo "Setting up environment..."
+      # Add setup commands here, e.g., cargo install, pio install
+
+  build:
+    desc: Build both Host and Firmware
+    deps: [host:build, firmware:build]
+
+  check:
+    desc: Run all checks (format, lint, test)
+    deps: [host:check, firmware:check]
+
+  host:build:
+    desc: Build the Host (Rust)
+    dir: host
+    cmds:
+      - cargo build
+
+  host:run:
+    desc: Run the Host (Rust)
+    dir: host
+    cmds:
+      - cargo run -- {{.CLI_ARGS}}
+
+  host:check:
+    desc: Check Host code (fmt, clippy, test)
+    dir: host
+    cmds:
+      - cargo fmt --all -- --check
+      - cargo clippy -- -D warnings
+      - cargo test
+
+  firmware:build:
+    desc: Build the Firmware (PlatformIO)
+    dir: firmware
+    cmds:
+      - pio run
+
+  firmware:flash:
+    desc: Flash the Firmware (PlatformIO)
+    dir: firmware
+    cmds:
+      - pio run -t upload
+
+  firmware:check:
+    desc: Check Firmware code
+    dir: firmware
+    cmds:
+      - pio check

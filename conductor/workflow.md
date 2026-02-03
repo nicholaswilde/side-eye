@@ -150,27 +150,30 @@ Before marking any task complete, verify:
 
 ## Development Commands
 
-**AI AGENT INSTRUCTION: This section should be adapted to the project's specific language, framework, and build tools.**
+All common development tasks are managed via `go-task`. Run `task --list` to see all available commands.
 
 ### Setup
 ```bash
-# Example: Commands to set up the development environment (e.g., install dependencies, configure database)
-# e.g., for a Node.js project: npm install
-# e.g., for a Go project: go mod tidy
+# Install dependencies and setup environment
+task setup
 ```
 
 ### Daily Development
 ```bash
-# Example: Commands for common daily tasks (e.g., start dev server, run tests, lint, format)
-# e.g., for a Node.js project: npm run dev, npm test, npm run lint
-# e.g., for a Go project: go run main.go, go test ./..., go fmt ./...
+# Build both Host and Firmware
+task build
+
+# Run Host (dev mode)
+task host:run
+
+# Flash Firmware
+task firmware:flash
 ```
 
 ### Before Committing
 ```bash
-# Example: Commands to run all pre-commit checks (e.g., format, lint, type check, run tests)
-# e.g., for a Node.js project: npm run check
-# e.g., for a Go project: make check (if a Makefile exists)
+# Run all checks (format, lint, test)
+task check
 ```
 
 ## Testing Requirements

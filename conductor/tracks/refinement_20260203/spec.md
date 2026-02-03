@@ -14,7 +14,10 @@ The project currently has a basic scaffold for the Host (Rust) and Firmware (C++
 ### Host (Rust)
 -   **Auto-detection:** Refine the `serialport` logic to reliably identify the Waveshare ESP32-C6 (VID `0x303A` is standard, but PID might vary or need fallback).
 -   **Error Handling:** Implement a retry loop. If the serial port is lost, the application should pause and attempt to reconnect every 2-5 seconds without crashing.
--   **CLI Args:** Add support for `--verbose` flag for debugging and a `--dry-run` flag to print to stdout without sending to serial.
+-   **CLI Args:**
+    -   Implement standard `--help` and `--version` flags using `clap`.
+    -   Add `--verbose` flag for debugging output.
+    -   Add `--dry-run` flag to print gathered stats to stdout without sending to the serial port.
 
 ### Firmware (C++)
 -   **Dependencies:** Add `tzapu/WiFiManager` to `platformio.ini`.

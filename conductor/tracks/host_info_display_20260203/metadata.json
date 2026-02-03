@@ -1,0 +1,8 @@
+{
+  "id": "host_info_display_20260203",
+  "name": "Feature: Display Host Network & Identity Info",
+  "description": "Display Hostname, IP, and MAC address on the device screen.",
+  "status": "todo",
+  "created_at": "2026-02-03",
+  "priority": "medium"
+}
