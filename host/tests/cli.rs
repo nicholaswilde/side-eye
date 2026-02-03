@@ -42,10 +42,12 @@ fn verbose_flag_works() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("side-eye-host")?;
 
     // We combine with dry-run so it doesn't block forever
-    cmd.env("SIDEEYE_RUN_ONCE", "1").arg("--verbose").arg("--dry-run"); 
-    cmd.assert()
-        .success()
-        .stdout(predicate::str::contains("Dry-run: gathered stats successfully."));
+    cmd.env("SIDEEYE_RUN_ONCE", "1")
+        .arg("--verbose")
+        .arg("--dry-run");
+    cmd.assert().success().stdout(predicate::str::contains(
+        "Dry-run: gathered stats successfully.",
+    ));
 
     Ok(())
 }

@@ -100,7 +100,7 @@ fn main() -> Result<()> {
 
                     if let Err(e) = port.write_all(final_payload.as_bytes()) {
                         eprintln!("Write error: {}. Dropping connection.", e);
-                        break; 
+                        break;
                     }
                     if let Err(e) = port.flush() {
                         eprintln!("Flush error: {}. Dropping connection.", e);
@@ -153,7 +153,10 @@ fn autodetect_port(verbose: bool) -> Result<String> {
     let esp_port = ports.iter().find(|p| {
         if let SerialPortType::UsbPort(UsbPortInfo { vid, pid, .. }) = p.port_type {
             if verbose {
-                println!("Checking port {} (VID: {:04x}, PID: {:04x})", p.port_name, vid, pid);
+                println!(
+                    "Checking port {} (VID: {:04x}, PID: {:04x})",
+                    p.port_name, vid, pid
+                );
             }
             vid == 0x303A
         } else {
@@ -169,7 +172,10 @@ fn autodetect_port(verbose: bool) -> Result<String> {
             msg.push_str("\nFound other ports:");
             for p in ports {
                 if let SerialPortType::UsbPort(UsbPortInfo { vid, pid, .. }) = p.port_type {
-                    msg.push_str(&format!("\n- {} (VID:{:04x} PID:{:04x})", p.port_name, vid, pid));
+                    msg.push_str(&format!(
+                        "\n- {} (VID:{:04x} PID:{:04x})",
+                        p.port_name, vid, pid
+                    ));
                 } else {
                     msg.push_str(&format!("\n- {} (Non-USB)", p.port_name));
                 }
