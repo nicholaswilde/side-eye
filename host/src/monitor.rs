@@ -1,12 +1,13 @@
 use local_ip_address::local_ip;
 use mac_address::get_mac_address;
+use serde::Serialize;
 use sysinfo::{Disks, Networks, System, Users};
 
 pub struct SystemMonitor {
     sys: System,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 #[allow(dead_code)]
 pub struct StaticInfo {
     pub hostname: String,
@@ -16,7 +17,7 @@ pub struct StaticInfo {
     pub user: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 #[allow(dead_code)]
 pub struct SystemStats {
     pub cpu_percent: f32,
