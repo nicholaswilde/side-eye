@@ -8,12 +8,12 @@
 - [x] **Test:** Write a small runner to print these values to the console every second to verify accuracy. febc0ea
 
 ## Phase 2: Protocol Definition
-- [ ] **Schema:** Define two message structures (JSON or Protobuf):
+- [x] **Schema:** Define two message structures (JSON or Protobuf): 4c4fa67
     -   `HostIdentity`: { hostname, ip, mac, os, user }
     -   `HostStats`: { cpu_percent, ram_used, ram_total, disk_used, disk_total, net_up, net_down, uptime }
-- [ ] **Host Send:** Update host main loop:
-    -   Send `HostIdentity` immediately upon connection.
-    -   Send `HostStats` in a loop (e.g., every 1s).
+- [x] **Host Send:** Update host main loop: 6585b5f
+    - [x] Send `HostIdentity` immediately upon connection.
+    - [x] Send `HostStats` in a loop (e.g., every 1s).
 
 ## Phase 3: Firmware Display
 - [ ] **Receive:** Update firmware packet parser to handle the new message types.
