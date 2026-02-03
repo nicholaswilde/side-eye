@@ -1,6 +1,14 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 
+#define BLACK RGB565_BLACK
+#define WHITE RGB565_WHITE
+#define ORANGE RGB565_ORANGE
+#define DARKGREY RGB565_DARKGREY
+#define CYAN RGB565_CYAN
+#define GREEN RGB565_GREEN
+#define MAGENTA RGB565_MAGENTA
+
 /* 
  * Waveshare ESP32-C6-GEEK Configuration
  * NOTE: Pinout based on similar Waveshare ESP32-C6 boards. 
