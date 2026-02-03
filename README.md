@@ -17,7 +17,14 @@ SideEye is a tiny USB-powered monitor that gives your Linux rig the "SideEye" by
 
 ## :stopwatch: Quick Start
 
-### 1. Flash the Firmware
+### 1. Prerequisites (Linux)
+You will need `pkg-config` and `libudev` development headers for the serial communication library.
+
+```bash
+sudo apt install pkg-config libudev-dev
+```
+
+### 2. Flash the Firmware
 Connect your **Waveshare ESP32-C6-GEEK** and flash the receiver code using PlatformIO.
 
 ```bash
@@ -25,8 +32,15 @@ cd firmware
 pio run -t upload
 ```
 
-### 2. Run the Host Binary
-Ensure you have the Rust toolchain installed. The host will automatically attempt to detect the ESP32 on your serial ports.
+### 3. Wi-Fi Setup
+Upon first boot, the device will enter setup mode:
+1.  Connect to the Wi-Fi AP named **"SideEye-Setup"** using your phone or laptop.
+2.  A captive portal should open (or navigate to `192.168.4.1`).
+3.  Enter your local Wi-Fi credentials and save.
+4.  The device will reboot and show **"WiFi Connected!"**.
+
+### 4. Run the Host Binary
+The host will automatically attempt to detect the ESP32 on your serial ports.
 
 ```bash
 cd host
@@ -38,14 +52,19 @@ cargo run --release
 ## :package: Components
 
 ### Part A: Rust Host
-- **Auto-detection:** Automatically finds the ESP32-C6 by VID/PID (0x303A).
-- **Efficient Gathering:** Uses `sysinfo` and `local-ip-address` to minimize resource usage.
+- **Auto-detection:** Automatically finds the ESP32-C6 by VID (0x303A).
+- **CLI Options:**
+    - `--verbose`: Enable detailed logging.
+    - `--dry-run`: Print stats to terminal without sending to serial.
+    - `--port <PATH>`: Manually specify a serial port.
+- **Robustness:** Handles device disconnection and automatic reconnection.
 - **Payload:** Sends a pipe-delimited string `HOSTNAME|IP|MAC\n` every 5 seconds.
 
 ### Part B: ESP32-C6 Firmware
-- **Display:** Utilizes `Arduino_GFX` for high-performance rendering.
-- **USB CDC:** Works directly over the USB-C/USB-A port without needing an external FTDI adapter.
-- **Parsing:** Robust string parsing to handle real-time serial updates.
+- **Display:** Centered UI for the 1.14" IPS LCD.
+- **WiFiManager:** User-friendly Wi-Fi configuration without hardcoded credentials.
+- **Status Indicator:** On-screen indicator for Wi-Fi connection status.
+- **USB CDC:** Native USB communication for high-speed updates.
 
 ---
 
