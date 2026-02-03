@@ -1,2 +1,3 @@
-# side-eye
-A tiny USB monitor that gives your Linux rig the SideEye. 👀
+# SideEye 👀
+
+A tiny USB monitor that gives your Linux rig the SideEye.
