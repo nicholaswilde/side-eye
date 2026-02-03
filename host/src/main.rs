@@ -38,7 +38,7 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    
+
     // Load configuration
     let config_path = args.config.as_ref().map(std::path::PathBuf::from);
     let mut config = config::Config::load(config_path)?;
