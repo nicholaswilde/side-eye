@@ -17,7 +17,7 @@
     - [x] Include `<WiFiManager.h>`.
     - [x] In `setup()`, initialize `WiFiManager` and handle the auto-connect / captive portal flow.
     - [x] Display connection status on the LCD during boot.
-- [x] Task: Firmware - Verify Wi-Fi Connection. e09a93e
+- [x] Task: Firmware - Verify Wi-Fi Connection. 17a7a61
     - [x] Flash firmware, connect to "SideEye-Setup" AP, configure Wi-Fi, and verify it reconnects on reboot.
 
 ## Phase 3: Display UI Polish
