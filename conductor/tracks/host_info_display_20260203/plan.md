@@ -5,7 +5,7 @@
 - [x] **Implementation:** Create a module `src/monitor.rs` to encapsulate `sysinfo::System`. febc0ea
     - [x] Implement `get_static_info()` -> Returns Hostname, IP, MAC, OS, User.
     - [x] Implement `update_and_get_stats()` -> Refreshes system state and returns CPU, RAM, Disk, Net Speed, Uptime.
-- [ ] **Test:** Write a small runner to print these values to the console every second to verify accuracy.
+- [x] **Test:** Write a small runner to print these values to the console every second to verify accuracy. febc0ea
 
 ## Phase 2: Protocol Definition
 - [ ] **Schema:** Define two message structures (JSON or Protobuf):

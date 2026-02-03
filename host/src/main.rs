@@ -60,48 +60,52 @@ fn main() -> Result<()> {
         config.baud_rate = args.baud_rate;
     }
 
-        if args.verbose {
-            println!("Configuration: {:?}", config);
-        }
-    
-        let mut monitor = monitor::SystemMonitor::new();
-        let static_info = monitor.get_static_info();
-    
-        if args.verbose {
-            println!("Static Info: {:?}", static_info);
-        }
-    
-        let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
-        let connections: Arc<Mutex<HashMap<String, DeviceConnection>>> =
-            Arc::new(Mutex::new(HashMap::new()));
-    
-        // Discovery / Management Loop
-        let discovery_connections = Arc::clone(&connections);
-        let discovery_config = config.clone();
-        let verbose = args.verbose;
-        
-        if !args.dry_run {
-            thread::spawn(move || loop {
-                if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose)
-                {
-                    if verbose {
-                        eprintln!("Discovery error: {}", e);
-                    }
+    if args.verbose {
+        println!("Configuration: {:?}", config);
+    }
+
+    let mut monitor = monitor::SystemMonitor::new();
+    let static_info = monitor.get_static_info();
+
+    if args.verbose {
+        println!("Static Info: {:?}", static_info);
+    }
+
+    let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
+    let connections: Arc<Mutex<HashMap<String, DeviceConnection>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+
+    // Discovery / Management Loop
+    let discovery_connections = Arc::clone(&connections);
+    let discovery_config = config.clone();
+    let verbose = args.verbose;
+
+    if !args.dry_run {
+        thread::spawn(move || loop {
+            if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose)
+            {
+                if verbose {
+                    eprintln!("Discovery error: {}", e);
                 }
-                thread::sleep(Duration::from_secs(5));
-            });
-        }
-    
-        loop {
-            let stats = monitor.update_and_get_stats();
-            let payload = format!("{}|{}|{}\n", static_info.hostname, static_info.ip, static_info.mac);
-    
-            if args.dry_run {
-                if args.verbose {
-                    println!("Stats: {:?}", stats);
-                }
-                println!("Dry-Run Payload: {}", payload.trim());
-            } else {            let mut cons = connections.lock().unwrap();
+            }
+            thread::sleep(Duration::from_secs(5));
+        });
+    }
+
+    loop {
+        let stats = monitor.update_and_get_stats();
+        let payload = format!(
+            "{}|{}|{}\n",
+            static_info.hostname, static_info.ip, static_info.mac
+        );
+
+        if args.dry_run {
+            if args.verbose {
+                println!("Stats: {:?}", stats);
+            }
+            println!("Dry-Run Payload: {}", payload.trim());
+        } else {
+            let mut cons = connections.lock().unwrap();
             let mut to_remove = Vec::new();
 
             for (name, conn) in cons.iter() {
@@ -201,4 +205,3 @@ fn discover_and_connect(
 
     Ok(())
 }
-

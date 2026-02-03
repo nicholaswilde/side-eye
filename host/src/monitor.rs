@@ -7,6 +7,7 @@ pub struct SystemMonitor {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct StaticInfo {
     pub hostname: String,
     pub ip: String,
@@ -16,6 +17,7 @@ pub struct StaticInfo {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct SystemStats {
     pub cpu_percent: f32,
     pub ram_used: u64,
@@ -36,7 +38,7 @@ impl SystemMonitor {
 
     pub fn get_static_info(&self) -> StaticInfo {
         let hostname = System::host_name().unwrap_or_else(|| "Unknown".to_string());
-        
+
         let ip = match local_ip() {
             Ok(ip) => ip.to_string(),
             Err(_) => "No IP".to_string(),
@@ -51,11 +53,14 @@ impl SystemMonitor {
         let os = format!(
             "{} {}",
             System::name().unwrap_or_else(|| "Unknown".to_string()),
-            System::os_version().unwrap_or_else(|| "".to_string())
+            System::os_version().unwrap_or_default()
         );
 
         let users = Users::new_with_refreshed_list();
-        let user = users.first().map(|u| u.name().to_string()).unwrap_or_else(|| "Unknown".to_string());
+        let user = users
+            .first()
+            .map(|u| u.name().to_string())
+            .unwrap_or_else(|| "Unknown".to_string());
 
         StaticInfo {
             hostname,
@@ -68,7 +73,7 @@ impl SystemMonitor {
 
     pub fn update_and_get_stats(&mut self) -> SystemStats {
         self.sys.refresh_all();
-        
+
         let cpu_percent = self.sys.global_cpu_info().cpu_usage();
         let ram_used = self.sys.used_memory();
         let ram_total = self.sys.total_memory();

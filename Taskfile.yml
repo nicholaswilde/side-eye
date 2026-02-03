@@ -20,6 +20,29 @@ tasks:
     desc: Run all checks (format, lint, test)
     deps: [host:check, firmware:check]
 
+  test:ci:
+    desc: Run tests using the CI profile
+    cmds:
+      - task: fmt:check
+      - task: lint
+      - cargo test --profile ci
+      - task: clippy
+
+  clippy:
+    desc: Run cargo clippy
+    cmds:
+      - cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  lint:
+    desc: Lint code with clippy
+    cmds:
+      - cargo clippy -- -D warnings
+
+  fmt:check:
+    desc: Check code formatting with rustfmt
+    cmds:
+      - cargo fmt -- --check
+      
   host:build:
     desc: Build the Host (Rust)
     dir: host
