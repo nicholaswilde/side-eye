@@ -1,8 +1,8 @@
 # Implementation Plan: Host - Enhanced USB Port Monitoring & Configuration
 
 ## Phase 1: Configuration & Argument Parsing
-- [ ] Task: Host - Add `serde` and `toml` (or `json`) dependencies.
-    - [ ] Update `Cargo.toml`.
+- [x] Task: Host - Add `serde` and `toml` (or `json`) dependencies. f80c553
+    - [x] Update `Cargo.toml`.
 - [ ] Task: Host - Define Configuration Structure.
     - [ ] Create a `Config` struct with `ports`, `monitor_all`, and `target_vids`.
 - [ ] Task: Host - Implement Config Loading.
