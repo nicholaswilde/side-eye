@@ -10,7 +10,7 @@
 - [x] Task: Host - Verify and Test. 8e28bcf
     - [x] Run `cargo run` and physically unplug/replug the device to ensure it recovers.
 
-## Phase 2: Firmware Setup & Wi-Fi Integration
+## Phase 2: Firmware Setup & Wi-Fi Integration [checkpoint: 0d96a53]
 - [x] Task: Firmware - Update `platformio.ini` dependencies. 85e7a89
     - [x] Add `tzapu/WiFiManager` to `lib_deps`.
 - [x] Task: Firmware - Implement WiFiManager Logic in `main.cpp`. 92285da
