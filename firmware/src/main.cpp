@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 #include <WiFiManager.h>
+#include <ArduinoJson.h>
 #include "catppuccin_colors.h"
 
 /* 
@@ -13,6 +14,7 @@
 #define LCD_DC 3
 #define LCD_RST 4
 #define LCD_BL 6
+#define BTN_PIN 9
 
 Arduino_DataBus *bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
 
@@ -24,36 +26,162 @@ Arduino_GFX *gfx = new Arduino_ST7789(
     53 /* col offset 2 */, 40 /* row offset 2 */
 );
 
+struct SystemState {
+    String hostname = "Unknown";
+    String ip = "No IP";
+    String mac = "No MAC";
+    String os = "Unknown";
+    String user = "Unknown";
+    float cpu_percent = 0;
+    uint64_t ram_used = 0;
+    uint64_t ram_total = 0;
+    uint64_t disk_used = 0;
+    uint64_t disk_total = 0;
+    uint64_t net_up = 0;
+    uint64_t net_down = 0;
+    uint64_t uptime = 0;
+    bool has_data = false;
+};
+
+SystemState state;
+SystemState last_state;
+int current_rotation = 1; // 1 = 90 deg, 3 = 270 deg (180 deg flip)
+bool needs_static_draw = true;
+bool waiting_message_active = true;
+
+const int start_x = 10;
+const int start_y = 30;
+const int line_h = 12;
+const int value_x = 50;
+
 void drawWiFiStatus() {
-    int x = 220;
+    int x = (current_rotation == 1) ? 225 : 15;
     int y = 10;
     if (WiFi.status() == WL_CONNECTED) {
-        gfx->fillCircle(x, y, 4, CATPPUCCIN_GREEN);
+        gfx->fillCircle(x, y, 3, CATPPUCCIN_GREEN);
     } else {
-        gfx->fillCircle(x, y, 4, CATPPUCCIN_RED);
+        gfx->fillCircle(x, y, 3, CATPPUCCIN_RED);
     }
+}
+
+void drawBanner(const char* title) {
+    gfx->fillRect(0, 0, 240, 20, CATPPUCCIN_MAUVE);
+    gfx->setTextColor(CATPPUCCIN_CRUST);
+    gfx->setTextSize(1);
+    
+    int16_t x1, y1;
+    uint16_t w, h;
+    gfx->getTextBounds(title, 0, 0, &x1, &y1, &w, &h);
+    gfx->setCursor((240 - w) / 2, 6);
+    gfx->println(title);
+}
+
+void drawStaticUI() {
+    gfx->fillScreen(CATPPUCCIN_BASE);
+    drawBanner("SIDEEYE MONITOR");
+    drawWiFiStatus();
+
+    gfx->setTextSize(1);
+    gfx->setTextColor(CATPPUCCIN_BLUE);
+    gfx->setCursor(start_x, start_y);
+    gfx->print("Host: ");
+
+    gfx->setCursor(start_x, start_y + line_h);
+    gfx->setTextColor(CATPPUCCIN_GREEN);
+    gfx->print("IP:   ");
+
+    gfx->setCursor(start_x, (int)(start_y + line_h * 2.5));
+    gfx->setTextColor(CATPPUCCIN_PEACH);
+    gfx->print("CPU:  ");
+
+    gfx->setCursor(start_x, start_y + line_h * 4);
+    gfx->setTextColor(CATPPUCCIN_SAPPHIRE);
+    gfx->print("RAM:  ");
+
+    int bar_w = 150;
+    int bar_h = 8;
+    int bar_x = start_x + 40;
+    int bar_y = start_y + line_h * 4;
+    gfx->drawRect(bar_x, bar_y - 1, bar_w, bar_h, CATPPUCCIN_SURFACE0);
+
+    needs_static_draw = false;
+}
+
+void updateDynamicValues() {
+    if (waiting_message_active) {
+        drawStaticUI();
+        waiting_message_active = false;
+    }
+
+    if (needs_static_draw) drawStaticUI();
+
+    gfx->setTextSize(1);
+    gfx->setTextColor(CATPPUCCIN_TEXT);
+
+    // Hostname
+    if (state.hostname != last_state.hostname || needs_static_draw) {
+        gfx->fillRect(value_x, start_y, 180, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x, start_y);
+        gfx->println(state.hostname);
+    }
+
+    // IP
+    if (state.ip != last_state.ip || needs_static_draw) {
+        gfx->fillRect(value_x, start_y + line_h, 180, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x, start_y + line_h);
+        gfx->println(state.ip);
+    }
+
+    // CPU
+    if (abs(state.cpu_percent - last_state.cpu_percent) > 0.1 || needs_static_draw) {
+        gfx->fillRect(value_x, (int)(start_y + line_h * 2.5), 100, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x, (int)(start_y + line_h * 2.5));
+        gfx->print(state.cpu_percent, 1);
+        gfx->println("%");
+    }
+
+    // RAM Bar
+    if (state.ram_used != last_state.ram_used || state.ram_total != last_state.ram_total || needs_static_draw) {
+        int bar_w = 150;
+        int bar_h = 8;
+        int bar_x = start_x + 40;
+        int bar_y = start_y + line_h * 4;
+        if (state.ram_total > 0) {
+            float ram_p = (float)state.ram_used / state.ram_total;
+            int used_w = (int)((bar_w - 2) * ram_p);
+            gfx->fillRect(bar_x + 1, bar_y, bar_w - 2, bar_h - 2, CATPPUCCIN_BASE);
+            gfx->fillRect(bar_x + 1, bar_y, used_w, bar_h - 2, CATPPUCCIN_SAPPHIRE);
+        }
+    }
+
+    // Uptime
+    if (state.uptime != last_state.uptime || needs_static_draw) {
+        gfx->fillRect(start_x, 120, 200, 8, CATPPUCCIN_BASE);
+        uint32_t h_up = state.uptime / 3600;
+        uint32_t m_up = (state.uptime % 3600) / 60;
+        gfx->setCursor(start_x, 120);
+        gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
+        gfx->printf("Uptime: %uh %um", h_up, m_up);
+    }
+
+    last_state = state;
 }
 
 void configModeCallback (WiFiManager *myWiFiManager) {
     gfx->fillScreen(CATPPUCCIN_BASE);
-    gfx->setTextColor(CATPPUCCIN_PEACH);
-    gfx->setTextSize(2);
-    gfx->setCursor(15, 15);
-    gfx->println("SideEye Setup");
+    drawBanner("SETUP MODE");
     
     gfx->setTextColor(CATPPUCCIN_TEXT);
     gfx->setTextSize(1);
-    gfx->setCursor(15, 45);
+    gfx->setCursor(15, 40);
     gfx->println("Connect to WiFi AP:");
     
-    gfx->setTextColor(CATPPUCCIN_MAUVE);
-    gfx->setTextSize(2);
-    gfx->setCursor(15, 60);
+    gfx->setTextColor(CATPPUCCIN_YELLOW);
+    gfx->setCursor(15, 55);
     gfx->println("SideEye-Setup");
     
     gfx->setTextColor(CATPPUCCIN_TEXT);
-    gfx->setTextSize(1);
-    gfx->setCursor(15, 95);
+    gfx->setCursor(15, 80);
     gfx->println("Then visit:");
     gfx->setTextColor(CATPPUCCIN_GREEN);
     gfx->println(WiFi.softAPIP().toString());
@@ -61,6 +189,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 
 void setup() {
     Serial.begin(115200);
+    pinMode(BTN_PIN, INPUT_PULLUP);
 
     if (LCD_BL >= 0) {
         pinMode(LCD_BL, OUTPUT);
@@ -71,16 +200,12 @@ void setup() {
         Serial.println("gfx->begin() failed!");
     }
     
-    gfx->fillScreen(CATPPUCCIN_BASE);
-    gfx->setRotation(1); // Set to Landscape
+    gfx->setRotation(current_rotation); 
     
     WiFiManager wm;
     wm.setAPCallback(configModeCallback);
     
-    gfx->setTextColor(CATPPUCCIN_TEXT);
-    gfx->setTextSize(2);
-    gfx->setCursor(15, 40);
-    gfx->println("SideEye Boot...");
+    drawBanner("BOOTING...");
     
     if (!wm.autoConnect("SideEye-Setup")) {
         ESP.restart();
@@ -88,60 +213,80 @@ void setup() {
     }
     
     gfx->fillScreen(CATPPUCCIN_BASE);
-    gfx->setCursor(15, 40);
+    drawBanner("CONNECTED");
+    gfx->setCursor(15, 60);
     gfx->setTextColor(CATPPUCCIN_GREEN);
-    gfx->println("WiFi Connected!");
+    gfx->println("WiFi Online!");
     delay(1000);
 
-    gfx->fillScreen(CATPPUCCIN_BASE);
+    drawStaticUI();
     gfx->setTextColor(CATPPUCCIN_TEXT);
-    gfx->setTextSize(2);
-    gfx->setCursor(15, 40);
+    gfx->setCursor(15, 60);
     gfx->println("Waiting for Host...");
-    drawWiFiStatus();
+    waiting_message_active = true;
 }
 
 String inputBuffer = "";
 
-void updateDisplay(String hostname, String ip, String mac) {
-    gfx->fillScreen(CATPPUCCIN_BASE);
-    
-    // Header
-    gfx->setTextSize(2);
-    gfx->setCursor(15, 10);
-    gfx->setTextColor(CATPPUCCIN_LAVENDER);
-    gfx->println("SideEye Info");
-    
-    drawWiFiStatus();
-    
-    gfx->drawFastHLine(0, 32, 240, CATPPUCCIN_SURFACE0);
+void handleJson(String json) {
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, json);
 
-    // Host Info
-    gfx->setCursor(15, 45);
-    gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
-    gfx->print("Host: ");
-    gfx->setTextColor(CATPPUCCIN_MAUVE);
-    gfx->println(hostname);
+    if (error) {
+        Serial.print("JSON Error: ");
+        Serial.println(error.c_str());
+        return;
+    }
 
-    // IP Info
-    gfx->setCursor(15, 70);
-    gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
-    gfx->print("IP:   ");
-    gfx->setTextColor(CATPPUCCIN_GREEN);
-    gfx->println(ip);
+    const char* type = doc["type"];
+    JsonObject data = doc["data"];
 
-    // MAC Info
-    gfx->setCursor(15, 100);
-    gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
-    gfx->setTextSize(1);
-    gfx->print("MAC:  ");
-    gfx->setTextColor(CATPPUCCIN_PINK);
-    gfx->println(mac);
+    if (strcmp(type, "Identity") == 0) {
+        state.hostname = data["hostname"].as<String>();
+        state.ip = data["ip"].as<String>();
+        state.mac = data["mac"].as<String>();
+        state.os = data["os"].as<String>();
+        state.user = data["user"].as<String>();
+        state.has_data = true;
+    } else if (strcmp(type, "Stats") == 0) {
+        state.cpu_percent = data["cpu_percent"];
+        state.ram_used = data["ram_used"];
+        state.ram_total = data["ram_total"];
+        state.disk_used = data["disk_used"];
+        state.disk_total = data["disk_total"];
+        state.net_up = data["net_up"];
+        state.net_down = data["net_down"];
+        state.uptime = data["uptime"];
+        state.has_data = true;
+    }
+
+    updateDynamicValues();
 }
 
 void loop() {
+    if (digitalRead(BTN_PIN) == LOW) {
+        delay(50);
+        if (digitalRead(BTN_PIN) == LOW) {
+            current_rotation = (current_rotation == 1) ? 3 : 1;
+            gfx->setRotation(current_rotation);
+            needs_static_draw = true;
+            if (!waiting_message_active) {
+                updateDynamicValues();
+            } else {
+                // Redraw waiting screen on rotation
+                gfx->fillScreen(CATPPUCCIN_BASE);
+                drawBanner("SIDEEYE");
+                gfx->setTextColor(CATPPUCCIN_TEXT);
+                gfx->setCursor(15, 60);
+                gfx->println("Waiting for Host...");
+                drawWiFiStatus();
+            }
+            while(digitalRead(BTN_PIN) == LOW) delay(10);
+        }
+    }
+
     static unsigned long lastWiFiCheck = 0;
-    if (millis() - lastWiFiCheck > 5000) {
+    if (millis() - lastWiFiCheck > 10000) {
         drawWiFiStatus();
         lastWiFiCheck = millis();
     }
@@ -149,27 +294,12 @@ void loop() {
     while (Serial.available()) {
         char c = Serial.read();
         if (c == '\n') {
-            if (inputBuffer.length() > 0 && inputBuffer.length() < 128) {
-                int firstPipe = inputBuffer.indexOf('|');
-                int secondPipe = inputBuffer.indexOf('|', firstPipe + 1);
-
-                if (firstPipe > 0 && secondPipe > (firstPipe + 1)) {
-                    String hostname = inputBuffer.substring(0, firstPipe);
-                    String ip = inputBuffer.substring(firstPipe + 1, secondPipe);
-                    String mac = inputBuffer.substring(secondPipe + 1);
-                    
-                    hostname.trim();
-                    ip.trim();
-                    mac.trim(); 
-
-                    if (hostname.length() > 0 && ip.length() > 0) {
-                        updateDisplay(hostname, ip, mac);
-                    }
-                }
+            if (inputBuffer.length() > 0) {
+                handleJson(inputBuffer);
             }
             inputBuffer = "";
         } else {
-            if (inputBuffer.length() < 128) {
+            if (inputBuffer.length() < 512) {
                 inputBuffer += c;
             }
         }
