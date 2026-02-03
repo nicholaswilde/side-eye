@@ -15,7 +15,7 @@
     - [x] Send `HostIdentity` immediately upon connection.
     - [x] Send `HostStats` in a loop (e.g., every 1s).
 
-## Phase 3: Firmware Display
+## Phase 3: Firmware Display [checkpoint: 7dff7a2]
 - [x] **Receive:** Update firmware packet parser to handle the new message types. 17d0d3c
 - [x] **State:** Create a data store/struct in C++ to hold the latest values. 17d0d3c
 - [x] **UI Refinement:** Update display layout to use a centered title on a banner (similar to frame-fi), with smaller font sizes and a slight left shift for data elements. 17d0d3c
