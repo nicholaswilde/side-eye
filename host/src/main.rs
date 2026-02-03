@@ -38,6 +38,26 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
+    
+    // Load configuration
+    let config_path = args.config.as_ref().map(std::path::PathBuf::from);
+    let mut config = config::Config::load(config_path)?;
+
+    // Merge CLI args into config (CLI takes precedence)
+    if let Some(ref port) = args.port {
+        config.ports = vec![port.clone()];
+    }
+    if args.monitor_all {
+        config.monitor_all = true;
+    }
+    if args.baud_rate != 115200 {
+        config.baud_rate = args.baud_rate;
+    }
+
+    if args.verbose {
+        println!("Configuration: {:?}", config);
+    }
+
     let mut sys = System::new_all();
     let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
 

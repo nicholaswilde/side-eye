@@ -1,4 +1,7 @@
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::PathBuf;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -36,5 +39,32 @@ impl Default for Config {
             target_vids: default_target_vids(),
             baud_rate: default_baud_rate(),
         }
+    }
+}
+
+impl Config {
+    pub fn load(path: Option<PathBuf>) -> Result<Self> {
+        let config_path = if let Some(p) = path {
+            p
+        } else {
+            // Default path: ~/.config/side-eye/config.toml
+            let mut p = home::home_dir().context("Could not find home directory")?;
+            p.push(".config");
+            p.push("side-eye");
+            p.push("config.toml");
+            p
+        };
+
+        if !config_path.exists() {
+            return Ok(Config::default());
+        }
+
+        let content = fs::read_to_string(&config_path)
+            .with_context(|| format!("Failed to read config file at {:?}", config_path))?;
+        
+        let config: Config = toml::from_str(&content)
+            .with_context(|| format!("Failed to parse TOML config at {:?}", config_path))?;
+
+        Ok(config)
     }
 }
