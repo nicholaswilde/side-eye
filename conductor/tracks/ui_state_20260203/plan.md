@@ -1,4 +1,4 @@
-# Implementation Plan: UI State & Status Display
+# Implementation Plan: UI State & Status Display [checkpoint: dbe9258]
 
 ## Phase 1: Logic & UI Implementation
 - [x] Task: Firmware - Update `SystemState` to include connection status. b3baeb9
