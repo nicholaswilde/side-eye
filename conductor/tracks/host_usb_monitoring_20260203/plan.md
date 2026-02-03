@@ -1,6 +1,6 @@
 # Implementation Plan: Host - Enhanced USB Port Monitoring & Configuration
 
-## Phase 1: Configuration & Argument Parsing
+## Phase 1: Configuration & Argument Parsing [checkpoint: 13ffe59]
 - [x] Task: Host - Add `serde` and `toml` (or `json`) dependencies. f80c553
     - [x] Update `Cargo.toml`.
 - [x] Task: Host - Define Configuration Structure. 9ced7b7
