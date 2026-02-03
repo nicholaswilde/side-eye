@@ -18,13 +18,13 @@
     - [x] Broadcast the formatted string to all active `DeviceConnection` threads.
 
 ## Phase 3: Hot-Plug & "Monitor All" Logic
-- [ ] Task: Host - Implement Port Scanner.
-    - [ ] Create a `PortScanner` that runs periodically.
-    - [ ] In `monitor_all` mode: List all available ports, filter by VID.
-    - [ ] In `explicit` mode: Check if configured ports are available.
-- [ ] Task: Host - Manage Device Lifecycle.
-    - [ ] If a new port is found, spawn a `DeviceConnection` thread.
-    - [ ] If a thread errors (device disconnected), join/drop the thread and remove from active list so it can be re-detected.
+- [x] Task: Host - Implement Port Scanner. bf3c04d
+    - [x] Create a `PortScanner` that runs periodically.
+    - [x] In `monitor_all` mode: List all available ports, filter by VID.
+    - [x] In `explicit` mode: Check if configured ports are available.
+- [x] Task: Host - Manage Device Lifecycle. bf3c04d
+    - [x] If a new port is found, spawn a `DeviceConnection` thread.
+    - [x] If a thread errors (device disconnected), join/drop the thread and remove from active list so it can be re-detected.
 
 ## Phase 4: Verification
 - [ ] Task: Host - Test with Config File.
