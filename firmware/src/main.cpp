@@ -12,26 +12,17 @@
 
 /* 
  * Waveshare ESP32-C6-GEEK Configuration
- * NOTE: Pinout based on similar Waveshare ESP32-C6 boards. 
- * Please verify against the official schematic if display does not work.
- * 
- * Common Waveshare ESP32-C6 pin mappings:
- * SCK  : 7
- * MOSI : 6
- * CS   : 14
- * DC   : 15
- * RST  : 21
- * BL   : 22
+ * Updated based on manufacturer documentation for the GEEK dongle version.
  */
+#define LCD_SCK 1
+#define LCD_MOSI 2
+#define LCD_MISO -1
+#define LCD_CS 5
+#define LCD_DC 3
+#define LCD_RST 4
+#define LCD_BL 6
 
-#define LCD_SCK 7
-#define LCD_MOSI 6
-#define LCD_CS 14
-#define LCD_DC 15
-#define LCD_RST 21
-#define LCD_BL 22
-
-Arduino_DataBus *bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+Arduino_DataBus *bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
 Arduino_GFX *gfx = new Arduino_ST7789(bus, LCD_RST, 0 /* rotation */, true /* IPS */, 135 /* width */, 240 /* height */);
 
 void configModeCallback (WiFiManager *myWiFiManager) {
@@ -52,19 +43,20 @@ void configModeCallback (WiFiManager *myWiFiManager) {
     gfx->setTextSize(1);
     gfx->setCursor(0, 90);
     gfx->println("Then visit:");
-    gfx->println(WiFi.softAPIP());
+    gfx->println(WiFi.softAPIP().toString());
 }
 
 void setup() {
     // Initialize Serial (USB CDC)
     Serial.begin(115200);
 
-    // Initialize Display
+    // Initialize Backlight early
     if (LCD_BL >= 0) {
         pinMode(LCD_BL, OUTPUT);
         digitalWrite(LCD_BL, HIGH);
     }
 
+    // Initialize Display
     if (!gfx->begin()) {
         Serial.println("gfx->begin() failed!");
     }
@@ -81,11 +73,9 @@ void setup() {
     // Show initial message
     gfx->setCursor(10, 10);
     gfx->println("SideEye Boot...");
+    Serial.println("SideEye Booting...");
     
     // AutoConnect
-    // This will try to connect to saved credentials
-    // If fail, it starts AP with name "SideEye-Setup"
-    // Blocking until connected or configured
     if (!wm.autoConnect("SideEye-Setup")) {
         Serial.println("failed to connect and hit timeout");
         ESP.restart();
@@ -97,6 +87,7 @@ void setup() {
     gfx->setCursor(10, 10);
     gfx->setTextColor(GREEN);
     gfx->println("WiFi Connected!");
+    Serial.println("WiFi Connected!");
     delay(1000);
 
     // Default Waiting Screen
@@ -152,9 +143,7 @@ void loop() {
                 String ip = inputBuffer.substring(firstPipe + 1, secondPipe);
                 String mac = inputBuffer.substring(secondPipe + 1);
                 
-                // Trim potential CR
                 mac.trim(); 
-
                 updateDisplay(hostname, ip, mac);
             }
             
