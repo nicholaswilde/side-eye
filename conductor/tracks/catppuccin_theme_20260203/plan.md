@@ -5,8 +5,8 @@
     - [x] Create `firmware/include/catppuccin_colors.h` with the content provided from `frame-fi` (Mocha Theme).
 
 ## Phase 2: Apply Theme
-- [ ] Task: Firmware - Update `main.cpp` to include the new header.
-    - [ ] Add `#include "catppuccin_colors.h"`.
+- [x] Task: Firmware - Update `main.cpp` to include the new header. fc24c67
+    - [x] Add `#include "catppuccin_colors.h"`.
 - [ ] Task: Firmware - Refactor `updateDisplay` and `setup` to use Catppuccin colors.
     - [ ] `gfx->fillScreen(CATPPUCCIN_BASE);`
     - [ ] Header "SideEye": `CATPPUCCIN_LAVENDER`
