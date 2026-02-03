@@ -23,11 +23,13 @@
 #define LCD_BL 6
 
 Arduino_DataBus *bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+
+// Centering 135x240 Portrait area in 240x320 RAM, then rotating to Landscape
 Arduino_GFX *gfx = new Arduino_ST7789(
-    bus, LCD_RST, 1 /* rotation */, true /* IPS */, 
-    240 /* width */, 135 /* height */, 
-    40 /* col offset 1 */, 53 /* row offset 1 */, 
-    40 /* col offset 2 */, 52 /* row offset 2 */
+    bus, LCD_RST, 0 /* rotation */, true /* IPS */,
+    135 /* width */, 240 /* height */,
+    52 /* col offset 1 */, 40 /* row offset 1 */,
+    53 /* col offset 2 */, 40 /* row offset 2 */
 );
 
 void drawWiFiStatus() {
@@ -78,7 +80,7 @@ void setup() {
     }
     
     gfx->fillScreen(BLACK);
-    gfx->setRotation(1); 
+    gfx->setRotation(1); // Set to Landscape
     
     WiFiManager wm;
     wm.setAPCallback(configModeCallback);
@@ -155,7 +157,6 @@ void loop() {
     while (Serial.available()) {
         char c = Serial.read();
         if (c == '\n') {
-            // Robust parsing with overflow protection
             if (inputBuffer.length() > 0 && inputBuffer.length() < 128) {
                 int firstPipe = inputBuffer.indexOf('|');
                 int secondPipe = inputBuffer.indexOf('|', firstPipe + 1);
@@ -176,7 +177,6 @@ void loop() {
             }
             inputBuffer = "";
         } else {
-            // Buffer limit to prevent memory exhaustion
             if (inputBuffer.length() < 128) {
                 inputBuffer += c;
             }

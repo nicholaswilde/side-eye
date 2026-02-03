@@ -93,9 +93,18 @@ fn main() -> Result<()> {
                         println!("Sending: {}", payload.trim());
                     }
 
-                    if let Err(e) = port.write_all(payload.as_bytes()) {
+                    // Add a leading newline to clear any partial buffers on the device
+                    let mut final_payload = String::with_capacity(payload.len() + 1);
+                    final_payload.push('\n');
+                    final_payload.push_str(&payload);
+
+                    if let Err(e) = port.write_all(final_payload.as_bytes()) {
                         eprintln!("Write error: {}. Dropping connection.", e);
-                        break; // Break inner loop to trigger reconnection
+                        break; 
+                    }
+                    if let Err(e) = port.flush() {
+                        eprintln!("Flush error: {}. Dropping connection.", e);
+                        break;
                     }
 
                     if run_once {
@@ -105,11 +114,11 @@ fn main() -> Result<()> {
                 }
             }
             Err(e) => {
-                eprintln!("Failed to open serial port: {}. Retrying in 5s...", e);
+                eprintln!("Failed to open serial port: {}. Retrying in 2s...", e);
                 if run_once {
                     return Err(e.into());
                 }
-                thread::sleep(Duration::from_secs(5));
+                thread::sleep(Duration::from_secs(2));
             }
         }
     }
