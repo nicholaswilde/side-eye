@@ -1,12 +1,13 @@
 # Implementation Plan: Refinement - Core Streaming, UI Polish, and Wi-Fi Integration
 
 ## Phase 1: Host Application Refinement
-- [ ] Task: Host - Refine Serial Auto-detection logic in `main.rs`.
-    - [ ] Update `autodetect_port` to handle potential PID variations or provide better error messages.
-    - [ ] Add `clap` arguments for `--verbose` and `--dry-run`.
-- [ ] Task: Host - Implement Robust Reconnection Loop.
-    - [ ] Refactor the main loop to handle `serialport` errors (e.g., device unplugged) by sleeping and retrying `autodetect_port`.
-- [ ] Task: Host - Verify and Test.
+- [x] Task: Host - Refine Serial Auto-detection logic in `main.rs`. 8e28bcf
+    - [x] Update `autodetect_port` to handle potential PID variations or provide better error messages.
+    - [x] Implement `clap` for CLI argument parsing.
+    - [x] Add support for `--version`, `--help`, `--verbose`, and `--dry-run`.
+- [x] Task: Host - Implement Robust Reconnection Loop. 8e28bcf
+    - [x] Refactor the main loop to handle `serialport` errors (e.g., device unplugged) by sleeping and retrying `autodetect_port`.
+- [~] Task: Host - Verify and Test.
     - [ ] Run `cargo run` and physically unplug/replug the device to ensure it recovers.
 
 ## Phase 2: Firmware Setup & Wi-Fi Integration
