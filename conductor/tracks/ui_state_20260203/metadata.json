@@ -1,0 +1,7 @@
+{
+  "id": "ui_state_20260203",
+  "name": "UI State & Status Display",
+  "description": "Conditionally show host info and add a status line.",
+  "created_at": "2026-02-03",
+  "status": "todo"
+}

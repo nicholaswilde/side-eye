@@ -1,7 +1,0 @@
-{
-  "id": "ui_performance_20260203",
-  "name": "UI Performance & Flicker Reduction",
-  "description": "Eliminate screen flickering by implementing partial updates.",
-  "created_at": "2026-02-03",
-  "status": "todo"
-}

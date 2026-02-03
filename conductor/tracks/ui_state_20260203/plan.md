@@ -11,8 +11,8 @@
     - [x] Trigger `needs_static_draw = true` on the first successful data reception to reveal all labels.
 
 ## Phase 2: Verification
-- [ ] Task: Firmware - Compile and visual check.
-    - [ ] Verify that labels are hidden initially.
-    - [ ] Verify that "Status: Waiting for Host" is shown.
-    - [ ] Verify that all labels appear and "Status: Connected" is shown once the host connects.
-- [ ] Task: Conductor - User Manual Verification 'UI State Management' (Protocol in workflow.md)
+- [x] Task: Firmware - Compile and visual check. 8a738fe
+    - [x] Verify that labels are hidden initially.
+    - [x] Verify that "Status: Waiting for Host" is shown.
+    - [x] Verify that all labels appear and "Status: Connected" is shown once the host connects.
+- [x] Task: Conductor - User Manual Verification 'UI State Management' (Protocol in workflow.md) 8a738fe
