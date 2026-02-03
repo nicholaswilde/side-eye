@@ -3,8 +3,8 @@
 ## Phase 1: Configuration & Argument Parsing
 - [x] Task: Host - Add `serde` and `toml` (or `json`) dependencies. f80c553
     - [x] Update `Cargo.toml`.
-- [ ] Task: Host - Define Configuration Structure.
-    - [ ] Create a `Config` struct with `ports`, `monitor_all`, and `target_vids`.
+- [x] Task: Host - Define Configuration Structure. 9ced7b7
+    - [x] Create a `Config` struct with `ports`, `monitor_all`, and `target_vids`.
 - [ ] Task: Host - Implement Config Loading.
     - [ ] Logic to load from default path (e.g., `~/.config/side-eye/config.toml`) or path specified by `--config`.
     - [ ] Logic to merge CLI args with config file (CLI takes precedence).
