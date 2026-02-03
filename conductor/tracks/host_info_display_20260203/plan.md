@@ -1,10 +1,10 @@
 # Implementation Plan: Display Host Network, Identity & System Stats
 
 ## Phase 1: Host-Side Data Gathering
-- [ ] **Dependencies:** Add `sysinfo` to `host/Cargo.toml`.
-- [ ] **Implementation:** Create a module `src/monitor.rs` to encapsulate `sysinfo::System`.
-    -   Implement `get_static_info()` -> Returns Hostname, IP, MAC, OS, User.
-    -   Implement `update_and_get_stats()` -> Refreshes system state and returns CPU, RAM, Disk, Net Speed, Uptime.
+- [x] **Dependencies:** Add `sysinfo` to `host/Cargo.toml`.
+- [x] **Implementation:** Create a module `src/monitor.rs` to encapsulate `sysinfo::System`. febc0ea
+    - [x] Implement `get_static_info()` -> Returns Hostname, IP, MAC, OS, User.
+    - [x] Implement `update_and_get_stats()` -> Refreshes system state and returns CPU, RAM, Disk, Net Speed, Uptime.
 - [ ] **Test:** Write a small runner to print these values to the console every second to verify accuracy.
 
 ## Phase 2: Protocol Definition
@@ -18,11 +18,7 @@
 ## Phase 3: Firmware Display
 - [ ] **Receive:** Update firmware packet parser to handle the new message types.
 - [ ] **State:** Create a data store/struct in C++ to hold the latest values.
-- [ ] **UI:** Update the LVGL interface.
-    -   Create a robust layout (Grid/Flex).
-    -   Add Labels for static info.
-    -   Add Bar/Arc widgets for CPU/RAM/Disk.
-    -   Add Labels for dynamic text (Net speed, Uptime).
+- [ ] **UI Refinement:** Update display layout to use a centered title on a banner (similar to frame-fi), with smaller font sizes and a slight left shift for data elements.
 - [ ] **Orientation Support:**
     -   Implement button interrupt or polling.
     -   On press: Toggle display rotation (0 -> 180 -> 0).
