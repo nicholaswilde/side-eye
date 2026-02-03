@@ -9,7 +9,7 @@
     - [x] Logic to load from default path (e.g., `~/.config/side-eye/config.toml`) or path specified by `--config`.
     - [x] Logic to merge CLI args with config file (CLI takes precedence).
 
-## Phase 2: Refactoring for Multi-Device Support
+## Phase 2: Refactoring for Multi-Device Support [checkpoint: f1646c0]
 - [x] Task: Host - Refactor `main.rs` loop. bf3c04d
     - [x] Move the "connect and send" logic into a separate function/struct (e.g., `DeviceConnection`).
     - [x] Use `std::sync::mpsc` or `tokio` (if moving to async, though threads are fine for low count) to manage device states.
