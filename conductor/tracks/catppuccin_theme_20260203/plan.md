@@ -1,8 +1,8 @@
 # Implementation Plan: UI Theme - Catppuccin Color Palette
 
 ## Phase 1: Setup Resources
-- [ ] Task: Firmware - Create `catppuccin_colors.h`.
-    - [ ] Create `firmware/include/catppuccin_colors.h` with the content provided from `frame-fi` (Mocha Theme).
+- [x] Task: Firmware - Create `catppuccin_colors.h`. c1bc0ee
+    - [x] Create `firmware/include/catppuccin_colors.h` with the content provided from `frame-fi` (Mocha Theme).
 
 ## Phase 2: Apply Theme
 - [ ] Task: Firmware - Update `main.cpp` to include the new header.
