@@ -28,7 +28,7 @@
 - [x] Task: Firmware - Optimize String Handling. 0885b90
     - [x] Ensure the parsing logic is safe against buffer overflows or partial packets.
 
-## Phase 4: Integration & Documentation
+## Phase 4: Integration & Documentation [checkpoint: b4e6e08]
 - [x] Task: Integration - End-to-End Test. eb7c595
     - [x] Run the refined Host with the new Firmware. Verify data syncs correctly and looks good.
 - [x] Task: Documentation - Update README. 012b487
