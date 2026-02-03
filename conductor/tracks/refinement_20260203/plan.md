@@ -11,8 +11,8 @@
     - [x] Run `cargo run` and physically unplug/replug the device to ensure it recovers.
 
 ## Phase 2: Firmware Setup & Wi-Fi Integration
-- [~] Task: Firmware - Update `platformio.ini` dependencies.
-    - [ ] Add `tzapu/WiFiManager` to `lib_deps`.
+- [x] Task: Firmware - Update `platformio.ini` dependencies. 85e7a89
+    - [x] Add `tzapu/WiFiManager` to `lib_deps`.
 - [ ] Task: Firmware - Implement WiFiManager Logic in `main.cpp`.
     - [ ] Include `<WiFiManager.h>`.
     - [ ] In `setup()`, initialize `WiFiManager` and handle the auto-connect / captive portal flow.
