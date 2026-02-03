@@ -25,7 +25,10 @@
 ## Communication Protocol
 - **Physical Layer:** USB-C (USB 2.0 Serial Emulation).
 - **Framing:** Newline-terminated strings (\n).
-- **Data Format:** Pipe-delimited payload: `HOSTNAME|IP|MAC`.
+- **Data Format:** Structured JSON using `ArduinoJson`.
+  - **Identity:** `{"type": "Identity", "data": {"hostname": "...", "ip": "...", ...}}`
+  - **Stats:** `{"type": "Stats", "data": {"cpu_percent": 12.5, "ram_used": 1024, ...}}`
+  - **Version Request:** `{"type": "GetVersion"}`
 
 ## Build & Task Automation
 - **Task Runner:** [go-task](https://taskfile.dev/) (`Taskfile.yml`)

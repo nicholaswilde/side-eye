@@ -1,0 +1,8 @@
+{
+  "track_id": "multi_format_config_20260203",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-03T15:06:00Z",
+  "updated_at": "2026-02-03T15:06:00Z",
+  "description": "for the Rust binary, use config file for TOML, YAML, and JSON"
+}
