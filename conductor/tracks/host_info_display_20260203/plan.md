@@ -7,7 +7,7 @@
     - [x] Implement `update_and_get_stats()` -> Refreshes system state and returns CPU, RAM, Disk, Net Speed, Uptime.
 - [x] **Test:** Write a small runner to print these values to the console every second to verify accuracy. febc0ea
 
-## Phase 2: Protocol Definition
+## Phase 2: Protocol Definition [checkpoint: 17d0d3c]
 - [x] **Schema:** Define two message structures (JSON or Protobuf): 4c4fa67
     -   `HostIdentity`: { hostname, ip, mac, os, user }
     -   `HostStats`: { cpu_percent, ram_used, ram_total, disk_used, disk_total, net_up, net_down, uptime }
@@ -16,9 +16,9 @@
     - [x] Send `HostStats` in a loop (e.g., every 1s).
 
 ## Phase 3: Firmware Display
-- [ ] **Receive:** Update firmware packet parser to handle the new message types.
-- [ ] **State:** Create a data store/struct in C++ to hold the latest values.
-- [ ] **UI Refinement:** Update display layout to use a centered title on a banner (similar to frame-fi), with smaller font sizes and a slight left shift for data elements.
+- [~] **Receive:** Update firmware packet parser to handle the new message types.
+- [~] **State:** Create a data store/struct in C++ to hold the latest values.
+- [~] **UI Refinement:** Update display layout to use a centered title on a banner (similar to frame-fi), with smaller font sizes and a slight left shift for data elements.
 - [ ] **Orientation Support:**
     -   Implement button interrupt or polling.
     -   On press: Toggle display rotation (0 -> 180 -> 0).
