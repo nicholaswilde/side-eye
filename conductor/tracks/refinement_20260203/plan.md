@@ -20,7 +20,7 @@
 - [x] Task: Firmware - Verify Wi-Fi Connection. 17a7a61
     - [x] Flash firmware, connect to "SideEye-Setup" AP, configure Wi-Fi, and verify it reconnects on reboot.
 
-## Phase 3: Display UI Polish
+## Phase 3: Display UI Polish [checkpoint: 6192d36]
 - [x] Task: Firmware - Refine `updateDisplay` function. 0885b90
     - [x] Implement the layout defined in the Spec (Header, Labels, Colors).
     - [x] Add a "Waiting for Host..." screen that persists until the first valid serial packet is received.
