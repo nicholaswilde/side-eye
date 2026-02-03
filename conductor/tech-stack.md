@@ -9,6 +9,9 @@
   - `mac_address`: MAC address retrieval.
   - `anyhow`: Context-aware error handling.
   - `clap`: CLI argument parsing and auto-documentation.
+  - `serde` & `toml`: Persistent configuration file support.
+  - `home`: Cross-platform directory discovery.
+  - `std::thread` & `mpsc`: Concurrent multi-device management.
 
 ## Firmware (The Receiver)
 - **Framework:** Arduino / ESP-IDF via PlatformIO.

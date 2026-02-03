@@ -12,8 +12,9 @@ SideEye is a minimalist, USB-powered hardware monitor designed to provide Linux 
 - **Plug-and-Play Hardware:** Utilizes the Waveshare ESP32-C6-GEEK with a built-in 1.14" LCD.
 - **Wi-Fi Configuration:** Integrated `WiFiManager` for user-friendly network setup via a captive portal ("SideEye-Setup").
 - **Cross-Platform Host Agent:** A lightweight Rust binary (`side-eye-host`) that runs efficiently in the background.
+- **Multi-Device Support:** Manage connections to multiple SideEye devices simultaneously.
 - **Real-Time Updates:** Syncs Hostname, LAN IP, and MAC address every 5 seconds.
-- **Zero-Config Serial:** Automatic detection of the ESP32 device via USB VID/PID (0x303A).
+- **Zero-Config Discovery:** Automatic detection and hot-plug support for all compatible devices on any USB port.
 - **USB CDC Communication:** Uses native USB serial for power and data, requiring no extra cables or HDMI ports.
 
 ## Success Metrics
