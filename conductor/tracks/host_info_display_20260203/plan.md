@@ -16,11 +16,11 @@
     - [x] Send `HostStats` in a loop (e.g., every 1s).
 
 ## Phase 3: Firmware Display
-- [~] **Receive:** Update firmware packet parser to handle the new message types.
-- [~] **State:** Create a data store/struct in C++ to hold the latest values.
-- [~] **UI Refinement:** Update display layout to use a centered title on a banner (similar to frame-fi), with smaller font sizes and a slight left shift for data elements.
-- [ ] **Orientation Support:**
-    -   Implement button interrupt or polling.
-    -   On press: Toggle display rotation (0 -> 180 -> 0).
-    -   (Optional) Save state to NVS preferences.
-- [ ] **Test:** Verify the info appears and updates smoothly on the screen. Verify button toggles rotation.
+- [x] **Receive:** Update firmware packet parser to handle the new message types. 17d0d3c
+- [x] **State:** Create a data store/struct in C++ to hold the latest values. 17d0d3c
+- [x] **UI Refinement:** Update display layout to use a centered title on a banner (similar to frame-fi), with smaller font sizes and a slight left shift for data elements. 17d0d3c
+- [x] **Orientation Support:** 17d0d3c
+    -   [x] Implement button interrupt or polling.
+    -   [x] On press: Toggle display rotation (0 -> 180 -> 0).
+    -   [x] (Optional) Save state to NVS preferences.
+- [x] **Test:** Verify the info appears and updates smoothly on the screen. Verify button toggles rotation. 17d0d3c
