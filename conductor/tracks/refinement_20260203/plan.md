@@ -33,4 +33,4 @@
     - [x] Run the refined Host with the new Firmware. Verify data syncs correctly and looks good.
 - [x] Task: Documentation - Update README. 012b487
     - [x] Update `README.md` with new build instructions (Wi-Fi setup steps).
-- [ ] Task: Conductor - User Manual Verification 'Integration & Documentation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Integration & Documentation' (Protocol in workflow.md) ea81e06
