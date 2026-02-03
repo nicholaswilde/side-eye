@@ -9,27 +9,36 @@
 #define CYAN RGB565_CYAN
 #define GREEN RGB565_GREEN
 #define MAGENTA RGB565_MAGENTA
+#define RED RGB565_RED
 
 /* 
  * Waveshare ESP32-C6-GEEK Configuration
- * Updated with correct offsets for the 1.14" 240x135 LCD.
  */
 #define LCD_SCK 1
 #define LCD_MOSI 2
+#define LCD_MISO -1
 #define LCD_CS 5
 #define LCD_DC 3
 #define LCD_RST 4
 #define LCD_BL 6
 
 Arduino_DataBus *bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
-
-// Added offsets (40, 53) to center the 240x135 area on the ST7789 controller
 Arduino_GFX *gfx = new Arduino_ST7789(
     bus, LCD_RST, 1 /* rotation */, true /* IPS */, 
     240 /* width */, 135 /* height */, 
     40 /* col offset 1 */, 53 /* row offset 1 */, 
     40 /* col offset 2 */, 52 /* row offset 2 */
 );
+
+void drawWiFiStatus() {
+    int x = 220;
+    int y = 10;
+    if (WiFi.status() == WL_CONNECTED) {
+        gfx->fillCircle(x, y, 4, GREEN);
+    } else {
+        gfx->fillCircle(x, y, 4, RED);
+    }
+}
 
 void configModeCallback (WiFiManager *myWiFiManager) {
     gfx->fillScreen(BLACK);
@@ -95,6 +104,7 @@ void setup() {
     gfx->setTextSize(2);
     gfx->setCursor(15, 40);
     gfx->println("Waiting for Host...");
+    drawWiFiStatus();
 }
 
 String inputBuffer = "";
@@ -107,6 +117,8 @@ void updateDisplay(String hostname, String ip, String mac) {
     gfx->setCursor(15, 10);
     gfx->setTextColor(ORANGE);
     gfx->println("SideEye Info");
+    
+    drawWiFiStatus();
     
     gfx->drawFastHLine(0, 32, 240, DARKGREY);
 
@@ -124,7 +136,7 @@ void updateDisplay(String hostname, String ip, String mac) {
     gfx->setTextColor(WHITE);
     gfx->println(ip);
 
-    // MAC Info (Smaller text to ensure it fits)
+    // MAC Info
     gfx->setCursor(15, 100);
     gfx->setTextColor(MAGENTA);
     gfx->setTextSize(1);
@@ -134,24 +146,40 @@ void updateDisplay(String hostname, String ip, String mac) {
 }
 
 void loop() {
+    static unsigned long lastWiFiCheck = 0;
+    if (millis() - lastWiFiCheck > 5000) {
+        drawWiFiStatus();
+        lastWiFiCheck = millis();
+    }
+
     while (Serial.available()) {
         char c = Serial.read();
         if (c == '\n') {
-            int firstPipe = inputBuffer.indexOf('|');
-            int secondPipe = inputBuffer.indexOf('|', firstPipe + 1);
+            // Robust parsing with overflow protection
+            if (inputBuffer.length() > 0 && inputBuffer.length() < 128) {
+                int firstPipe = inputBuffer.indexOf('|');
+                int secondPipe = inputBuffer.indexOf('|', firstPipe + 1);
 
-            if (firstPipe > 0 && secondPipe > 0) {
-                String hostname = inputBuffer.substring(0, firstPipe);
-                String ip = inputBuffer.substring(firstPipe + 1, secondPipe);
-                String mac = inputBuffer.substring(secondPipe + 1);
-                
-                mac.trim(); 
-                updateDisplay(hostname, ip, mac);
+                if (firstPipe > 0 && secondPipe > (firstPipe + 1)) {
+                    String hostname = inputBuffer.substring(0, firstPipe);
+                    String ip = inputBuffer.substring(firstPipe + 1, secondPipe);
+                    String mac = inputBuffer.substring(secondPipe + 1);
+                    
+                    hostname.trim();
+                    ip.trim();
+                    mac.trim(); 
+
+                    if (hostname.length() > 0 && ip.length() > 0) {
+                        updateDisplay(hostname, ip, mac);
+                    }
+                }
             }
-            
             inputBuffer = "";
         } else {
-            inputBuffer += c;
+            // Buffer limit to prevent memory exhaustion
+            if (inputBuffer.length() < 128) {
+                inputBuffer += c;
+            }
         }
     }
 }
