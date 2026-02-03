@@ -1,4 +1,4 @@
-# Implementation Plan: UI Performance & Flicker Reduction
+# Implementation Plan: UI Performance & Flicker Reduction [checkpoint: 79620e6]
 
 ## Phase 1: Logic Refactoring
 - [x] Task: Firmware - Refactor `updateDisplay` into `drawStaticUI` and `updateDynamicValues`. b3baeb9
