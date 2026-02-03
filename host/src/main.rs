@@ -166,6 +166,8 @@ fn discover_and_connect(
                     let port_name = port.port_name.clone();
                     let port_name_inner = port_name.clone();
 
+                    println!("Connected to {}.", port_name);
+
                     thread::spawn(move || {
                         let mut serial = serial;
                         while let Ok(payload) = rx.recv() {

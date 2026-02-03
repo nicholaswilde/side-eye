@@ -20,7 +20,7 @@ fn default_ports() -> Vec<String> {
 }
 
 fn default_monitor_all() -> bool {
-    false
+    true
 }
 
 fn default_target_vids() -> Vec<u16> {
