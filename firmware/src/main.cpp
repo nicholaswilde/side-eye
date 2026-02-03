@@ -41,18 +41,18 @@ struct SystemState {
     uint64_t net_down = 0;
     uint64_t uptime = 0;
     bool has_data = false;
+    bool connected = false;
 };
 
 SystemState state;
 SystemState last_state;
 int current_rotation = 1; // 1 = 90 deg, 3 = 270 deg (180 deg flip)
 bool needs_static_draw = true;
-bool waiting_message_active = true;
 
 const int start_x = 10;
 const int start_y = 30;
 const int line_h = 12;
-const int value_x = 50;
+const int value_x = 55;
 
 void drawWiFiStatus() {
     int x = (current_rotation == 1) ? 225 : 15;
@@ -82,86 +82,103 @@ void drawStaticUI() {
     drawWiFiStatus();
 
     gfx->setTextSize(1);
-    gfx->setTextColor(CATPPUCCIN_BLUE);
+    
+    // Always draw Status label
+    gfx->setTextColor(CATPPUCCIN_YELLOW);
     gfx->setCursor(start_x, start_y);
-    gfx->print("Host: ");
+    gfx->print("Status:");
 
-    gfx->setCursor(start_x, start_y + line_h);
-    gfx->setTextColor(CATPPUCCIN_GREEN);
-    gfx->print("IP:   ");
+    if (state.connected) {
+        gfx->setTextColor(CATPPUCCIN_BLUE);
+        gfx->setCursor(start_x, start_y + line_h * 1.5);
+        gfx->print("Host: ");
 
-    gfx->setCursor(start_x, (int)(start_y + line_h * 2.5));
-    gfx->setTextColor(CATPPUCCIN_PEACH);
-    gfx->print("CPU:  ");
+        gfx->setCursor(start_x, start_y + line_h * 2.5);
+        gfx->setTextColor(CATPPUCCIN_GREEN);
+        gfx->print("IP:   ");
 
-    gfx->setCursor(start_x, start_y + line_h * 4);
-    gfx->setTextColor(CATPPUCCIN_SAPPHIRE);
-    gfx->print("RAM:  ");
+        gfx->setCursor(start_x, (int)(start_y + line_h * 4.0));
+        gfx->setTextColor(CATPPUCCIN_PEACH);
+        gfx->print("CPU:  ");
 
-    int bar_w = 150;
-    int bar_h = 8;
-    int bar_x = start_x + 40;
-    int bar_y = start_y + line_h * 4;
-    gfx->drawRect(bar_x, bar_y - 1, bar_w, bar_h, CATPPUCCIN_SURFACE0);
+        gfx->setCursor(start_x, start_y + line_h * 5.5);
+        gfx->setTextColor(CATPPUCCIN_SAPPHIRE);
+        gfx->print("RAM:  ");
+
+        int bar_w = 150;
+        int bar_h = 8;
+        int bar_x = start_x + 45;
+        int bar_y = start_y + (int)(line_h * 5.5);
+        gfx->drawRect(bar_x, bar_y - 1, bar_w, bar_h, CATPPUCCIN_SURFACE0);
+    }
 
     needs_static_draw = false;
 }
 
 void updateDynamicValues() {
-    if (waiting_message_active) {
-        drawStaticUI();
-        waiting_message_active = false;
-    }
-
     if (needs_static_draw) drawStaticUI();
 
     gfx->setTextSize(1);
-    gfx->setTextColor(CATPPUCCIN_TEXT);
 
-    // Hostname
-    if (state.hostname != last_state.hostname || needs_static_draw) {
-        gfx->fillRect(value_x, start_y, 180, 8, CATPPUCCIN_BASE);
-        gfx->setCursor(value_x, start_y);
-        gfx->println(state.hostname);
+    // Status value
+    gfx->fillRect(value_x, start_y, 180, 8, CATPPUCCIN_BASE);
+    gfx->setCursor(value_x, start_y);
+    if (state.connected) {
+        gfx->setTextColor(CATPPUCCIN_GREEN);
+        gfx->println("Connected");
+    } else {
+        gfx->setTextColor(CATPPUCCIN_PEACH);
+        gfx->println("Waiting for Host...");
     }
 
-    // IP
-    if (state.ip != last_state.ip || needs_static_draw) {
-        gfx->fillRect(value_x, start_y + line_h, 180, 8, CATPPUCCIN_BASE);
-        gfx->setCursor(value_x, start_y + line_h);
-        gfx->println(state.ip);
-    }
+    if (state.connected) {
+        gfx->setTextColor(CATPPUCCIN_TEXT);
 
-    // CPU
-    if (abs(state.cpu_percent - last_state.cpu_percent) > 0.1 || needs_static_draw) {
-        gfx->fillRect(value_x, (int)(start_y + line_h * 2.5), 100, 8, CATPPUCCIN_BASE);
-        gfx->setCursor(value_x, (int)(start_y + line_h * 2.5));
-        gfx->print(state.cpu_percent, 1);
-        gfx->println("%");
-    }
-
-    // RAM Bar
-    if (state.ram_used != last_state.ram_used || state.ram_total != last_state.ram_total || needs_static_draw) {
-        int bar_w = 150;
-        int bar_h = 8;
-        int bar_x = start_x + 40;
-        int bar_y = start_y + line_h * 4;
-        if (state.ram_total > 0) {
-            float ram_p = (float)state.ram_used / state.ram_total;
-            int used_w = (int)((bar_w - 2) * ram_p);
-            gfx->fillRect(bar_x + 1, bar_y, bar_w - 2, bar_h - 2, CATPPUCCIN_BASE);
-            gfx->fillRect(bar_x + 1, bar_y, used_w, bar_h - 2, CATPPUCCIN_SAPPHIRE);
+        // Hostname
+        if (state.hostname != last_state.hostname || needs_static_draw) {
+            gfx->fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, CATPPUCCIN_BASE);
+            gfx->setCursor(value_x, (int)(start_y + line_h * 1.5));
+            gfx->println(state.hostname);
         }
-    }
 
-    // Uptime
-    if (state.uptime != last_state.uptime || needs_static_draw) {
-        gfx->fillRect(start_x, 120, 200, 8, CATPPUCCIN_BASE);
-        uint32_t h_up = state.uptime / 3600;
-        uint32_t m_up = (state.uptime % 3600) / 60;
-        gfx->setCursor(start_x, 120);
-        gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
-        gfx->printf("Uptime: %uh %um", h_up, m_up);
+        // IP
+        if (state.ip != last_state.ip || needs_static_draw) {
+            gfx->fillRect(value_x, (int)(start_y + line_h * 2.5), 180, 8, CATPPUCCIN_BASE);
+            gfx->setCursor(value_x, (int)(start_y + line_h * 2.5));
+            gfx->println(state.ip);
+        }
+
+        // CPU
+        if (abs(state.cpu_percent - last_state.cpu_percent) > 0.1 || needs_static_draw) {
+            gfx->fillRect(value_x, (int)(start_y + line_h * 4.0), 100, 8, CATPPUCCIN_BASE);
+            gfx->setCursor(value_x, (int)(start_y + line_h * 4.0));
+            gfx->print(state.cpu_percent, 1);
+            gfx->println("%");
+        }
+
+        // RAM Bar
+        if (state.ram_used != last_state.ram_used || state.ram_total != last_state.ram_total || needs_static_draw) {
+            int bar_w = 150;
+            int bar_h = 8;
+            int bar_x = start_x + 45;
+            int bar_y = start_y + (int)(line_h * 5.5);
+            if (state.ram_total > 0) {
+                float ram_p = (float)state.ram_used / state.ram_total;
+                int used_w = (int)((bar_w - 2) * ram_p);
+                gfx->fillRect(bar_x + 1, bar_y, bar_w - 2, bar_h - 2, CATPPUCCIN_BASE);
+                gfx->fillRect(bar_x + 1, bar_y, used_w, bar_h - 2, CATPPUCCIN_SAPPHIRE);
+            }
+        }
+
+        // Uptime
+        if (state.uptime != last_state.uptime || needs_static_draw) {
+            gfx->fillRect(start_x, 120, 200, 8, CATPPUCCIN_BASE);
+            uint32_t h_up = state.uptime / 3600;
+            uint32_t m_up = (state.uptime % 3600) / 60;
+            gfx->setCursor(start_x, 120);
+            gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
+            gfx->printf("Uptime: %uh %um", h_up, m_up);
+        }
     }
 
     last_state = state;
@@ -220,10 +237,7 @@ void setup() {
     delay(1000);
 
     drawStaticUI();
-    gfx->setTextColor(CATPPUCCIN_TEXT);
-    gfx->setCursor(15, 60);
-    gfx->println("Waiting for Host...");
-    waiting_message_active = true;
+    updateDynamicValues();
 }
 
 String inputBuffer = "";
@@ -241,6 +255,8 @@ void handleJson(String json) {
     const char* type = doc["type"];
     JsonObject data = doc["data"];
 
+    bool was_connected = state.connected;
+
     if (strcmp(type, "Identity") == 0) {
         state.hostname = data["hostname"].as<String>();
         state.ip = data["ip"].as<String>();
@@ -248,6 +264,7 @@ void handleJson(String json) {
         state.os = data["os"].as<String>();
         state.user = data["user"].as<String>();
         state.has_data = true;
+        state.connected = true;
     } else if (strcmp(type, "Stats") == 0) {
         state.cpu_percent = data["cpu_percent"];
         state.ram_used = data["ram_used"];
@@ -258,6 +275,11 @@ void handleJson(String json) {
         state.net_down = data["net_down"];
         state.uptime = data["uptime"];
         state.has_data = true;
+        state.connected = true;
+    }
+
+    if (state.connected && !was_connected) {
+        needs_static_draw = true;
     }
 
     updateDynamicValues();
@@ -270,22 +292,26 @@ void loop() {
             current_rotation = (current_rotation == 1) ? 3 : 1;
             gfx->setRotation(current_rotation);
             needs_static_draw = true;
-            if (!waiting_message_active) {
-                updateDynamicValues();
-            } else {
-                // Redraw waiting screen on rotation
-                gfx->fillScreen(CATPPUCCIN_BASE);
-                drawBanner("SIDEEYE");
-                gfx->setTextColor(CATPPUCCIN_TEXT);
-                gfx->setCursor(15, 60);
-                gfx->println("Waiting for Host...");
-                drawWiFiStatus();
-            }
+            updateDynamicValues();
             while(digitalRead(BTN_PIN) == LOW) delay(10);
         }
     }
 
     static unsigned long lastWiFiCheck = 0;
+    static unsigned long lastDataTime = 0;
+
+    if (state.has_data) {
+        lastDataTime = millis();
+        state.has_data = false;
+    }
+
+    // Timeout for connection status (e.g. 5 seconds)
+    if (state.connected && (millis() - lastDataTime > 5000)) {
+        state.connected = false;
+        needs_static_draw = true;
+        updateDynamicValues();
+    }
+
     if (millis() - lastWiFiCheck > 10000) {
         drawWiFiStatus();
         lastWiFiCheck = millis();
