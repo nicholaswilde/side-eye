@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
+#include <WiFiManager.h>
 
 #define BLACK RGB565_BLACK
 #define WHITE RGB565_WHITE
@@ -33,11 +34,30 @@
 Arduino_DataBus *bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
 Arduino_GFX *gfx = new Arduino_ST7789(bus, LCD_RST, 0 /* rotation */, true /* IPS */, 135 /* width */, 240 /* height */);
 
+void configModeCallback (WiFiManager *myWiFiManager) {
+    gfx->fillScreen(BLACK);
+    gfx->setCursor(0, 10);
+    gfx->setTextColor(ORANGE);
+    gfx->setTextSize(2);
+    gfx->println(" SideEye Setup");
+    
+    gfx->setTextColor(WHITE);
+    gfx->setCursor(0, 40);
+    gfx->println("Connect to AP:");
+    
+    gfx->setTextColor(CYAN);
+    gfx->println("SideEye-Setup");
+    
+    gfx->setTextColor(WHITE);
+    gfx->setTextSize(1);
+    gfx->setCursor(0, 90);
+    gfx->println("Then visit:");
+    gfx->println(WiFi.softAPIP());
+}
+
 void setup() {
     // Initialize Serial (USB CDC)
     Serial.begin(115200);
-    // Wait for USB Serial to be ready (optional, good for debugging)
-    // while (!Serial) delay(100); 
 
     // Initialize Display
     if (LCD_BL >= 0) {
@@ -53,6 +73,35 @@ void setup() {
     gfx->setRotation(1); // Landscape
     gfx->setTextColor(WHITE);
     gfx->setTextSize(2);
+    
+    // WiFi Manager Setup
+    WiFiManager wm;
+    wm.setAPCallback(configModeCallback);
+    
+    // Show initial message
+    gfx->setCursor(10, 10);
+    gfx->println("SideEye Boot...");
+    
+    // AutoConnect
+    // This will try to connect to saved credentials
+    // If fail, it starts AP with name "SideEye-Setup"
+    // Blocking until connected or configured
+    if (!wm.autoConnect("SideEye-Setup")) {
+        Serial.println("failed to connect and hit timeout");
+        ESP.restart();
+        delay(1000);
+    }
+    
+    // If we get here, we are connected
+    gfx->fillScreen(BLACK);
+    gfx->setCursor(10, 10);
+    gfx->setTextColor(GREEN);
+    gfx->println("WiFi Connected!");
+    delay(1000);
+
+    // Default Waiting Screen
+    gfx->fillScreen(BLACK);
+    gfx->setTextColor(WHITE);
     gfx->setCursor(10, 10);
     gfx->println("SideEye Waiting...");
 }
