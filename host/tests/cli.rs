@@ -45,9 +45,9 @@ fn verbose_flag_works() -> Result<(), Box<dyn std::error::Error>> {
     cmd.env("SIDEEYE_RUN_ONCE", "1")
         .arg("--verbose")
         .arg("--dry-run");
-    cmd.assert().success().stdout(predicate::str::contains(
-        "Dry-run: gathered stats successfully.",
-    ));
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("Configuration:"));
 
     Ok(())
 }

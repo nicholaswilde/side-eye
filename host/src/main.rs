@@ -68,17 +68,18 @@ fn main() -> Result<()> {
 
     let mut sys = System::new_all();
     let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
-    let connections: Arc<Mutex<HashMap<String, DeviceConnection>>> = 
+    let connections: Arc<Mutex<HashMap<String, DeviceConnection>>> =
         Arc::new(Mutex::new(HashMap::new()));
 
     // Discovery / Management Loop
     let discovery_connections = Arc::clone(&connections);
     let discovery_config = config.clone();
     let verbose = args.verbose;
-    
+
     if !args.dry_run {
         thread::spawn(move || loop {
-            if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose) {
+            if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose)
+            {
                 if verbose {
                     eprintln!("Discovery error: {}", e);
                 }
@@ -106,7 +107,7 @@ fn main() -> Result<()> {
                 if args.verbose {
                     println!("Sending to {}: {}", name, payload.trim());
                 }
-                if let Err(_) = conn.sender.send(payload.clone()) {
+                if conn.sender.send(payload.clone()).is_err() {
                     if args.verbose {
                         println!("Connection to {} lost.", name);
                     }
@@ -130,7 +131,7 @@ fn main() -> Result<()> {
 
 fn discover_and_connect(
     config: &config::Config,
-    connections: &Arc<Mutex<HashMap<String, DeviceConnection>>>, 
+    connections: &Arc<Mutex<HashMap<String, DeviceConnection>>>,
     verbose: bool,
 ) -> Result<()> {
     let available_ports = serialport::available_ports().context("Failed to list serial ports")?;
@@ -158,7 +159,7 @@ fn discover_and_connect(
 
             match serialport::new(&port.port_name, config.baud_rate)
                 .timeout(Duration::from_millis(1000))
-                .open() 
+                .open()
             {
                 Ok(serial) => {
                     let (tx, rx) = std::sync::mpsc::channel::<String>();
@@ -178,18 +179,13 @@ fn discover_and_connect(
                                 }
                                 break;
                             }
-                            if let Err(_) = serial.flush() {
+                            if serial.flush().is_err() {
                                 break;
                             }
                         }
                     });
 
-                    cons.insert(
-                        port_name.clone(),
-                        DeviceConnection {
-                            sender: tx,
-                        },
-                    );
+                    cons.insert(port_name.clone(), DeviceConnection { sender: tx });
                 }
                 Err(e) => {
                     if verbose {
