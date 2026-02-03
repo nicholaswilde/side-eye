@@ -4,8 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: UI Theme: Implement Catppuccin Color Palette.**
-  *Link: [./conductor/tracks/catppuccin_theme_20260203/](./conductor/tracks/catppuccin_theme_20260203/)*
 - [ ] **Track: Host: Enhanced USB Port Monitoring & Configuration.**
   *Link: [./conductor/tracks/host_usb_monitoring_20260203/](./conductor/tracks/host_usb_monitoring_20260203/)*
 - [ ] **Track: Feature: Display Host Network & Identity Info.**
