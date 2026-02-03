@@ -1,6 +1,6 @@
 # Implementation Plan: Display Host Network, Identity & System Stats
 
-## Phase 1: Host-Side Data Gathering
+## Phase 1: Host-Side Data Gathering [checkpoint: c668fc7]
 - [x] **Dependencies:** Add `sysinfo` to `host/Cargo.toml`.
 - [x] **Implementation:** Create a module `src/monitor.rs` to encapsulate `sysinfo::System`. febc0ea
     - [x] Implement `get_static_info()` -> Returns Hostname, IP, MAC, OS, User.
