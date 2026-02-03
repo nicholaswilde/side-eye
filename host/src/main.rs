@@ -5,7 +5,12 @@ use clap::Parser;
 use local_ip_address::local_ip;
 use mac_address::get_mac_address;
 use serialport::{SerialPortType, UsbPortInfo};
-use std::{thread, time::Duration};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+    thread,
+    time::Duration,
+};
 use sysinfo::System;
 
 #[derive(Parser, Debug)]
@@ -36,6 +41,9 @@ struct Args {
     monitor_all: bool,
 }
 
+struct DeviceConnection {
+    sender: std::sync::mpsc::Sender<String>,
+}
 fn main() -> Result<()> {
     let args = Args::parse();
 
@@ -60,98 +68,138 @@ fn main() -> Result<()> {
 
     let mut sys = System::new_all();
     let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
+    let connections: Arc<Mutex<HashMap<String, DeviceConnection>>> = 
+        Arc::new(Mutex::new(HashMap::new()));
 
-    loop {
-        if args.dry_run {
-            // Dry-run mode: just print and sleep
-            match gather_payload(&mut sys) {
-                Ok(payload) => {
-                    if args.verbose {
-                        println!("Dry-run: gathered stats successfully.");
-                    }
-                    println!("Dry-Run Payload: {}", payload.trim());
+    // Discovery / Management Loop
+    let discovery_connections = Arc::clone(&connections);
+    let discovery_config = config.clone();
+    let verbose = args.verbose;
+    
+    if !args.dry_run {
+        thread::spawn(move || loop {
+            if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose) {
+                if verbose {
+                    eprintln!("Discovery error: {}", e);
                 }
-                Err(e) => eprintln!("Error gathering stats: {}", e),
-            }
-            if run_once {
-                break;
             }
             thread::sleep(Duration::from_secs(5));
+        });
+    }
+
+    loop {
+        let payload = match gather_payload(&mut sys) {
+            Ok(p) => p,
+            Err(e) => {
+                eprintln!("Error gathering stats: {}", e);
+                continue;
+            }
+        };
+
+        if args.dry_run {
+            println!("Dry-Run Payload: {}", payload.trim());
+        } else {
+            let mut cons = connections.lock().unwrap();
+            let mut to_remove = Vec::new();
+
+            for (name, conn) in cons.iter() {
+                if args.verbose {
+                    println!("Sending to {}: {}", name, payload.trim());
+                }
+                if let Err(_) = conn.sender.send(payload.clone()) {
+                    if args.verbose {
+                        println!("Connection to {} lost.", name);
+                    }
+                    to_remove.push(name.clone());
+                }
+            }
+
+            for name in to_remove {
+                cons.remove(&name);
+            }
+        }
+
+        if run_once {
+            break;
+        }
+        thread::sleep(Duration::from_secs(5));
+    }
+
+    Ok(())
+}
+
+fn discover_and_connect(
+    config: &config::Config,
+    connections: &Arc<Mutex<HashMap<String, DeviceConnection>>>, 
+    verbose: bool,
+) -> Result<()> {
+    let available_ports = serialport::available_ports().context("Failed to list serial ports")?;
+    let mut cons = connections.lock().unwrap();
+
+    for port in available_ports {
+        if cons.contains_key(&port.port_name) {
             continue;
         }
 
-        // Connection Mode
-        let port_name = match &args.port {
-            Some(p) => p.clone(),
-            None => match autodetect_port(args.verbose) {
-                Ok(name) => name,
-                Err(e) => {
-                    if args.verbose {
-                        eprintln!("Auto-detect failed: {}. Retrying in 5s...", e);
-                    }
-                    if run_once {
-                        return Err(e);
-                    }
-                    thread::sleep(Duration::from_secs(5));
-                    continue;
-                }
-            },
+        let should_connect = if config.monitor_all {
+            if let SerialPortType::UsbPort(UsbPortInfo { vid, .. }) = port.port_type {
+                config.target_vids.contains(&vid)
+            } else {
+                false
+            }
+        } else {
+            config.ports.contains(&port.port_name)
         };
 
-        if args.verbose {
-            println!("Connecting to {} at {} baud...", port_name, args.baud_rate);
-        }
-
-        match serialport::new(&port_name, args.baud_rate)
-            .timeout(Duration::from_millis(1000))
-            .open()
-        {
-            Ok(mut port) => {
-                println!("Connected to {}.", port_name);
-
-                // Inner Loop: Stream Data
-                loop {
-                    let payload = match gather_payload(&mut sys) {
-                        Ok(p) => p,
-                        Err(e) => {
-                            eprintln!("Error gathering stats: {}", e);
-                            break; // Should rarely happen, but let's reset
-                        }
-                    };
-
-                    if args.verbose {
-                        println!("Sending: {}", payload.trim());
-                    }
-
-                    // Add a leading newline to clear any partial buffers on the device
-                    let mut final_payload = String::with_capacity(payload.len() + 1);
-                    final_payload.push('\n');
-                    final_payload.push_str(&payload);
-
-                    if let Err(e) = port.write_all(final_payload.as_bytes()) {
-                        eprintln!("Write error: {}. Dropping connection.", e);
-                        break;
-                    }
-                    if let Err(e) = port.flush() {
-                        eprintln!("Flush error: {}. Dropping connection.", e);
-                        break;
-                    }
-
-                    if run_once {
-                        return Ok(());
-                    }
-                    thread::sleep(Duration::from_secs(5));
-                }
+        if should_connect {
+            if verbose {
+                println!("Found new device at {}. Connecting...", port.port_name);
             }
-            Err(e) => {
-                eprintln!("Failed to open serial port: {}. Retrying in 2s...", e);
-                if run_once {
-                    return Err(e.into());
+
+            match serialport::new(&port.port_name, config.baud_rate)
+                .timeout(Duration::from_millis(1000))
+                .open() 
+            {
+                Ok(serial) => {
+                    let (tx, rx) = std::sync::mpsc::channel::<String>();
+                    let port_name = port.port_name.clone();
+                    let port_name_inner = port_name.clone();
+
+                    thread::spawn(move || {
+                        let mut serial = serial;
+                        while let Ok(payload) = rx.recv() {
+                            let mut final_payload = String::with_capacity(payload.len() + 1);
+                            final_payload.push('\n');
+                            final_payload.push_str(&payload);
+
+                            if let Err(e) = serial.write_all(final_payload.as_bytes()) {
+                                if verbose {
+                                    eprintln!("Write error on {}: {}", port_name_inner, e);
+                                }
+                                break;
+                            }
+                            if let Err(_) = serial.flush() {
+                                break;
+                            }
+                        }
+                    });
+
+                    cons.insert(
+                        port_name.clone(),
+                        DeviceConnection {
+                            sender: tx,
+                        },
+                    );
                 }
-                thread::sleep(Duration::from_secs(2));
+                Err(e) => {
+                    if verbose {
+                        eprintln!("Failed to open {}: {}", port.port_name, e);
+                    }
+                }
             }
         }
     }
+
     Ok(())
 }
 
@@ -171,46 +219,4 @@ fn gather_payload(sys: &mut System) -> Result<String> {
     };
 
     Ok(format!("{}|{}|{}\n", hostname, ip, mac))
-}
-
-fn autodetect_port(verbose: bool) -> Result<String> {
-    let ports = serialport::available_ports().context("No serial ports found")?;
-
-    if verbose {
-        println!("Available ports: {:?}", ports);
-    }
-
-    let esp_port = ports.iter().find(|p| {
-        if let SerialPortType::UsbPort(UsbPortInfo { vid, pid, .. }) = p.port_type {
-            if verbose {
-                println!(
-                    "Checking port {} (VID: {:04x}, PID: {:04x})",
-                    p.port_name, vid, pid
-                );
-            }
-            vid == 0x303A
-        } else {
-            false
-        }
-    });
-
-    if let Some(p) = esp_port {
-        Ok(p.port_name.clone())
-    } else {
-        let mut msg = String::from("No Espressif device found (VID 0x303A).");
-        if !ports.is_empty() {
-            msg.push_str("\nFound other ports:");
-            for p in ports {
-                if let SerialPortType::UsbPort(UsbPortInfo { vid, pid, .. }) = p.port_type {
-                    msg.push_str(&format!(
-                        "\n- {} (VID:{:04x} PID:{:04x})",
-                        p.port_name, vid, pid
-                    ));
-                } else {
-                    msg.push_str(&format!("\n- {} (Non-USB)", p.port_name));
-                }
-            }
-        }
-        anyhow::bail!(msg);
-    }
 }
