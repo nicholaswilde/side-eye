@@ -7,8 +7,8 @@
     - [x] Add support for `--version`, `--help`, `--verbose`, and `--dry-run`.
 - [x] Task: Host - Implement Robust Reconnection Loop. 8e28bcf
     - [x] Refactor the main loop to handle `serialport` errors (e.g., device unplugged) by sleeping and retrying `autodetect_port`.
-- [~] Task: Host - Verify and Test.
-    - [ ] Run `cargo run` and physically unplug/replug the device to ensure it recovers.
+- [x] Task: Host - Verify and Test. 8e28bcf
+    - [x] Run `cargo run` and physically unplug/replug the device to ensure it recovers.
 
 ## Phase 2: Firmware Setup & Wi-Fi Integration
 - [ ] Task: Firmware - Update `platformio.ini` dependencies.
