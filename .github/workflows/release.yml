@@ -158,9 +158,9 @@ jobs:
         echo "TARGET_FLAGS=--target ${{ matrix.target }}" >> $GITHUB_ENV
         echo "TARGET_DIR=./host/target/${{ matrix.target }}" >> $GITHUB_ENV
         if [[ "${{ matrix.os }}" == windows-* ]]; then
-          bin="host/target/${{ matrix.target }}/release/side-eye-host.exe"
+          bin="target/${{ matrix.target }}/release/side-eye-host.exe"
         else
-          bin="host/target/${{ matrix.target }}/release/side-eye-host"
+          bin="target/${{ matrix.target }}/release/side-eye-host"
         fi
         echo "BIN=$bin" >> $GITHUB_ENV
         
