@@ -23,6 +23,81 @@
 #define FIRMWARE_VERSION "0.0.0-unknown"
 #endif
 
+class Button {
+public:
+    enum Event { NONE, CLICK, DOUBLE_CLICK, HOLD };
+
+    Button(int pin) : _pin(pin) {}
+
+    void begin() {
+        pinMode(_pin, INPUT_PULLUP);
+        _lastState = digitalRead(_pin);
+    }
+
+    Event update() {
+        int currentState = digitalRead(_pin);
+        unsigned long now = millis();
+        Event event = NONE;
+
+        if (currentState != _lastState) {
+            _lastDebounceTime = now;
+        }
+
+        if ((now - _lastDebounceTime) > _debounceDelay) {
+            if (currentState != _stableState) {
+                _stableState = currentState;
+                if (_stableState == LOW) { // Pressed
+                    _pressStartTime = now;
+                    _holdReported = false;
+                    if (now - _lastClickTime < _doubleClickDelay) {
+                        _pendingClick = false;
+                        event = DOUBLE_CLICK;
+                    }
+                } else { // Released
+                    if (!_holdReported && event != DOUBLE_CLICK) {
+                        _pendingClick = true;
+                        _lastClickTime = now;
+                    }
+                }
+            }
+        }
+
+        if (_stableState == LOW && !_holdReported) {
+            if (now - _pressStartTime > _holdDelay) {
+                event = HOLD;
+                _holdReported = true;
+                _pendingClick = false;
+            }
+        }
+
+        if (_pendingClick && (now - _lastClickTime > _doubleClickDelay)) {
+            _pendingClick = false;
+            event = CLICK;
+        }
+
+        _lastState = currentState;
+        return event;
+    }
+
+private:
+    int _pin;
+    int _lastState = HIGH;
+    int _stableState = HIGH;
+    unsigned long _lastDebounceTime = 0;
+    unsigned long _debounceDelay = 50;
+    unsigned long _pressStartTime = 0;
+    unsigned long _holdDelay = 800;
+    unsigned long _lastClickTime = 0;
+    unsigned long _doubleClickDelay = 300;
+    bool _holdReported = false;
+    bool _pendingClick = false;
+};
+
+Button button(BTN_PIN);
+bool isScreenOn = true;
+unsigned long lastActivityTime = 0;
+const unsigned long AUTO_OFF_DELAY = 60000; // 1 minute
+
 struct SystemState {
     String hostname = "Unknown";
     String ip = "No IP";
@@ -399,6 +474,9 @@ void setup() {
     deviceID = getDeviceID();
     String apName = "SideEye-" + deviceID;
     
+    button.begin();
+    lastActivityTime = millis();
+    
     pinMode(BTN_PIN, INPUT_PULLUP);
 
     if (LCD_BL >= 0) {
@@ -574,15 +652,29 @@ void handleJson(String json) {
 }
 
 void loop() {
-    if (digitalRead(BTN_PIN) == LOW) {
-        delay(50);
-        if (digitalRead(BTN_PIN) == LOW) {
-            current_rotation = (current_rotation == 1) ? 3 : 1;
-            gfx->setRotation(current_rotation);
+    Button::Event ev = button.update();
+    if (ev == Button::CLICK) {
+        lastActivityTime = millis();
+        if (!isScreenOn) {
+            isScreenOn = true;
+            digitalWrite(LCD_BL, HIGH);
+        } else {
+            // Next page
+            currentPage = static_cast<Page>((currentPage + 1) % NUM_PAGES);
+            lastPageChange = millis();
             needs_static_draw = true;
             updateDynamicValues();
-            while(digitalRead(BTN_PIN) == LOW) delay(10);
         }
+    } else if (ev == Button::DOUBLE_CLICK) {
+        lastActivityTime = millis();
+        current_rotation = (current_rotation == 1) ? 3 : 1;
+        gfx->setRotation(current_rotation);
+        needs_static_draw = true;
+        updateDynamicValues();
+    } else if (ev == Button::HOLD) {
+        lastActivityTime = millis();
+        isScreenOn = !isScreenOn;
+        digitalWrite(LCD_BL, isScreenOn ? HIGH : LOW);
     }
 
     static unsigned long lastWiFiCheck = 0;
@@ -602,6 +694,11 @@ void loop() {
 
     if (state.has_data) {
         lastDataTime = millis();
+        lastActivityTime = lastDataTime; // Data from host counts as activity
+        if (!isScreenOn) {
+            isScreenOn = true;
+            digitalWrite(LCD_BL, HIGH);
+        }
         state.has_data = false;
     }
 
@@ -612,13 +709,19 @@ void loop() {
         updateDynamicValues();
     }
 
+    // Auto-off for screen
+    if (isScreenOn && (millis() - lastActivityTime > AUTO_OFF_DELAY)) {
+        isScreenOn = false;
+        digitalWrite(LCD_BL, LOW);
+    }
+
     if (millis() - lastWiFiCheck > 10000) {
         drawWiFiStatus();
         lastWiFiCheck = millis();
     }
 
     // Page cycling
-    if (state.connected) {
+    if (state.connected && isScreenOn) {
         unsigned long now = millis();
         if (now - lastPageChange > PAGE_DURATION) {
             currentPage = static_cast<Page>((currentPage + 1) % NUM_PAGES);
