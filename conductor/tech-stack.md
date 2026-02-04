@@ -4,7 +4,8 @@
 - **Language:** Rust
 - **Key Libraries:**
   - `serialport`: Cross-platform USB CDC communication.
-  - `sysinfo`: System-level information gathering (Hostname).
+  - `sysinfo`: System-level information gathering (Hostname, CPU, RAM, Disk, Thermal Sensors).
+  - `nvml-wrapper`: NVIDIA Management Library wrapper for GPU telemetry.
   - `local-ip-address`: Reliable LAN IP discovery.
   - `mac_address`: MAC address retrieval.
   - `anyhow`: Context-aware error handling.
@@ -30,7 +31,7 @@
 - **Framing:** Newline-terminated strings (\n).
 - **Data Format:** Structured JSON using `ArduinoJson`.
   - **Identity:** `{"type": "Identity", "data": {"hostname": "...", "ip": "...", ...}}`
-  - **Stats:** `{"type": "Stats", "data": {"cpu_percent": 12.5, "ram_used": 1024, ...}}`
+  - **Stats:** `{"type": "Stats", "data": {"cpu_percent": 12.5, "ram_used": 1024, ..., "alert_level": 0}}`
   - **Version Request:** `{"type": "GetVersion"}`
 - **Versioning:** Automated synchronization between Host (`Cargo.toml`) and Firmware (via PlatformIO `extra_scripts`).
 

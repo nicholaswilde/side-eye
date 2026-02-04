@@ -15,6 +15,9 @@
 - **Visual Feedback:** The device should indicate a "Waiting for Host..." state on the screen if it has power but is not receiving data, distinguishing "no power" from "no data."
   - **Contextual UI:** Only display host-specific labels and metrics when a connection is active to maintain a clean aesthetic during idle periods.
   - **On-Screen Status:** Small visual indicators (e.g., connection status dots) provide real-time feedback without cluttering the UI.
+- **Proactive Alerts:** The device should actively grab the user's attention when critical thresholds are met.
+  - **Visual Priority:** Alerts should override the current page and use high-contrast color changes (e.g., Red flashing) to signal urgency.
+  - **Automatic Context:** Automatically switch to the page containing the alerting metric to provide immediate diagnostic information.
 - **Power Management:**
   - **Auto-Off:** Automatically turn off the backlight after 1 minute of inactivity (no data or button presses) to save power and screen life.
   - **Interactive Wake:** Ensure the screen wakes immediately on any button press or when the host resumes sending data.
