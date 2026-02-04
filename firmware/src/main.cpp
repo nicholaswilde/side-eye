@@ -74,6 +74,8 @@ void handleJson(String json) {
         state.disk_total = data["disk_total"];
         state.net_up = data["net_up"];
         state.net_down = data["net_down"];
+        state.net_up_history.push(state.net_up);
+        state.net_down_history.push(state.net_down);
         state.uptime = data["uptime"];
         state.thermal_c = data["thermal_c"];
         state.gpu_percent = data["gpu_percent"];
