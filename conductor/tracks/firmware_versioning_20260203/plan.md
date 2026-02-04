@@ -6,5 +6,5 @@
 - [x] Task: Firmware - Display version on the boot screen.
 
 ## Phase 2: Verification
-- [ ] Task: Firmware - Verify version reporting via Serial Monitor.
-- [ ] Task: Conductor - User Manual Verification (Protocol in workflow.md).
+- [x] Task: Firmware - Verify version reporting via Serial Monitor.
+- [x] Task: Conductor - User Manual Verification (Protocol in workflow.md).

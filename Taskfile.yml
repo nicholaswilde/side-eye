@@ -79,6 +79,13 @@ tasks:
     cmds:
       - pio run -t upload
 
+  firmware:monitor:
+    desc: Start Serial Monitor (PlatformIO)
+    dir: firmware
+    interactive: true
+    cmds:
+      - pio device monitor
+
   firmware:check:
     desc: Check Firmware code
     dir: firmware

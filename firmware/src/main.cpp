@@ -16,7 +16,9 @@
 #define LCD_BL 6
 #define BTN_PIN 9
 
-const char* VERSION = "0.1.0";
+#ifndef FIRMWARE_VERSION
+#define FIRMWARE_VERSION "0.0.0-unknown"
+#endif
 
 Arduino_DataBus *bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
 
@@ -114,6 +116,11 @@ void drawStaticUI() {
         gfx->drawRect(bar_x, bar_y - 1, bar_w, bar_h, CATPPUCCIN_SURFACE0);
     }
 
+    // Version back in bottom right corner
+    gfx->setTextColor(CATPPUCCIN_SURFACE1);
+    gfx->setCursor(200, 120);
+    gfx->print(FIRMWARE_VERSION);
+
     needs_static_draw = false;
 }
 
@@ -128,7 +135,7 @@ void updateDynamicValues() {
     gfx->setTextSize(1);
 
     // Status value
-    gfx->fillRect(value_x, start_y, 180, 8, CATPPUCCIN_BASE);
+    gfx->fillRect(value_x, start_y, 140, 8, CATPPUCCIN_BASE);
     gfx->setCursor(value_x, start_y);
     if (state.connected) {
         gfx->setTextColor(CATPPUCCIN_GREEN);
@@ -179,7 +186,7 @@ void updateDynamicValues() {
 
         // Uptime
         if (state.uptime != last_state.uptime || force_redraw) {
-            gfx->fillRect(start_x, 120, 200, 8, CATPPUCCIN_BASE);
+            gfx->fillRect(start_x, 120, 180, 8, CATPPUCCIN_BASE);
             uint32_t h_up = state.uptime / 3600;
             uint32_t m_up = (state.uptime % 3600) / 60;
             gfx->setCursor(start_x, 120);
@@ -225,15 +232,20 @@ void setup() {
     }
     
     gfx->setRotation(current_rotation); 
+    gfx->fillScreen(CATPPUCCIN_BASE);
     
     WiFiManager wm;
     wm.setAPCallback(configModeCallback);
     
     drawBanner("BOOTING...");
-    gfx->setCursor(15, 60);
+    gfx->setCursor(15, start_y);
     gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
-    gfx->printf("v%s", VERSION);
+    gfx->printf("v%s", FIRMWARE_VERSION);
+    Serial.printf("\n--- SideEye Firmware v%s starting ---\n", FIRMWARE_VERSION);
     
+    // Hold boot screen for a moment so version is visible
+    delay(2000);
+
     if (!wm.autoConnect("SideEye-Setup")) {
         ESP.restart();
         delay(1000);
@@ -241,7 +253,7 @@ void setup() {
     
     gfx->fillScreen(CATPPUCCIN_BASE);
     drawBanner("CONNECTED");
-    gfx->setCursor(15, 60);
+    gfx->setCursor(15, start_y);
     gfx->setTextColor(CATPPUCCIN_GREEN);
     gfx->println("WiFi Online!");
     delay(1000);
@@ -257,8 +269,8 @@ void handleJson(String json) {
     DeserializationError error = deserializeJson(doc, json);
 
     if (error) {
-        Serial.print("JSON Error: ");
-        Serial.println(error.c_str());
+        // Serial.print("JSON Error: ");
+        // Serial.println(error.c_str());
         return;
     }
 
@@ -295,7 +307,7 @@ void handleJson(String json) {
     if (strcmp(type, "GetVersion") == 0) {
         JsonDocument res;
         res["type"] = "Version";
-        res["version"] = VERSION;
+        res["version"] = FIRMWARE_VERSION;
         serializeJson(res, Serial);
         Serial.println();
     }
@@ -337,7 +349,7 @@ void loop() {
 
     while (Serial.available()) {
         char c = Serial.read();
-        if (c == '\n') {
+        if (c == '\n' || c == '\r') {
             if (inputBuffer.length() > 0) {
                 handleJson(inputBuffer);
             }
