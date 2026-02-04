@@ -10,11 +10,11 @@
     - [x] Non-blocking reconnection attempts in the `loop()`.
 
 ## Phase 2: Home Assistant Discovery
-- [ ] Task: Firmware - Implement Discovery Payload Generation.
-    - [ ] Logic to build JSON config payloads for HA sensors.
-    - [ ] Publish configs on successful MQTT connection.
-- [ ] Task: Firmware - Implement State Reporting.
-    - [ ] Publish sensor states (Hostname, IP, MAC) whenever a new valid serial packet is processed.
+- [x] Task: Firmware - Implement Discovery Payload Generation. (900e5a0)
+    - [x] Logic to build JSON config payloads for HA sensors.
+    - [x] Publish configs on successful MQTT connection.
+- [x] Task: Firmware - Implement State Reporting. (900e5a0)
+    - [x] Publish sensor states (Hostname, IP, MAC) whenever a new valid serial packet is processed.
 
 ## Phase 3: Verification & Integration
 - [ ] Task: Integration - Verify in Home Assistant.
