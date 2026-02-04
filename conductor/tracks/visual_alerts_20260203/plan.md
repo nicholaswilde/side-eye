@@ -1,6 +1,6 @@
 # Implementation Plan: Visual Alerts & Threshold Management
 
-## Phase 1: Host Threshold Logic
+## Phase 1: Host Threshold Logic [checkpoint: 9fe1129]
 - [x] Task: Host - Update `Config` struct with threshold settings. 439968b
 - [x] Task: Host - Implement alert level calculation logic in `update_and_get_stats`. d28857b
 - [x] Task: Host - Update `SystemStats` message to include `alert_level`. d28857b
