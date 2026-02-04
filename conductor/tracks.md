@@ -12,6 +12,3 @@ This file tracks all major tracks for the project. Each track has its own detail
 ---
 
 ---
-
-- [ ] **Track: Multi-Format Configuration Support**
-*Link: [./tracks/multi_format_config_20260203/](./tracks/multi_format_config_20260203/)*
