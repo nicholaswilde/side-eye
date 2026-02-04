@@ -1,0 +1,8 @@
+{
+  "track_id": "sd_card_sync_20260203",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-03T14:52:00Z",
+  "updated_at": "2026-02-03T14:52:00Z",
+  "description": "Have the ability to read the SD card on the ESP32 device. In the config file, specify a path on the host and then it performs a sync between the host folder and the SD card on the esp32 device. Show some type of graphic on the screen with regards to the SD card and sync status."
+}
