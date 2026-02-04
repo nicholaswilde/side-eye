@@ -1,7 +1,7 @@
 # Implementation Plan: Network Activity History & Sparklines
 
 ## Phase 1: Firmware Data Management
-- [ ] Task: Firmware - Implement `HistoryBuffer` class or struct for circular data storage.
+- [x] Task: Firmware - Implement `HistoryBuffer` class or struct for circular data storage. 4b5f27e
 - [ ] Task: Firmware - Integrate `net_up` and `net_down` history into `SystemState`.
 - [ ] Task: Firmware - Update `handleJson` to push new data into buffers.
 
