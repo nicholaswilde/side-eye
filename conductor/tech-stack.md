@@ -9,7 +9,9 @@
   - `mac_address`: MAC address retrieval.
   - `anyhow`: Context-aware error handling.
   - `clap`: CLI argument parsing and auto-documentation.
-  - `serde` & `toml`: Persistent configuration file support.
+  - `serde`, `toml`, `yaml`, `json`: Data serialization and multi-format support.
+  - `figment`: Flexible, multi-layered configuration management.
+  - `dotenvy`: Environment variable loading from `.env` files.
   - `home`: Cross-platform directory discovery.
   - `std::thread` & `mpsc`: Concurrent multi-device management.
 
