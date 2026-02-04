@@ -2,7 +2,7 @@
 
 ## Phase 1: Firmware Data Management
 - [x] Task: Firmware - Implement `HistoryBuffer` class or struct for circular data storage. 4b5f27e
-- [ ] Task: Firmware - Integrate `net_up` and `net_down` history into `SystemState`.
+- [x] Task: Firmware - Integrate `net_up` and `net_down` history into `SystemState`. 0de081d
 - [ ] Task: Firmware - Update `handleJson` to push new data into buffers.
 
 ## Phase 2: UI Implementation
