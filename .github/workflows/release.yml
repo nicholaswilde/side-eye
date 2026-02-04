@@ -156,7 +156,7 @@ jobs:
       shell: bash
       run: |
         echo "TARGET_FLAGS=--target ${{ matrix.target }}" >> $GITHUB_ENV
-        echo "TARGET_DIR=./host/target/${{ matrix.target }}" >> $GITHUB_ENV
+        echo "TARGET_DIR=./target/${{ matrix.target }}" >> $GITHUB_ENV
         if [[ "${{ matrix.os }}" == windows-* ]]; then
           bin="target/${{ matrix.target }}/release/side-eye-host.exe"
         else
