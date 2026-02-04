@@ -13,8 +13,9 @@
 
 
 ### Phase 3: RPM & Arch (Optional)
-- [ ] Add `cargo-generate-rpm` configuration (if feasible, otherwise prioritize Deb).
-- [ ] Document manual installation steps for Arch/Aur (PKGBUILD reference).
+- [x] Add `cargo-generate-rpm` configuration (if feasible, otherwise prioritize Deb). 83d4012
+- [x] Document manual installation steps for Arch/Aur (PKGBUILD reference). 83d4012
 
 ### Phase 4: CI/CD Integration
-- [ ] Update build workflow to generate these artifacts on release.
+- [x] Update build workflow to generate these artifacts on release. fb82d59
+
