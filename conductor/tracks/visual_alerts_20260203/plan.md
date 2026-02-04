@@ -4,13 +4,13 @@
 - [x] Task: Host - Update `Config` struct with threshold settings. 439968b
 - [x] Task: Host - Implement alert level calculation logic in `update_and_get_stats`. d28857b
 - [x] Task: Host - Update `SystemStats` message to include `alert_level`. d28857b
-- [ ] Task: Conductor - User Manual Verification 'Host Logic' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Host Logic' (Confirmed)
 
-## Phase 2: Firmware Alert Rendering
-- [ ] Task: Firmware - Update `drawBanner` to support dynamic background colors.
-- [ ] Task: Firmware - Implement alert level handling in `handleJson`.
-- [ ] Task: Firmware - Add "Alert Priority" UI logic (auto-switching to alerting page).
-- [ ] Task: Conductor - User Manual Verification 'Firmware UI' (Protocol in workflow.md)
+## Phase 2: Firmware Alert Rendering [checkpoint: da9c323]
+- [x] Task: Firmware - Update `drawBanner` to support dynamic background colors. a0be881
+- [x] Task: Firmware - Implement alert level handling in `handleJson`. a0be881
+- [x] Task: Firmware - Add "Alert Priority" UI logic (auto-switching to alerting page). a0be881
+- [x] Task: Conductor - User Manual Verification 'Firmware UI' (Confirmed)
 
 ## Phase 3: Testing & Refinement
 - [ ] Task: Integration - Verify end-to-end alert triggering via manual usage spikes.
