@@ -104,7 +104,7 @@ fn main() -> Result<()> {
     }
 
     loop {
-        let stats = monitor.update_and_get_stats();
+        let stats = monitor.update_and_get_stats(&config.thresholds);
         let msg = monitor::HostMessage::Stats(stats);
         let payload = serde_json::to_string(&msg).unwrap_or_else(|_| "".to_string());
 

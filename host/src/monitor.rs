@@ -32,6 +32,7 @@ pub struct SystemStats {
     pub uptime: u64,
     pub thermal_c: f32,
     pub gpu_percent: f32,
+    pub alert_level: u8,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -116,12 +117,42 @@ impl SystemMonitor {
         }
     }
 
-    pub fn update_and_get_stats(&mut self) -> SystemStats {
+    pub fn calculate_alert_level(
+        cpu_percent: f32,
+        ram_percent: f32,
+        thresholds: &crate::config::ThresholdsConfig,
+    ) -> u8 {
+        let cpu_level = if cpu_percent >= thresholds.cpu_critical as f32 {
+            2
+        } else if cpu_percent >= thresholds.cpu_warning as f32 {
+            1
+        } else {
+            0
+        };
+
+        let ram_level = if ram_percent >= thresholds.ram_critical as f32 {
+            2
+        } else if ram_percent >= thresholds.ram_warning as f32 {
+            1
+        } else {
+            0
+        };
+
+        std::cmp::max(cpu_level, ram_level)
+    }
+
+    pub fn update_and_get_stats(
+        &mut self,
+        thresholds: &crate::config::ThresholdsConfig,
+    ) -> SystemStats {
         self.sys.refresh_all();
 
         let cpu_percent = self.sys.global_cpu_info().cpu_usage();
         let ram_used = self.sys.used_memory();
         let ram_total = self.sys.total_memory();
+        let ram_percent = (ram_used as f32 / ram_total as f32) * 100.0;
+
+        let alert_level = Self::calculate_alert_level(cpu_percent, ram_percent, thresholds);
 
         let mut disk_used = 0;
         let mut disk_total = 0;
@@ -175,6 +206,53 @@ impl SystemMonitor {
             uptime,
             thermal_c,
             gpu_percent,
+            alert_level,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::ThresholdsConfig;
+
+    #[test]
+    fn test_calculate_alert_level() {
+        let thresholds = ThresholdsConfig {
+            cpu_warning: 70,
+            cpu_critical: 90,
+            ram_warning: 80,
+            ram_critical: 95,
+        };
+
+        // Normal
+        assert_eq!(
+            SystemMonitor::calculate_alert_level(50.0, 50.0, &thresholds),
+            0
+        );
+
+        // CPU Warning
+        assert_eq!(
+            SystemMonitor::calculate_alert_level(75.0, 50.0, &thresholds),
+            1
+        );
+
+        // CPU Critical
+        assert_eq!(
+            SystemMonitor::calculate_alert_level(95.0, 50.0, &thresholds),
+            2
+        );
+
+        // RAM Warning
+        assert_eq!(
+            SystemMonitor::calculate_alert_level(50.0, 85.0, &thresholds),
+            1
+        );
+
+        // RAM Critical
+        assert_eq!(
+            SystemMonitor::calculate_alert_level(50.0, 97.0, &thresholds),
+            2
+        );
     }
 }
