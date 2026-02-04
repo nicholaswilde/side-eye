@@ -11,6 +11,6 @@
 - [x] Task: Firmware - Implement `drawNetworkPage` using sparklines and current text values. ea75e88
 
 ## Phase 3: Verification & Polish
-- [ ] Task: Integration - Verify graph scaling with different traffic loads.
-- [ ] Task: Refinement - Add "Up/Down" icons or labels to the sparklines.
-- [ ] Task: Conductor - Update README.md with the new Network history feature.
+- [x] Task: Integration - Verify graph scaling with different traffic loads. 30d4888
+- [x] Task: Refinement - Add "Up/Down" icons or labels to the sparklines. a4be706
+- [x] Task: Conductor - Update README.md with the new Network history feature. a4be706
