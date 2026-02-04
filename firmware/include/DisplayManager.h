@@ -135,6 +135,33 @@ public:
         gfx->fillRect(x + 1, y + 1, fill_w, h - 2, color);
     }
 
+    template <typename T, size_t Size>
+    void drawSparkline(int x, int y, int w, int h, const HistoryBuffer<T, Size>& buffer, uint16_t color) {
+        gfx->drawRect(x, y, w, h, CATPPUCCIN_SURFACE0);
+        gfx->fillRect(x + 1, y + 1, w - 2, h - 2, CATPPUCCIN_BASE);
+
+        size_t count = buffer.count();
+        if (count < 2) return;
+
+        T max_val = buffer.max();
+        if (max_val == 0) max_val = 1; // Avoid division by zero
+
+        int prev_x = -1;
+        int prev_y = -1;
+
+        for (size_t i = 0; i < count; i++) {
+            int cur_x = x + 1 + (int)(i * (w - 2) / (Size - 1));
+            T val = buffer.get(i);
+            int cur_y = y + h - 1 - (int)(val * (h - 2) / max_val);
+
+            if (prev_x != -1) {
+                gfx->drawLine(prev_x, prev_y, cur_x, cur_y, color);
+            }
+            prev_x = cur_x;
+            prev_y = cur_y;
+        }
+    }
+
     void drawIdentityPage(const SystemState& state, bool labelsOnly) {
         if (labelsOnly) {
             gfx->setTextColor(CATPPUCCIN_BLUE);
