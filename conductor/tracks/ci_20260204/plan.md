@@ -1,11 +1,11 @@
 # Implementation Plan - GitHub CI Workflow
 
 ## Phase 1: Workflow Scaffolding
-- [ ] Task: Create the workflow file and define basic metadata
+- [x] Task: Create the workflow file and define basic metadata f4f52b7
     - [ ] Create `.github/workflows/ci.yml`
     - [ ] Set workflow name to `ci`
     - [ ] Configure `ubuntu-latest` runner
-- [ ] Task: Configure execution triggers
+- [x] Task: Configure execution triggers f4f52b7
     - [ ] Add `push` trigger for tags matching `v*.*.*`
     - [ ] Add `workflow_dispatch` trigger for manual runs
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Workflow Scaffolding' (Protocol in workflow.md)
