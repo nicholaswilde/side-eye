@@ -2,6 +2,7 @@
 name = "side-eye-host"
 version = "0.1.0"
 edition = "2021"
+description = "A minimalist, USB-powered hardware monitor for Linux system telemetry."
 
 [dependencies]
 serialport = "4.2"
@@ -37,4 +38,4 @@ assets = [
     ["assets/side-eye.service", "/etc/systemd/system/side-eye.service", "644"],
     ["assets/99-side-eye.rules", "/etc/udev/rules.d/99-side-eye.rules", "644"],
 ]
-systemd-units = { unit-name = "side-eye" }
+systemd-units = {}
