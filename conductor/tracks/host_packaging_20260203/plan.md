@@ -2,7 +2,7 @@
 
 ## Phases
 
-### Phase 1: Configuration & Assets
+### Phase 1: Configuration & Assets [checkpoint: 62928ee]
 - [x] Create `host/assets/side-eye.service` template. d28b283
 - [x] Create `host/assets/99-side-eye.rules`. 74406d3
 - [x] Verify udev rules against the actual hardware. 5670841
