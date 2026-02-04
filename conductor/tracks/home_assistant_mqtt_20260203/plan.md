@@ -1,8 +1,8 @@
 # Implementation Plan: Integration - Home Assistant via MQTT Discovery
 
 ## Phase 1: MQTT Client Infrastructure
-- [ ] Task: Firmware - Add dependencies to `platformio.ini`.
-    - [ ] Add `knolleary/PubSubClient` and `bblanchon/ArduinoJson`.
+- [x] Task: Firmware - Add dependencies to `platformio.ini`. (3cc854b)
+    - [x] Add `knolleary/PubSubClient` and `bblanchon/ArduinoJson`.
 - [ ] Task: Firmware - Implement Basic MQTT Connection.
     - [ ] Add MQTT client setup to `main.cpp`.
     - [ ] Add configuration fields to `WiFiManager` to collect MQTT credentials.
