@@ -177,7 +177,7 @@ jobs:
         # Create the Dockerfile on the fly
         echo "FROM ghcr.io/cross-rs/arm-unknown-linux-gnueabihf:main" > Dockerfile.custom
         echo "USER root" >> Dockerfile.custom
-        echo "RUN apt-get update && apt-get install -y binutils-arm-linux-gnueabihf" >> Dockerfile.custom
+        echo "RUN apt-get update && apt-get install -y binutils-arm-linux-gnueabihf libudev-dev pkg-config" >> Dockerfile.custom
         
         # Create Cross.toml on the fly
         echo "[target.arm-unknown-linux-gnueabihf]" > Cross.toml
@@ -190,13 +190,13 @@ jobs:
         ${{ env.CARGO }} build --release --verbose ${{ env.TARGET_FLAGS }}
 
     - name: Strip release binary (macos)
-      working-directory: host
+      # working-directory: host
       if: matrix.build == 'macos' || matrix.build == 'macos-arm'
       run: strip "${{ env.BIN }}"
 
     - name: Strip release binary (cross)
       if: matrix.build == 'linux' || matrix.build == 'linux-arm' || matrix.build == 'linux-armv7'
-      working-directory: host
+      # working-directory: host
       shell: bash
       run: |
         docker run --rm -v \
