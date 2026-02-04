@@ -22,4 +22,4 @@
 
 ## Coding Standards
 - **Rust (Host):** Follow idiomatic Rust patterns (using `cargo clippy`). Error handling should be robust using `anyhow` or `thiserror`.
-- **C++ (Firmware):** Maintain clean separation between hardware drivers (display/serial) and business logic. Use descriptive variable names and standard Arduino/PlatformIO directory structures.
+- **C++ (Firmware):** Follow a modular, class-based architecture. Use dedicated managers (e.g., `DisplayManager`, `SideEyeNetworkManager`) to encapsulate complex logic and keep `main.cpp` as a lightweight orchestrator. Use descriptive variable names and standard Arduino/PlatformIO directory structures.
