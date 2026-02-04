@@ -24,3 +24,17 @@ predicates = "3.0"
 inherits = "dev"
 incremental = false     # Disable incremental compilation for CI (often slower/buggy in CI cache)
 debug = 0               # No debug info needed for basic CI checks (speeds up build)
+
+[package.metadata.deb]
+maintainer = "nicholaswilde <ncwilde43@gmail.com>"
+copyright = "2026, nicholaswilde"
+license-file = ["../LICENSE", "0"]
+depends = "$auto, libudev-dev"
+section = "utility"
+priority = "optional"
+assets = [
+    ["target/release/side-eye-host", "/usr/bin/side-eye-host", "755"],
+    ["assets/side-eye.service", "/etc/systemd/system/side-eye.service", "644"],
+    ["assets/99-side-eye.rules", "/etc/udev/rules.d/99-side-eye.rules", "644"],
+]
+systemd-units = { unit-name = "side-eye" }
