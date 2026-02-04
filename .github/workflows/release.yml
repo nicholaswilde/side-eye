@@ -60,6 +60,17 @@ jobs:
         run: |
           cargo install cargo-deb
           cargo install cargo-generate-rpm
+      - name: Setup Custom Cross Image
+        if: matrix.build == 'linux-armv6'
+        run: |
+          # Create the Dockerfile on the fly
+          echo "FROM ghcr.io/cross-rs/arm-unknown-linux-gnueabihf:main" > Dockerfile.custom
+          echo "USER root" >> Dockerfile.custom
+          echo "RUN apt-get update && apt-get install -y binutils-arm-linux-gnueabihf" >> Dockerfile.custom
+          
+          # Create Cross.toml on the fly
+          echo "[target.arm-unknown-linux-gnueabihf]" > Cross.toml
+          echo "dockerfile = \"./Dockerfile.custom\"" >> Cross.toml
       - name: Build Release
         run: cargo build --release --locked
         working-directory: host
