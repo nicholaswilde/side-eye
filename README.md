@@ -52,11 +52,14 @@ task host:run
 ### Rust Host Agent
 - **Multi-Format Configuration:** Supports `side-eye.{toml,yaml,json}` and `.env` files.
 - **Zero-Config Discovery:** Automatically finds the ESP32-C6 by VID (0x303A) and creates a `/dev/side-eye` symlink via udev.
+- **Multi-Device Support:** Seamlessly handles connections to multiple SideEye devices simultaneously.
 - **SD Card Synchronization:** Synchronizes a local host directory to the device's integrated SD card over serial.
 - **Linux Packaging:** Officially supports `.deb` (Debian/Ubuntu) and `.rpm` (Fedora/RHEL) packages, plus systemd integration for auto-start.
 
 ### ESP32-C6 Firmware
+- **Catppuccin UI:** Polished, color-coded interface using the Catppuccin Mocha color palette.
 - **Paged UI:** Cycles through **Identity**, **Resources** (CPU/RAM bars), **Status** (Disk/Uptime), **SD Card**, **Thermal** (CPU Temp/GPU Load), and **Network** pages.
+- **Intelligent UI State:** Clean "Waiting..." mode when idle, automatically transitioning to a detailed dashboard upon host connection.
 - **Visual Alerts:** Banner changes color based on resource usage thresholds (Mauve -> Yellow -> Flashing Red) and automatically switches to the Resources page.
 - **Network History:** Dedicated page with real-time sparklines for download and upload throughput history.
 - **Home Assistant Integration:** Automatic MQTT Discovery—sensors appear instantly in your HA dashboard.
@@ -68,7 +71,7 @@ task host:run
 ## :mouse: Interactivity (Physical Button)
 
 The onboard "Boot" button (GPIO 9) provides full control:
-- **Single Click:** Advance to the next information page immediately.
+- **Single Click:** Advance to the next information page (or wakes the screen if it's off).
 - **Double Click:** Rotate the display 180 degrees (supports any USB port orientation).
 - **Long Press (1s):** Toggle the LCD backlight on/off manually.
 
