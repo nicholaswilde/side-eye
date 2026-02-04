@@ -23,6 +23,7 @@ enum Page {
     PAGE_RESOURCES,
     PAGE_STATUS,
     PAGE_SD,
+    PAGE_THERMAL,
     NUM_PAGES
 };
 
@@ -43,6 +44,9 @@ struct SystemState {
     uint64_t sd_used = 0;
     uint64_t sd_total = 0;
     String sd_sync_status = "Idle";
+    float thermal_c = 0;
+    float gpu_percent = 0;
+    uint8_t alert_level = 0;
     bool has_data = false;
     bool connected = false;
 };
@@ -88,8 +92,12 @@ public:
         gfx->fillScreen(color);
     }
 
-    void drawBanner(const char* title) {
-        gfx->fillRect(0, 0, 240, 20, CATPPUCCIN_MAUVE);
+    void drawBanner(const char* title, uint8_t alert_level = 0) {
+        uint16_t bg_color = CATPPUCCIN_MAUVE;
+        if (alert_level == 1) bg_color = CATPPUCCIN_YELLOW;
+        else if (alert_level >= 2) bg_color = CATPPUCCIN_RED;
+
+        gfx->fillRect(0, 0, 240, 20, bg_color);
         gfx->setTextColor(CATPPUCCIN_CRUST);
         gfx->setTextSize(1);
         
@@ -236,9 +244,39 @@ public:
         }
     }
 
+    void drawThermalPage(const SystemState& state, bool labelsOnly) {
+        if (labelsOnly) {
+            gfx->setCursor(start_x, start_y + line_h * 1.5);
+            gfx->setTextColor(CATPPUCCIN_RED);
+            gfx->print("Temp: ");
+
+            gfx->setCursor(start_x, start_y + line_h * 3.5);
+            gfx->setTextColor(CATPPUCCIN_GREEN);
+            gfx->print("GPU:  ");
+        } else {
+            gfx->setTextColor(CATPPUCCIN_TEXT);
+
+            // Thermal
+            gfx->fillRect(value_x, (int)(start_y + line_h * 1.5), 100, 8, CATPPUCCIN_BASE);
+            gfx->setCursor(value_x, (int)(start_y + line_h * 1.5));
+            gfx->print(state.thermal_c, 1);
+            gfx->println(" C");
+            uint16_t temp_col = (state.thermal_c > 80) ? CATPPUCCIN_RED : (state.thermal_c > 65) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+            drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, state.thermal_c, temp_col);
+
+            // GPU
+            gfx->fillRect(value_x, (int)(start_y + line_h * 3.5), 100, 8, CATPPUCCIN_BASE);
+            gfx->setCursor(value_x, (int)(start_y + line_h * 3.5));
+            gfx->print(state.gpu_percent, 1);
+            gfx->println("%");
+            uint16_t gpu_col = (state.gpu_percent > 80) ? CATPPUCCIN_RED : (state.gpu_percent > 50) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+            drawProgressBar(start_x, start_y + line_h * 4.5, 220, 8, state.gpu_percent, gpu_col);
+        }
+    }
+
     void drawStaticUI(const SystemState& state, Page currentPage, const char* version) {
         gfx->fillScreen(CATPPUCCIN_BASE);
-        drawBanner("SIDEEYE MONITOR");
+        drawBanner("SIDEEYE MONITOR", state.alert_level);
         drawWiFiStatus();
 
         gfx->setTextSize(1);
@@ -253,6 +291,7 @@ public:
                 case PAGE_RESOURCES: drawResourcesPage(state, true); break;
                 case PAGE_STATUS: drawStatusPage(state, true); break;
                 case PAGE_SD: drawSDPage(state, true); break;
+                case PAGE_THERMAL: drawThermalPage(state, true); break;
                 default: break;
             }
         }
@@ -282,6 +321,7 @@ public:
                 case PAGE_RESOURCES: drawResourcesPage(state, false); break;
                 case PAGE_STATUS: drawStatusPage(state, false); break;
                 case PAGE_SD: drawSDPage(state, false); break;
+                case PAGE_THERMAL: drawThermalPage(state, false); break;
                 default: break;
             }
         } else {

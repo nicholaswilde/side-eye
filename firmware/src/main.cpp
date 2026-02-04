@@ -66,6 +66,7 @@ void handleJson(String json) {
         state.has_data = true;
         state.connected = true;
     } else if (strcmp(type, "Stats") == 0) {
+        uint8_t old_alert = state.alert_level;
         state.cpu_percent = data["cpu_percent"];
         state.ram_used = data["ram_used"];
         state.ram_total = data["ram_total"];
@@ -74,8 +75,24 @@ void handleJson(String json) {
         state.net_up = data["net_up"];
         state.net_down = data["net_down"];
         state.uptime = data["uptime"];
+        state.thermal_c = data["thermal_c"];
+        state.gpu_percent = data["gpu_percent"];
+        state.alert_level = data["alert_level"] | 0;
         state.has_data = true;
         state.connected = true;
+
+        // Alert Priority: Jump to resources page if alert level increases to Warning or Critical
+        if (state.alert_level > 0 && state.alert_level > old_alert) {
+            if (currentPage != PAGE_RESOURCES) {
+                currentPage = PAGE_RESOURCES;
+                needsStaticDraw = true;
+                lastPageChange = millis();
+            }
+        }
+        
+        if (state.alert_level != old_alert) {
+            needsStaticDraw = true;
+        }
     } else if (strcmp(type, "ListFiles") == 0) {
         String path = data["path"] | "/";
         String list = syncManager.listFiles(path.c_str());
