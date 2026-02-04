@@ -34,4 +34,6 @@
 ## Build & Task Automation
 - **Task Runner:** [go-task](https://taskfile.dev/) (`Taskfile.yml`)
 - **Usage:** Used for all common project operations including building, testing, linting, and flashing.
+- **Packaging:** `cargo-deb` and `cargo-generate-rpm` for Linux distribution.
+- **CI/CD:** GitHub Actions for automated build, test, and artifact generation on release tags.
 
