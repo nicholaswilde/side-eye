@@ -8,11 +8,9 @@
 - [x] Verify udev rules against the actual hardware. 5670841
 
 ### Phase 2: Cargo Deb Setup
-- [ ] Add `cargo-deb` configuration to `host/Cargo.toml`.
-    - [ ] Map binary to `/usr/bin/side-eye-host`.
-    - [ ] Map assets to `/etc/systemd/system/` and `/etc/udev/rules.d/`.
-    - [ ] Define dependencies (`libudev`, etc.).
-- [ ] Test `cargo deb` build command.
+- [x] Add `cargo-deb` configuration to `host/Cargo.toml`. 02c5a95
+- [x] Test `cargo deb` build command. 10328
+
 
 ### Phase 3: RPM & Arch (Optional)
 - [ ] Add `cargo-generate-rpm` configuration (if feasible, otherwise prioritize Deb).
