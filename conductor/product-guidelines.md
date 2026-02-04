@@ -2,9 +2,11 @@
 
 ## Design Principles
 - **Minimalism First:** The 1.14" display is small (240x135). Information must be dense but legible. Avoid unnecessary borders or decorations that reduce text size.
-  - **Banner UI:** Use a centered title on a dedicated banner for clear context (e.g., "SIDEEYE MONITOR").
-  - **Paged UI:** Use automatic page cycling (e.g., every 5 seconds) to present dense information legibly across multiple screens.
-- **Functionality over Form:** The primary goal is readability. Color coding should be used semantically (e.g., Green for IP, Cyan for Hostname) rather than just for decoration.
+    - **Banner UI:** Use a centered title on a dedicated banner for clear context (e.g., "SIDEEYE MONITOR").
+    - **Paged UI:** Use automatic page cycling (e.g., every 5 seconds) to present dense information legibly across multiple screens.
+    - **Trend Visualization:** Use sparklines (compact line graphs) for data that is highly dynamic, such as network throughput, to provide historical context without sacrificing space.
+  - **Functionality over Form:** The primary goal is readability.
+   Color coding should be used semantically (e.g., Green for IP, Cyan for Hostname) rather than just for decoration.
 - **Set It and Forget It:** The host application should require zero user interaction after the initial launch. It should be invisible unless an error occurs.
 
 ## User Experience (UX)
