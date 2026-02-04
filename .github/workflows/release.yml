@@ -178,7 +178,7 @@ jobs:
         echo "FROM ghcr.io/cross-rs/arm-unknown-linux-gnueabihf:main" > Dockerfile.custom
         echo "USER root" >> Dockerfile.custom
         echo "RUN apt-get update && apt-get install -y binutils-arm-linux-gnueabihf libudev-dev pkg-config" >> Dockerfile.custom
-        echo "ENV PKG_CONFIG_PATH=/usr/lib/arm-unknown-linux-gnueabihf/pkgconfig/" >> Dockerfile.custom
+        echo "ENV PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig/" >> Dockerfile.custom
         # Create Cross.toml on the fly
         echo "[target.arm-unknown-linux-gnueabihf]" > Cross.toml
         echo "dockerfile = \"./Dockerfile.custom\"" >> Cross.toml
