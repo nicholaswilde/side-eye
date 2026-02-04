@@ -310,7 +310,35 @@ public:
     }
 
     void drawNetworkPage(const SystemState& state, bool labelsOnly) {
-        // To be implemented
+        if (labelsOnly) {
+            gfx->setCursor(start_x, start_y + line_h * 0.5);
+            gfx->setTextColor(CATPPUCCIN_GREEN);
+            gfx->print("Down: ");
+
+            gfx->setCursor(start_x, start_y + line_h * 3.0);
+            gfx->setTextColor(CATPPUCCIN_MAUVE);
+            gfx->print("Up:   ");
+        } else {
+            gfx->setTextColor(CATPPUCCIN_TEXT);
+
+            // Download
+            gfx->fillRect(value_x, (int)(start_y + line_h * 0.5), 180, 8, CATPPUCCIN_BASE);
+            gfx->setCursor(value_x, (int)(start_y + line_h * 0.5));
+            gfx->print(formatSpeed(state.net_down));
+            drawSparkline(start_x, start_y + line_h * 1.5, 220, 20, state.net_down_history, CATPPUCCIN_GREEN);
+
+            // Upload
+            gfx->fillRect(value_x, (int)(start_y + line_h * 3.0), 180, 8, CATPPUCCIN_BASE);
+            gfx->setCursor(value_x, (int)(start_y + line_h * 3.0));
+            gfx->print(formatSpeed(state.net_up));
+            drawSparkline(start_x, start_y + line_h * 4.0, 220, 20, state.net_up_history, CATPPUCCIN_MAUVE);
+        }
+    }
+
+    String formatSpeed(uint64_t bytesPerSec) {
+        if (bytesPerSec < 1024) return String(bytesPerSec) + " B/s";
+        if (bytesPerSec < 1024 * 1024) return String(bytesPerSec / 1024.0, 1) + " KB/s";
+        return String(bytesPerSec / (1024.0 * 1024.0), 1) + " MB/s";
     }
 
     void drawStaticUI(const SystemState& state, Page currentPage, const char* version) {
