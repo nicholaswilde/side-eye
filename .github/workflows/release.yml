@@ -210,7 +210,7 @@ jobs:
     - name: Strip release binary (cross)
       if: matrix.build == 'linux-armv6'
       shell: bash
-      # working-directory: host
+      working-directory: host
       run: |
         pwd && \
         ls && \
