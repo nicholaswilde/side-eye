@@ -17,9 +17,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Unique Wi-Fi AP Name**
-*Link: [./tracks/unique_wifi_ap_20260203/](./tracks/unique_wifi_ap_20260203/)*
-
 ---
 
 - [ ] **Track: Have the ability to read the SD card on the ESP32 device. In the config file, specify a path on the host and then it performs a sync between the host folder and the SD card on the esp32 device. Show some type of graphic on the screen with regards to the SD card and sync status.**
