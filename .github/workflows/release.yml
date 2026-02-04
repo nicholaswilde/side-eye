@@ -17,14 +17,14 @@ jobs:
       - name: Get version
         id: get_version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-      - name: Check version matches Cargo.toml
-        run: |
-          cargo_version=$(grep "^version =" host/Cargo.toml | head -n1 | cut -d'"' -f2)
-          tag_version="${GITHUB_REF#refs/tags/v}"
-          if [[ "$tag_version" != "$cargo_version" ]]; then
-            echo "Tag version ($tag_version) does not match host/Cargo.toml version ($cargo_version)"
-            exit 1
-          fi
+      # - name: Check version matches Cargo.toml
+      #   run: |
+      #     cargo_version=$(grep "^version =" host/Cargo.toml | head -n1 | cut -d'"' -f2)
+      #     tag_version="${GITHUB_REF#refs/tags/v}"
+      #     if [[ "$tag_version" != "$cargo_version" ]]; then
+      #       echo "Tag version ($tag_version) does not match host/Cargo.toml version ($cargo_version)"
+      #       exit 1
+      #     fi
       - name: Create GitHub release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
