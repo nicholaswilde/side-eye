@@ -1,5 +1,6 @@
 mod config;
 mod monitor;
+mod sync;
 
 use anyhow::{Context, Result};
 use clap::Parser;
@@ -180,6 +181,16 @@ fn discover_and_connect(
                             eprintln!("Failed to send initial identity to {}", port_name);
                         }
                     }
+
+                    // Trigger SD Sync
+                    let sync_config = config.sd_sync.clone();
+                    let sync_tx = tx.clone();
+                    thread::spawn(move || {
+                        let engine = sync::SDSyncEngine::new(sync_config, sync_tx);
+                        if let Err(e) = engine.run_sync() {
+                            eprintln!("SD Sync error: {}", e);
+                        }
+                    });
 
                     thread::spawn(move || {
                         let mut serial = serial;

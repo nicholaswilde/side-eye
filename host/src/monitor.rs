@@ -30,11 +30,35 @@ pub struct SystemStats {
     pub uptime: u64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FileInfo {
+    pub n: String, // name
+    pub s: u64,    // size
+    pub d: bool,   // is_dir
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ChunkData {
+    pub path: String,
+    pub offset: usize,
+    pub data: String, // Base64 encoded
+}
+
 #[derive(Debug, Serialize)]
 #[serde(tag = "type", content = "data")]
 pub enum HostMessage {
     Identity(StaticInfo),
     Stats(SystemStats),
+    ListFiles { path: String },
+    WriteChunk(ChunkData),
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(tag = "type", content = "data")]
+pub enum DeviceMessage {
+    Version { version: String },
+    FileList(Vec<FileInfo>),
+    OperationResult { success: bool, message: String },
 }
 
 impl SystemMonitor {

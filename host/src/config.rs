@@ -13,6 +13,25 @@ pub struct Config {
     pub target_vids: Vec<u16>,
     #[serde(default = "default_baud_rate")]
     pub baud_rate: u32,
+    #[serde(default)]
+    pub sd_sync: SDSyncConfig,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct SDSyncConfig {
+    pub local_path: Option<String>,
+    #[serde(default = "default_sync_mode")]
+    pub sync_mode: String,
+    #[serde(default = "default_conflict_resolution")]
+    pub conflict_resolution: String,
+}
+
+fn default_sync_mode() -> String {
+    "one_way".to_string()
+}
+
+fn default_conflict_resolution() -> String {
+    "host_wins".to_string()
 }
 
 fn default_ports() -> Vec<String> {

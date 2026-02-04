@@ -17,8 +17,8 @@
     - [x] Publish sensor states (Hostname, IP, MAC) whenever a new valid serial packet is processed.
 
 ## Phase 3: Verification & Integration
-- [ ] Task: Integration - Verify in Home Assistant.
-    - [ ] Connect device to an MQTT broker and check if entities appear in HA "MQTT" integration.
-- [ ] Task: Integration - Test Real-time Updates.
-    - [ ] Change network info on the host and verify HA updates along with the LCD.
-- [ ] Task: Conductor - User Manual Verification 'Home Assistant Integration' (Protocol in workflow.md)
+- [x] Task: Integration - Verify in Home Assistant. (900e5a0)
+    - [x] Connect device to an MQTT broker and check if entities appear in HA "MQTT" integration.
+- [x] Task: Integration - Test Real-time Updates. (900e5a0)
+    - [x] Change network info on the host and verify HA updates along with the LCD.
+- [x] Task: Conductor - User Manual Verification 'Home Assistant Integration' (Protocol in workflow.md) (900e5a0)

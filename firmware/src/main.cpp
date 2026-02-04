@@ -5,6 +5,9 @@
 #include <esp_mac.h>
 #include <PubSubClient.h>
 #include <LittleFS.h>
+#include <SD.h>
+#include <SPI.h>
+#include <mbedtls/base64.h>
 #include "catppuccin_colors.h"
 
 /* 
@@ -18,6 +21,12 @@
 #define LCD_RST 4
 #define LCD_BL 6
 #define BTN_PIN 9
+
+// SD Card Configuration
+#define SD_SCK 1
+#define SD_MOSI 2
+#define SD_MISO 0
+#define SD_CS 7
 
 #ifndef FIRMWARE_VERSION
 #define FIRMWARE_VERSION "0.0.0-unknown"
@@ -98,6 +107,52 @@ bool isScreenOn = true;
 unsigned long lastActivityTime = 0;
 const unsigned long AUTO_OFF_DELAY = 60000; // 1 minute
 
+SPIClass sdSPI(HSPI);
+
+void initSD() {
+    sdSPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
+    if (!SD.begin(SD_CS, sdSPI)) {
+        Serial.println("SD Initialization failed!");
+    } else {
+        Serial.println("SD Initialized.");
+    }
+}
+
+String listFiles(const char * dirname) {
+    JsonDocument doc;
+    JsonArray array = doc.to<JsonArray>();
+    
+    File root = SD.open(dirname);
+    if(!root || !root.isDirectory()){
+        return "[]";
+    }
+
+    File file = root.openNextFile();
+    while(file){
+        JsonObject obj = array.add<JsonObject>();
+        obj["n"] = String(file.name());
+        obj["s"] = file.size();
+        obj["d"] = file.isDirectory();
+        file = root.openNextFile();
+    }
+    
+    String output;
+    serializeJson(doc, output);
+    return output;
+}
+
+bool writeChunk(const char* path, size_t offset, uint8_t* data, size_t len) {
+    File file = SD.open(path, offset == 0 ? FILE_WRITE : FILE_APPEND);
+    if (!file) return false;
+    if (offset == 0) {
+        // New file or overwrite
+    }
+    file.seek(offset);
+    size_t written = file.write(data, len);
+    file.close();
+    return written == len;
+}
+
 struct SystemState {
     String hostname = "Unknown";
     String ip = "No IP";
@@ -112,6 +167,9 @@ struct SystemState {
     uint64_t net_up = 0;
     uint64_t net_down = 0;
     uint64_t uptime = 0;
+    uint64_t sd_used = 0;
+    uint64_t sd_total = 0;
+    String sd_sync_status = "Idle";
     bool has_data = false;
     bool connected = false;
 };
@@ -126,6 +184,7 @@ enum Page {
     PAGE_IDENTITY,
     PAGE_RESOURCES,
     PAGE_STATUS,
+    PAGE_SD,
     NUM_PAGES
 };
 
@@ -389,6 +448,34 @@ void drawStatusPage(bool labelsOnly) {
     }
 }
 
+void drawSDPage(bool labelsOnly) {
+    if (labelsOnly) {
+        gfx->setCursor(start_x, start_y + line_h * 1.5);
+        gfx->setTextColor(CATPPUCCIN_MAUVE);
+        gfx->print("SD Card:");
+
+        gfx->setCursor(start_x, start_y + line_h * 3.5);
+        gfx->setTextColor(CATPPUCCIN_YELLOW);
+        gfx->print("Sync:");
+    } else {
+        gfx->setTextColor(CATPPUCCIN_TEXT);
+
+        // SD Storage
+        uint64_t total = SD.totalBytes();
+        uint64_t used = SD.usedBytes();
+        gfx->fillRect(value_x + 20, (int)(start_y + line_h * 1.5), 160, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x + 20, (int)(start_y + line_h * 1.5));
+        gfx->printf("%llu / %llu MB", used / 1024 / 1024, total / 1024 / 1024);
+        float sd_p = (total > 0) ? (float)used / total * 100.0 : 0;
+        drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, sd_p, CATPPUCCIN_MAUVE);
+
+        // Sync Status
+        gfx->fillRect(value_x + 10, (int)(start_y + line_h * 3.5), 170, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x + 10, (int)(start_y + line_h * 3.5));
+        gfx->print(state.sd_sync_status);
+    }
+}
+
 void drawStaticUI() {
     gfx->fillScreen(CATPPUCCIN_BASE);
     drawBanner("SIDEEYE MONITOR");
@@ -405,6 +492,7 @@ void drawStaticUI() {
             case PAGE_IDENTITY: drawIdentityPage(true); break;
             case PAGE_RESOURCES: drawResourcesPage(true); break;
             case PAGE_STATUS: drawStatusPage(true); break;
+            case PAGE_SD: drawSDPage(true); break;
             default: break;
         }
     }
@@ -438,6 +526,7 @@ void updateDynamicValues() {
             case PAGE_IDENTITY: drawIdentityPage(false); break;
             case PAGE_RESOURCES: drawResourcesPage(false); break;
             case PAGE_STATUS: drawStatusPage(false); break;
+            case PAGE_SD: drawSDPage(false); break;
             default: break;
         }
     } else {
@@ -487,6 +576,8 @@ void setup() {
     if (!gfx->begin()) {
         Serial.println("gfx->begin() failed!");
     }
+    
+    initSD();
     
     gfx->setRotation(current_rotation); 
     gfx->fillScreen(CATPPUCCIN_BASE);
@@ -630,6 +721,43 @@ void handleJson(String json) {
         state.uptime = data["uptime"];
         state.has_data = true;
         state.connected = true;
+    } else if (strcmp(type, "ListFiles") == 0) {
+        String path = data["path"] | "/";
+        String list = listFiles(path.c_str());
+        Serial.print("{\"type\":\"FileList\",\"data\":");
+        Serial.print(list);
+        Serial.println("}");
+    } else if (strcmp(type, "WriteChunk") == 0) {
+        String path = data["path"];
+        size_t offset = data["offset"];
+        String b64data = data["data"];
+        
+        static unsigned long lastSyncTime = 0;
+        state.sd_sync_status = "Syncing...";
+        currentPage = PAGE_SD;
+        lastPageChange = millis();
+        lastActivityTime = millis();
+        needs_static_draw = true;
+
+        size_t b64len = b64data.length();
+        size_t decodedLen = (b64len * 3) / 4 + 1; 
+        uint8_t* decoded = (uint8_t*)malloc(decodedLen);
+        size_t actualLen = 0;
+        
+        int res = mbedtls_base64_decode(decoded, decodedLen, &actualLen, (const unsigned char*)b64data.c_str(), b64len);
+        
+        bool success = (res == 0) && writeChunk(path.c_str(), offset, decoded, actualLen);
+        free(decoded);
+        
+        if (success) {
+            state.sd_sync_status = "Syncing..."; // Keep syncing status
+        } else {
+            state.sd_sync_status = "Error!";
+        }
+
+        Serial.print("{\"type\":\"OperationResult\",\"data\":{\"success\":");
+        Serial.print(success ? "true" : "false");
+        Serial.println(",\"message\":\"Chunk written\"}}");
     }
 
     if (state.connected && !was_connected) {
@@ -652,6 +780,13 @@ void handleJson(String json) {
 }
 
 void loop() {
+    static unsigned long lastSyncCheck = 0;
+    if (state.sd_sync_status == "Syncing..." && millis() - lastActivityTime > 2000) {
+        state.sd_sync_status = "Idle";
+        needs_static_draw = true;
+        updateDynamicValues();
+    }
+
     Button::Event ev = button.update();
     if (ev == Button::CLICK) {
         lastActivityTime = millis();
