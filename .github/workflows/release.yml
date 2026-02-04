@@ -182,6 +182,10 @@ jobs:
         # Create Cross.toml on the fly
         echo "[target.arm-unknown-linux-gnueabihf]" > Cross.toml
         echo "dockerfile = \"./Dockerfile.custom\"" >> Cross.toml
+        echo "[target.aarch64-unknown-linux-gnu.env]" >> Cross.toml
+        echo "passthrough = [" >> Cross.toml
+        echo "\"PKG_CONFIG_PATH\"" >> Cross.toml
+        echo "]" >> Cross.toml
         
     - name: Build release binary
       shell: bash
