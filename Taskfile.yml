@@ -54,6 +54,38 @@ tasks:
     cmds:
       - cargo build
 
+  host:build:amd64:
+    desc: Build for AMD64 (x86_64)
+    dir: host
+    cmds:
+      - cross build --release --target x86_64-unknown-linux-gnu
+
+  host:build:arm64:
+    desc: Build for ARM64 (aarch64)
+    dir: host
+    cmds:
+      - cross build --release --target aarch64-unknown-linux-gnu
+
+  host:build:armv7:
+    desc: Build for ARMv7
+    dir: host
+    cmds:
+      - cross build --release --target armv7-unknown-linux-gnueabihf
+
+  host:build:armv6:
+    desc: Build for ARMv6
+    dir: host
+    cmds:
+      - cross build --release --target arm-unknown-linux-gnueabihf
+
+  host:build:all:
+    desc: Build for all supported architectures
+    cmds:
+      - task: host:build:amd64
+      - task: host:build:arm64
+      - task: host:build:armv7
+      - task: host:build:armv6
+
   host:run:
     desc: Run the Host (Rust)
     dir: host
