@@ -282,6 +282,10 @@ public:
         }
     }
 
+    void drawNetworkPage(const SystemState& state, bool labelsOnly) {
+        // To be implemented
+    }
+
     void drawStaticUI(const SystemState& state, Page currentPage, const char* version) {
         gfx->fillScreen(CATPPUCCIN_BASE);
         drawBanner("SIDEEYE MONITOR", state.alert_level);
@@ -300,6 +304,7 @@ public:
                 case PAGE_STATUS: drawStatusPage(state, true); break;
                 case PAGE_SD: drawSDPage(state, true); break;
                 case PAGE_THERMAL: drawThermalPage(state, true); break;
+                case PAGE_NETWORK: drawNetworkPage(state, true); break;
                 default: break;
             }
         }
@@ -330,6 +335,7 @@ public:
                 case PAGE_STATUS: drawStatusPage(state, false); break;
                 case PAGE_SD: drawSDPage(state, false); break;
                 case PAGE_THERMAL: drawThermalPage(state, false); break;
+                case PAGE_NETWORK: drawNetworkPage(state, false); break;
                 default: break;
             }
         } else {
