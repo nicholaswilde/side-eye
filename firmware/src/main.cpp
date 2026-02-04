@@ -23,64 +23,6 @@
 #define FIRMWARE_VERSION "0.0.0-unknown"
 #endif
 
-// MQTT Settings
-char mqtt_server[40];
-char mqtt_port[6] = "1883";
-char mqtt_user[40];
-char mqtt_pass[40];
-char mqtt_topic_prefix[40] = "side-eye";
-
-bool shouldSaveConfig = false;
-
-// Callback notifying us of the need to save config
-void saveConfigCallback () {
-  Serial.println("Should save config");
-  shouldSaveConfig = true;
-}
-
-WiFiClient espClient;
-PubSubClient mqttClient(espClient);
-
-String deviceID = "";
-
-void reconnectMQTT() {
-    // Attempt to connect
-    String clientId = "SideEye-" + deviceID;
-    
-    bool connected = false;
-    if (strlen(mqtt_user) > 0) {
-        connected = mqttClient.connect(clientId.c_str(), mqtt_user, mqtt_pass);
-    } else {
-        connected = mqttClient.connect(clientId.c_str());
-    }
-
-    if (connected) {
-        Serial.println("MQTT connected");
-        // Once connected, publish an announcement... (Phase 2)
-    } else {
-        Serial.print("failed, rc=");
-        Serial.print(mqttClient.state());
-    }
-}
-
-String getDeviceID() {
-    uint8_t mac[6];
-    esp_read_mac(mac, ESP_MAC_WIFI_STA);
-    char id[7];
-    snprintf(id, sizeof(id), "%02X%02X%02X", mac[3], mac[4], mac[5]);
-    return String(id);
-}
-
-Arduino_DataBus *bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
-
-// Centering 135x240 Portrait area in 240x320 RAM, then rotating to Landscape
-Arduino_GFX *gfx = new Arduino_ST7789(
-    bus, LCD_RST, 0 /* rotation */, true /* IPS */,
-    135 /* width */, 240 /* height */,
-    52 /* col offset 1 */, 40 /* row offset 1 */,
-    53 /* col offset 2 */, 40 /* row offset 2 */
-);
-
 struct SystemState {
     String hostname = "Unknown";
     String ip = "No IP";
@@ -104,6 +46,137 @@ SystemState last_state;
 int current_rotation = 1; // 1 = 90 deg, 3 = 270 deg (180 deg flip)
 bool needs_static_draw = true;
 bool waiting_message_active = true;
+
+// MQTT Settings
+char mqtt_server[40];
+char mqtt_port[6] = "1883";
+char mqtt_user[40];
+char mqtt_pass[40];
+char mqtt_topic_prefix[40] = "side-eye";
+
+bool shouldSaveConfig = false;
+
+// Callback notifying us of the need to save config
+void saveConfigCallback () {
+  Serial.println("Should save config");
+  shouldSaveConfig = true;
+}
+
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
+
+String deviceID = "";
+
+void publishHADiscovery() {
+    String baseTopic = String(mqtt_topic_prefix) + "/" + deviceID;
+    String discoveryPrefix = "homeassistant/sensor/side_eye_" + deviceID;
+    
+    struct Sensor {
+        const char* name;
+        const char* key;
+        const char* icon;
+    };
+
+    Sensor sensors[] = {
+        {"Hostname", "hostname", "mdi:label"},
+        {"IP Address", "ip", "mdi:ip-network"},
+        {"MAC Address", "mac", "mdi:ethernet"},
+        {"WiFi RSSI", "rssi", "mdi:wifi"}
+    };
+
+    for (const auto& s : sensors) {
+        JsonDocument doc;
+        doc["name"] = String("SideEye ") + deviceID + " " + s.name;
+        doc["state_topic"] = baseTopic + "/state";
+        doc["value_template"] = String("{{ value_json.") + s.key + " }}";
+        doc["unique_id"] = String("side_eye_") + deviceID + "_" + s.key;
+        doc["icon"] = s.icon;
+        
+        JsonObject dev = doc["device"].to<JsonObject>();
+        dev["identifiers"][0] = String("side_eye_") + deviceID;
+        dev["name"] = String("SideEye ") + deviceID;
+        dev["model"] = "ESP32-C6 GEEK";
+        dev["manufacturer"] = "Waveshare";
+        dev["sw_version"] = FIRMWARE_VERSION;
+
+        String topic = discoveryPrefix + "_" + s.key + "/config";
+        String payload;
+        serializeJson(doc, payload);
+        mqttClient.publish(topic.c_str(), payload.c_str(), true);
+    }
+
+    // Availability Binary Sensor
+    JsonDocument binDoc;
+    binDoc["name"] = String("SideEye ") + deviceID + " Status";
+    binDoc["state_topic"] = baseTopic + "/status";
+    binDoc["unique_id"] = String("side_eye_") + deviceID + "_status";
+    binDoc["device_class"] = "connectivity";
+    binDoc["payload_on"] = "online";
+    binDoc["payload_off"] = "offline";
+
+    JsonObject binDev = binDoc["device"].to<JsonObject>();
+    binDev["identifiers"][0] = String("side_eye_") + deviceID;
+
+    String binTopic = "homeassistant/binary_sensor/side_eye_" + deviceID + "_status/config";
+    String binPayload;
+    serializeJson(binDoc, binPayload);
+    mqttClient.publish(binTopic.c_str(), binPayload.c_str(), true);
+}
+
+void reconnectMQTT() {
+    // Attempt to connect
+    String clientId = "SideEye-" + deviceID;
+    String statusTopic = String(mqtt_topic_prefix) + "/" + deviceID + "/status";
+    
+    bool connected = false;
+    if (strlen(mqtt_user) > 0) {
+        connected = mqttClient.connect(clientId.c_str(), mqtt_user, mqtt_pass, statusTopic.c_str(), 1, true, "offline");
+    } else {
+        connected = mqttClient.connect(clientId.c_str(), statusTopic.c_str(), 1, true, "offline");
+    }
+
+    if (connected) {
+        Serial.println("MQTT connected");
+        mqttClient.publish(statusTopic.c_str(), "online", true);
+        publishHADiscovery();
+    } else {
+        Serial.print("failed, rc=");
+        Serial.print(mqttClient.state());
+    }
+}
+
+void publishMQTTState() {
+    if (!mqttClient.connected()) return;
+
+    String stateTopic = String(mqtt_topic_prefix) + "/" + deviceID + "/state";
+    JsonDocument doc;
+    doc["hostname"] = state.hostname;
+    doc["ip"] = state.ip;
+    doc["mac"] = state.mac;
+    doc["rssi"] = WiFi.RSSI();
+
+    String payload;
+    serializeJson(doc, payload);
+    mqttClient.publish(stateTopic.c_str(), payload.c_str());
+}
+
+String getDeviceID() {
+    uint8_t mac[6];
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    char id[7];
+    snprintf(id, sizeof(id), "%02X%02X%02X", mac[3], mac[4], mac[5]);
+    return String(id);
+}
+
+Arduino_DataBus *bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+
+// Centering 135x240 Portrait area in 240x320 RAM, then rotating to Landscape
+Arduino_GFX *gfx = new Arduino_ST7789(
+    bus, LCD_RST, 0 /* rotation */, true /* IPS */,
+    135 /* width */, 240 /* height */,
+    52 /* col offset 1 */, 40 /* row offset 1 */,
+    53 /* col offset 2 */, 40 /* row offset 2 */
+);
 
 const int start_x = 10;
 const int start_y = 30;
@@ -432,6 +505,10 @@ void handleJson(String json) {
 
     if (state.connected && !was_connected) {
         needs_static_draw = true;
+    }
+
+    if (state.connected) {
+        publishMQTTState();
     }
 
     if (strcmp(type, "GetVersion") == 0) {
