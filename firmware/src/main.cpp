@@ -47,6 +47,17 @@ int current_rotation = 1; // 1 = 90 deg, 3 = 270 deg (180 deg flip)
 bool needs_static_draw = true;
 bool waiting_message_active = true;
 
+enum Page {
+    PAGE_IDENTITY,
+    PAGE_RESOURCES,
+    PAGE_STATUS,
+    NUM_PAGES
+};
+
+Page currentPage = PAGE_IDENTITY;
+unsigned long lastPageChange = 0;
+const unsigned long PAGE_DURATION = 5000; // 5 seconds per page
+
 // MQTT Settings
 char mqtt_server[40];
 char mqtt_port[6] = "1883";
@@ -193,6 +204,15 @@ void drawWiFiStatus() {
     }
 }
 
+void drawProgressBar(int x, int y, int w, int h, float percent, uint16_t color) {
+    gfx->drawRect(x, y, w, h, CATPPUCCIN_SURFACE0);
+    int fill_w = (int)((w - 2) * (percent / 100.0));
+    if (fill_w < 0) fill_w = 0;
+    if (fill_w > w - 2) fill_w = w - 2;
+    gfx->fillRect(x + 1, y + 1, w - 2, h - 2, CATPPUCCIN_BASE);
+    gfx->fillRect(x + 1, y + 1, fill_w, h - 2, color);
+}
+
 void drawBanner(const char* title) {
     gfx->fillRect(0, 0, 240, 20, CATPPUCCIN_MAUVE);
     gfx->setTextColor(CATPPUCCIN_CRUST);
@@ -203,6 +223,95 @@ void drawBanner(const char* title) {
     gfx->getTextBounds(title, 0, 0, &x1, &y1, &w, &h);
     gfx->setCursor((240 - w) / 2, 6);
     gfx->println(title);
+}
+
+void drawIdentityPage(bool labelsOnly) {
+    if (labelsOnly) {
+        gfx->setTextColor(CATPPUCCIN_BLUE);
+        gfx->setCursor(start_x, start_y + line_h * 1.5);
+        gfx->print("Host: ");
+
+        gfx->setCursor(start_x, start_y + line_h * 2.5);
+        gfx->setTextColor(CATPPUCCIN_GREEN);
+        gfx->print("IP:   ");
+
+        gfx->setCursor(start_x, start_y + line_h * 3.5);
+        gfx->setTextColor(CATPPUCCIN_FLAMINGO);
+        gfx->print("MAC:  ");
+    } else {
+        gfx->setTextColor(CATPPUCCIN_TEXT);
+        
+        gfx->fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x, (int)(start_y + line_h * 1.5));
+        gfx->println(state.hostname);
+
+        gfx->fillRect(value_x, (int)(start_y + line_h * 2.5), 180, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x, (int)(start_y + line_h * 2.5));
+        gfx->println(state.ip);
+
+        gfx->fillRect(value_x, (int)(start_y + line_h * 3.5), 180, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x, (int)(start_y + line_h * 3.5));
+        gfx->println(state.mac);
+    }
+}
+
+void drawResourcesPage(bool labelsOnly) {
+    if (labelsOnly) {
+        gfx->setCursor(start_x, start_y + line_h * 1.5);
+        gfx->setTextColor(CATPPUCCIN_PEACH);
+        gfx->print("CPU:  ");
+
+        gfx->setCursor(start_x, start_y + line_h * 3.5);
+        gfx->setTextColor(CATPPUCCIN_SAPPHIRE);
+        gfx->print("RAM:  ");
+    } else {
+        gfx->setTextColor(CATPPUCCIN_TEXT);
+
+        // CPU
+        gfx->fillRect(value_x, (int)(start_y + line_h * 1.5), 100, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x, (int)(start_y + line_h * 1.5));
+        gfx->print(state.cpu_percent, 1);
+        gfx->println("%");
+        uint16_t cpu_col = (state.cpu_percent > 80) ? CATPPUCCIN_RED : (state.cpu_percent > 50) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+        drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, state.cpu_percent, cpu_col);
+
+        // RAM
+        gfx->fillRect(value_x, (int)(start_y + line_h * 3.5), 180, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x, (int)(start_y + line_h * 3.5));
+        gfx->printf("%llu / %llu MB", state.ram_used / 1024 / 1024, state.ram_total / 1024 / 1024);
+        float ram_p = (state.ram_total > 0) ? (float)state.ram_used / state.ram_total * 100.0 : 0;
+        uint16_t ram_col = (ram_p > 80) ? CATPPUCCIN_RED : (ram_p > 50) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+        drawProgressBar(start_x, start_y + line_h * 4.5, 220, 8, ram_p, ram_col);
+    }
+}
+
+void drawStatusPage(bool labelsOnly) {
+    if (labelsOnly) {
+        gfx->setCursor(start_x, start_y + line_h * 1.5);
+        gfx->setTextColor(CATPPUCCIN_TEAL);
+        gfx->print("Disk: ");
+
+        gfx->setCursor(start_x, start_y + line_h * 3.5);
+        gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
+        gfx->print("Uptime: ");
+    } else {
+        gfx->setTextColor(CATPPUCCIN_TEXT);
+
+        // Disk
+        gfx->fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, CATPPUCCIN_BASE);
+        gfx->setCursor(value_x, (int)(start_y + line_h * 1.5));
+        gfx->printf("%llu / %llu GB", state.disk_used / 1024 / 1024 / 1024, state.disk_total / 1024 / 1024 / 1024);
+        float disk_p = (state.disk_total > 0) ? (float)state.disk_used / state.disk_total * 100.0 : 0;
+        uint16_t disk_col = (disk_p > 80) ? CATPPUCCIN_RED : (disk_p > 50) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+        drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, disk_p, disk_col);
+
+        // Uptime
+        gfx->fillRect(value_x + 20, (int)(start_y + line_h * 3.5), 160, 8, CATPPUCCIN_BASE);
+        uint32_t h_up = state.uptime / 3600;
+        uint32_t m_up = (state.uptime % 3600) / 60;
+        gfx->setCursor(value_x + 20, (int)(start_y + line_h * 3.5));
+        gfx->printf("%uh %um", h_up, m_up);
+    }
 }
 
 void drawStaticUI() {
@@ -217,27 +326,12 @@ void drawStaticUI() {
     gfx->print("Status:");
 
     if (state.connected) {
-        gfx->setTextColor(CATPPUCCIN_BLUE);
-        gfx->setCursor(start_x, start_y + line_h * 1.5);
-        gfx->print("Host: ");
-
-        gfx->setCursor(start_x, start_y + line_h * 2.5);
-        gfx->setTextColor(CATPPUCCIN_GREEN);
-        gfx->print("IP:   ");
-
-        gfx->setCursor(start_x, (int)(start_y + line_h * 4.0));
-        gfx->setTextColor(CATPPUCCIN_PEACH);
-        gfx->print("CPU:  ");
-
-        gfx->setCursor(start_x, start_y + line_h * 5.5);
-        gfx->setTextColor(CATPPUCCIN_SAPPHIRE);
-        gfx->print("RAM:  ");
-
-        int bar_w = 150;
-        int bar_h = 8;
-        int bar_x = start_x + 45;
-        int bar_y = start_y + (int)(line_h * 5.5);
-        gfx->drawRect(bar_x, bar_y - 1, bar_w, bar_h, CATPPUCCIN_SURFACE0);
+        switch (currentPage) {
+            case PAGE_IDENTITY: drawIdentityPage(true); break;
+            case PAGE_RESOURCES: drawResourcesPage(true); break;
+            case PAGE_STATUS: drawStatusPage(true); break;
+            default: break;
+        }
     }
 
     // Version back in bottom right corner
@@ -264,59 +358,16 @@ void updateDynamicValues() {
     if (state.connected) {
         gfx->setTextColor(CATPPUCCIN_GREEN);
         gfx->println("Connected");
+
+        switch (currentPage) {
+            case PAGE_IDENTITY: drawIdentityPage(false); break;
+            case PAGE_RESOURCES: drawResourcesPage(false); break;
+            case PAGE_STATUS: drawStatusPage(false); break;
+            default: break;
+        }
     } else {
         gfx->setTextColor(CATPPUCCIN_PEACH);
         gfx->println("Waiting...");
-    }
-
-    if (state.connected) {
-        gfx->setTextColor(CATPPUCCIN_TEXT);
-
-        // Hostname
-        if (state.hostname != last_state.hostname || force_redraw) {
-            gfx->fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, CATPPUCCIN_BASE);
-            gfx->setCursor(value_x, (int)(start_y + line_h * 1.5));
-            gfx->println(state.hostname);
-        }
-
-        // IP
-        if (state.ip != last_state.ip || force_redraw) {
-            gfx->fillRect(value_x, (int)(start_y + line_h * 2.5), 180, 8, CATPPUCCIN_BASE);
-            gfx->setCursor(value_x, (int)(start_y + line_h * 2.5));
-            gfx->println(state.ip);
-        }
-
-        // CPU
-        if (abs(state.cpu_percent - last_state.cpu_percent) > 0.1 || force_redraw) {
-            gfx->fillRect(value_x, (int)(start_y + line_h * 4.0), 100, 8, CATPPUCCIN_BASE);
-            gfx->setCursor(value_x, (int)(start_y + line_h * 4.0));
-            gfx->print(state.cpu_percent, 1);
-            gfx->println("%");
-        }
-
-        // RAM Bar
-        if (state.ram_used != last_state.ram_used || state.ram_total != last_state.ram_total || force_redraw) {
-            int bar_w = 150;
-            int bar_h = 8;
-            int bar_x = start_x + 45;
-            int bar_y = start_y + (int)(line_h * 5.5);
-            if (state.ram_total > 0) {
-                float ram_p = (float)state.ram_used / state.ram_total;
-                int used_w = (int)((bar_w - 2) * ram_p);
-                gfx->fillRect(bar_x + 1, bar_y, bar_w - 2, bar_h - 2, CATPPUCCIN_BASE);
-                gfx->fillRect(bar_x + 1, bar_y, used_w, bar_h - 2, CATPPUCCIN_SAPPHIRE);
-            }
-        }
-
-        // Uptime
-        if (state.uptime != last_state.uptime || force_redraw) {
-            gfx->fillRect(start_x, 120, 180, 8, CATPPUCCIN_BASE);
-            uint32_t h_up = state.uptime / 3600;
-            uint32_t m_up = (state.uptime % 3600) / 60;
-            gfx->setCursor(start_x, 120);
-            gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
-            gfx->printf("Uptime: %uh %um", h_up, m_up);
-        }
     }
 
     last_state = state;
@@ -564,6 +615,17 @@ void loop() {
     if (millis() - lastWiFiCheck > 10000) {
         drawWiFiStatus();
         lastWiFiCheck = millis();
+    }
+
+    // Page cycling
+    if (state.connected) {
+        unsigned long now = millis();
+        if (now - lastPageChange > PAGE_DURATION) {
+            currentPage = static_cast<Page>((currentPage + 1) % NUM_PAGES);
+            lastPageChange = now;
+            needs_static_draw = true;
+            updateDynamicValues();
+        }
     }
 
     while (Serial.available()) {
