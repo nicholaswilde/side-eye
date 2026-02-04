@@ -1,0 +1,2 @@
+# Waveshare ESP32-C6-GEEK (and other Espressif CDC devices)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", GROUP="dialout", MODE="0660", SYMLINK+="side-eye"
