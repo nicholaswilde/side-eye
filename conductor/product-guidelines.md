@@ -15,6 +15,10 @@
 - **Visual Feedback:** The device should indicate a "Waiting for Host..." state on the screen if it has power but is not receiving data, distinguishing "no power" from "no data."
   - **Contextual UI:** Only display host-specific labels and metrics when a connection is active to maintain a clean aesthetic during idle periods.
   - **On-Screen Status:** Small visual indicators (e.g., connection status dots) provide real-time feedback without cluttering the UI.
+- **Power Management:**
+  - **Auto-Off:** Automatically turn off the backlight after 1 minute of inactivity (no data or button presses) to save power and screen life.
+  - **Interactive Wake:** Ensure the screen wakes immediately on any button press or when the host resumes sending data.
+  - **Manual Control:** Provide a hardware toggle (e.g., long-press) for users to override and manage screen power manually.
 
 ## Coding Standards
 - **Rust (Host):** Follow idiomatic Rust patterns (using `cargo clippy`). Error handling should be robust using `anyhow` or `thiserror`.
