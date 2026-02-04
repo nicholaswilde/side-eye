@@ -5,7 +5,7 @@
 ### Phase 1: Configuration & Assets
 - [x] Create `host/assets/side-eye.service` template. d28b283
 - [x] Create `host/assets/99-side-eye.rules`. 74406d3
-- [ ] Verify udev rules against the actual hardware.
+- [x] Verify udev rules against the actual hardware. 5670841
 
 ### Phase 2: Cargo Deb Setup
 - [ ] Add `cargo-deb` configuration to `host/Cargo.toml`.
