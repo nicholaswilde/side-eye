@@ -4,8 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: Network Activity History.**
-  *Link: [./conductor/tracks/network_history_20260203/](./conductor/tracks/network_history_20260203/)*
 
 ---
 
