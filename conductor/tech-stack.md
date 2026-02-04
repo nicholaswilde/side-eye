@@ -16,6 +16,7 @@
 ## Firmware (The Receiver)
 - **Framework:** Arduino / ESP-IDF via PlatformIO.
 - **Hardware Platform:** ESP32-C6 (Waveshare ESP32-C6-GEEK).
+- **Storage:** Integrated Micro SD card support via `SD` and `SPI` libraries.
 - **Display Driver:** `Moon On Our Nation / GFX Library for Arduino` (ST7789).
 - **Wi-Fi Management:** `tzapu/WiFiManager` for credential configuration.
 - **JSON Parsing:** `bblanchon/ArduinoJson` for structured data updates.
