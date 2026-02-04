@@ -190,15 +190,17 @@ jobs:
         ${{ env.CARGO }} build --release --verbose ${{ env.TARGET_FLAGS }}
 
     - name: Strip release binary (macos)
-      # working-directory: host
+      working-directory: host
       if: matrix.build == 'macos' || matrix.build == 'macos-arm'
       run: strip "${{ env.BIN }}"
 
     - name: Strip release binary (cross)
       if: matrix.build == 'linux' || matrix.build == 'linux-arm' || matrix.build == 'linux-armv7'
-      # working-directory: host
+      working-directory: host
       shell: bash
       run: |
+        pwd && \
+        ls && \
         docker run --rm -v \
           "$PWD/target:/target:Z" \
           "ghcr.io/cross-rs/${{ matrix.target }}:main" \
@@ -208,8 +210,10 @@ jobs:
     - name: Strip release binary (cross)
       if: matrix.build == 'linux-armv6'
       shell: bash
-      working-directory: host
+      # working-directory: host
       run: |
+        pwd && \
+        ls && \
         docker run --rm -v \
           "$PWD/target:/target:Z" \
           --entrypoint /bin/sh \
