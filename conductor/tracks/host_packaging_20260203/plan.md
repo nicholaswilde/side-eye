@@ -7,7 +7,7 @@
 - [x] Create `host/assets/99-side-eye.rules`. 74406d3
 - [x] Verify udev rules against the actual hardware. 5670841
 
-### Phase 2: Cargo Deb Setup
+### Phase 2: Cargo Deb Setup [checkpoint: 53fb49c]
 - [x] Add `cargo-deb` configuration to `host/Cargo.toml`. 02c5a95
 - [x] Test `cargo deb` build command. 10328
 
