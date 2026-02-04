@@ -1,0 +1,8 @@
+{
+  "id": "gpu_temp_telemetry_20260203",
+  "name": "GPU & Temperature Telemetry",
+  "description": "Expand host stats to include thermal sensors and GPU utilization.",
+  "type": "feature",
+  "status": "todo",
+  "created_at": "2026-02-03"
+}
