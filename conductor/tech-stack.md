@@ -29,6 +29,7 @@
   - **Identity:** `{"type": "Identity", "data": {"hostname": "...", "ip": "...", ...}}`
   - **Stats:** `{"type": "Stats", "data": {"cpu_percent": 12.5, "ram_used": 1024, ...}}`
   - **Version Request:** `{"type": "GetVersion"}`
+- **Versioning:** Automated synchronization between Host (`Cargo.toml`) and Firmware (via PlatformIO `extra_scripts`).
 
 ## Build & Task Automation
 - **Task Runner:** [go-task](https://taskfile.dev/) (`Taskfile.yml`)
