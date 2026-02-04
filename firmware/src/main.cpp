@@ -2,6 +2,9 @@
 #include <Arduino_GFX_Library.h>
 #include <WiFiManager.h>
 #include <ArduinoJson.h>
+#include <esp_mac.h>
+#include <PubSubClient.h>
+#include <LittleFS.h>
 #include "catppuccin_colors.h"
 
 /* 
@@ -19,6 +22,54 @@
 #ifndef FIRMWARE_VERSION
 #define FIRMWARE_VERSION "0.0.0-unknown"
 #endif
+
+// MQTT Settings
+char mqtt_server[40];
+char mqtt_port[6] = "1883";
+char mqtt_user[40];
+char mqtt_pass[40];
+char mqtt_topic_prefix[40] = "side-eye";
+
+bool shouldSaveConfig = false;
+
+// Callback notifying us of the need to save config
+void saveConfigCallback () {
+  Serial.println("Should save config");
+  shouldSaveConfig = true;
+}
+
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
+
+String deviceID = "";
+
+void reconnectMQTT() {
+    // Attempt to connect
+    String clientId = "SideEye-" + deviceID;
+    
+    bool connected = false;
+    if (strlen(mqtt_user) > 0) {
+        connected = mqttClient.connect(clientId.c_str(), mqtt_user, mqtt_pass);
+    } else {
+        connected = mqttClient.connect(clientId.c_str());
+    }
+
+    if (connected) {
+        Serial.println("MQTT connected");
+        // Once connected, publish an announcement... (Phase 2)
+    } else {
+        Serial.print("failed, rc=");
+        Serial.print(mqttClient.state());
+    }
+}
+
+String getDeviceID() {
+    uint8_t mac[6];
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    char id[7];
+    snprintf(id, sizeof(id), "%02X%02X%02X", mac[3], mac[4], mac[5]);
+    return String(id);
+}
 
 Arduino_DataBus *bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
 
@@ -209,7 +260,8 @@ void configModeCallback (WiFiManager *myWiFiManager) {
     
     gfx->setTextColor(CATPPUCCIN_YELLOW);
     gfx->setCursor(15, 55);
-    gfx->println("SideEye-Setup");
+    String apName = "SideEye-" + deviceID;
+    gfx->println(apName);
     
     gfx->setTextColor(CATPPUCCIN_TEXT);
     gfx->setCursor(15, 80);
@@ -220,6 +272,9 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 
 void setup() {
     Serial.begin(115200);
+    deviceID = getDeviceID();
+    String apName = "SideEye-" + deviceID;
+    
     pinMode(BTN_PIN, INPUT_PULLUP);
 
     if (LCD_BL >= 0) {
@@ -233,22 +288,92 @@ void setup() {
     
     gfx->setRotation(current_rotation); 
     gfx->fillScreen(CATPPUCCIN_BASE);
+
+    // Read configuration from LittleFS
+    if (LittleFS.begin()) {
+        Serial.println("mounted file system");
+        if (LittleFS.exists("/config.json")) {
+            //file exists, reading and loading
+            Serial.println("reading config file");
+            File configFile = LittleFS.open("/config.json", "r");
+            if (configFile) {
+                Serial.println("opened config file");
+                JsonDocument json;
+                DeserializationError error = deserializeJson(json, configFile);
+                if (!error) {
+                    Serial.println("\nparsed json");
+                    strcpy(mqtt_server, json["mqtt_server"] | "");
+                    strcpy(mqtt_port, json["mqtt_port"] | "1883");
+                    strcpy(mqtt_user, json["mqtt_user"] | "");
+                    strcpy(mqtt_pass, json["mqtt_pass"] | "");
+                    strcpy(mqtt_topic_prefix, json["mqtt_topic_prefix"] | "side-eye");
+                } else {
+                    Serial.println("failed to load json config");
+                }
+                configFile.close();
+            }
+        }
+    } else {
+        Serial.println("failed to mount FS");
+    }
     
     WiFiManager wm;
+    wm.setSaveConfigCallback(saveConfigCallback);
     wm.setAPCallback(configModeCallback);
+
+    // Custom MQTT parameters
+    WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqtt_server, 40);
+    WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqtt_port, 6);
+    WiFiManagerParameter custom_mqtt_user("user", "mqtt user", mqtt_user, 40);
+    WiFiManagerParameter custom_mqtt_pass("pass", "mqtt pass", mqtt_pass, 40);
+    WiFiManagerParameter custom_mqtt_topic_prefix("prefix", "topic prefix", mqtt_topic_prefix, 40);
+
+    wm.addParameter(&custom_mqtt_server);
+    wm.addParameter(&custom_mqtt_port);
+    wm.addParameter(&custom_mqtt_user);
+    wm.addParameter(&custom_mqtt_pass);
+    wm.addParameter(&custom_mqtt_topic_prefix);
     
     drawBanner("BOOTING...");
     gfx->setCursor(15, start_y);
     gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
     gfx->printf("v%s", FIRMWARE_VERSION);
     Serial.printf("\n--- SideEye Firmware v%s starting ---\n", FIRMWARE_VERSION);
+    Serial.printf("Device ID: %s\n", deviceID.c_str());
+    Serial.printf("AP Name:   %s\n", apName.c_str());
     
     // Hold boot screen for a moment so version is visible
     delay(2000);
 
-    if (!wm.autoConnect("SideEye-Setup")) {
+    if (!wm.autoConnect(apName.c_str())) {
         ESP.restart();
         delay(1000);
+    }
+
+    // Read updated parameters
+    strcpy(mqtt_server, custom_mqtt_server.getValue());
+    strcpy(mqtt_port, custom_mqtt_port.getValue());
+    strcpy(mqtt_user, custom_mqtt_user.getValue());
+    strcpy(mqtt_pass, custom_mqtt_pass.getValue());
+    strcpy(mqtt_topic_prefix, custom_mqtt_topic_prefix.getValue());
+
+    // Save the custom parameters to FS
+    if (shouldSaveConfig) {
+        Serial.println("saving config");
+        JsonDocument json;
+        json["mqtt_server"] = mqtt_server;
+        json["mqtt_port"] = mqtt_port;
+        json["mqtt_user"] = mqtt_user;
+        json["mqtt_pass"] = mqtt_pass;
+        json["mqtt_topic_prefix"] = mqtt_topic_prefix;
+
+        File configFile = LittleFS.open("/config.json", "w");
+        if (!configFile) {
+            Serial.println("failed to open config file for writing");
+        }
+
+        serializeJson(json, configFile);
+        configFile.close();
     }
     
     gfx->fillScreen(CATPPUCCIN_BASE);
@@ -257,6 +382,11 @@ void setup() {
     gfx->setTextColor(CATPPUCCIN_GREEN);
     gfx->println("WiFi Online!");
     delay(1000);
+
+    // Setup MQTT client
+    if (strlen(mqtt_server) > 0) {
+        mqttClient.setServer(mqtt_server, atoi(mqtt_port));
+    }
 
     drawStaticUI();
     updateDynamicValues();
@@ -329,6 +459,18 @@ void loop() {
 
     static unsigned long lastWiFiCheck = 0;
     static unsigned long lastDataTime = 0;
+    static unsigned long lastMqttRetry = 0;
+
+    if (strlen(mqtt_server) > 0) {
+        if (!mqttClient.connected()) {
+            unsigned long now = millis();
+            if (now - lastMqttRetry > 5000) {
+                lastMqttRetry = now;
+                reconnectMQTT();
+            }
+        }
+        mqttClient.loop();
+    }
 
     if (state.has_data) {
         lastDataTime = millis();
