@@ -3,6 +3,7 @@ name = "side-eye-host"
 version = "0.1.0"
 edition = "2021"
 description = "A minimalist, USB-powered hardware monitor for Linux system telemetry."
+license = "Apache-2.0"
 
 [dependencies]
 serialport = "4.2"
@@ -39,3 +40,10 @@ assets = [
     ["assets/99-side-eye.rules", "/etc/udev/rules.d/99-side-eye.rules", "644"],
 ]
 systemd-units = {}
+
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/side-eye-host", dest = "/usr/bin/side-eye-host", mode = "755" },
+    { source = "systemd/side-eye-host.service", dest = "/etc/systemd/system/side-eye-host.service", mode = "644" },
+    { source = "assets/99-side-eye.rules", dest = "/etc/udev/rules.d/99-side-eye.rules", mode = "644" },
+]

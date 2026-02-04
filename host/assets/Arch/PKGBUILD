@@ -1,0 +1,24 @@
+# Maintainer: nicholaswilde <ncwilde43@gmail.com>
+pkgname=side-eye-host
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="A minimalist, USB-powered hardware monitor for Linux system telemetry."
+arch=('x86_64')
+url="https://github.com/nicholaswilde/side-eye"
+license=('Apache-2.0')
+depends=('libudev')
+makedepends=('rust')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/nicholaswilde/side-eye/archive/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "side-eye-$pkgver/host"
+  cargo build --release --locked
+}
+
+package() {
+  cd "side-eye-$pkgver/host"
+  install -Dm755 "target/release/side-eye-host" "$pkgdir/usr/bin/side-eye-host"
+  install -Dm644 "systemd/side-eye-host.service" "$pkgdir/usr/lib/systemd/system/side-eye-host.service"
+  install -Dm644 "assets/99-side-eye.rules" "$pkgdir/usr/lib/udev/rules.d/99-side-eye.rules"
+}
