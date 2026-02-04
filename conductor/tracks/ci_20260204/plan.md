@@ -11,20 +11,20 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Workflow Scaffolding' (Protocol in workflow.md)
 
 ## Phase 2: Environment Provisioning
-- [ ] Task: Define environment setup steps
+- [x] Task: Define environment setup steps 272f273
     - [ ] Add step to checkout code
     - [ ] Add step to install `libudev-dev` and `pkg-config` via apt
     - [ ] Add step to install `go-task`
-- [ ] Task: Setup language toolchains
+- [x] Task: Setup language toolchains 272f273
     - [ ] Add step to setup Rust (using `actions-rust-lang/setup-rust-toolchain`)
     - [ ] Add step to setup Python (using `actions/setup-python`)
     - [ ] Add step to install PlatformIO Core via pip
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Environment Provisioning' (Protocol in workflow.md)
 
 ## Phase 3: Test Integration & Verification
-- [ ] Task: Implement CI execution command
+- [x] Task: Implement CI execution command 272f273
     - [ ] Add step to run `task test:ci`
-- [ ] Task: Verify workflow functionality
+- [x] Task: Verify workflow functionality 272f273
     - [ ] Commit changes and push a test tag (e.g., `v0.0.0-test` or `v0.0.1`) to trigger the workflow
     - [ ] Manually trigger the workflow from the GitHub Actions tab
     - [ ] Confirm that all steps (host tests, clippy, firmware check) execute and report status correctly
