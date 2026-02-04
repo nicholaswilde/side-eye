@@ -1,7 +1,7 @@
 # Implementation Plan: Visual Alerts & Threshold Management
 
 ## Phase 1: Host Threshold Logic
-- [ ] Task: Host - Update `Config` struct with threshold settings.
+- [x] Task: Host - Update `Config` struct with threshold settings. 439968b
 - [ ] Task: Host - Implement alert level calculation logic in `update_and_get_stats`.
 - [ ] Task: Host - Update `SystemStats` message to include `alert_level`.
 - [ ] Task: Conductor - User Manual Verification 'Host Logic' (Protocol in workflow.md)
