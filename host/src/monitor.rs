@@ -1,10 +1,12 @@
 use local_ip_address::local_ip;
 use mac_address::get_mac_address;
+use nvml_wrapper::Nvml;
 use serde::{Deserialize, Serialize};
-use sysinfo::{Disks, Networks, System, Users};
+use sysinfo::{Components, Disks, Networks, System, Users};
 
 pub struct SystemMonitor {
     sys: System,
+    nvml: Option<Nvml>,
 }
 
 #[derive(Debug, Serialize)]
@@ -28,6 +30,8 @@ pub struct SystemStats {
     pub net_up: u64,
     pub net_down: u64,
     pub uptime: u64,
+    pub thermal_c: f32,
+    pub gpu_percent: f32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -65,6 +69,7 @@ impl SystemMonitor {
     pub fn new() -> Self {
         Self {
             sys: System::new_all(),
+            nvml: Nvml::init().ok(),
         }
     }
 }
@@ -136,6 +141,29 @@ impl SystemMonitor {
 
         let uptime = System::uptime();
 
+        // Thermal info
+        let mut thermal_c = 0.0;
+        let components = Components::new_with_refreshed_list();
+        for component in &components {
+            // Usually the first or "Core" component is most relevant, let's average or take max
+            if component.label().to_lowercase().contains("cpu")
+                || component.label().to_lowercase().contains("core")
+            {
+                thermal_c = component.temperature();
+                break;
+            }
+        }
+
+        // GPU info (NVIDIA)
+        let mut gpu_percent = 0.0;
+        if let Some(ref nvml) = self.nvml {
+            if let Ok(device) = nvml.device_by_index(0) {
+                if let Ok(util) = device.utilization_rates() {
+                    gpu_percent = util.gpu as f32;
+                }
+            }
+        }
+
         SystemStats {
             cpu_percent,
             ram_used,
@@ -145,6 +173,8 @@ impl SystemMonitor {
             net_up,
             net_down,
             uptime,
+            thermal_c,
+            gpu_percent,
         }
     }
 }

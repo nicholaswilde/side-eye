@@ -15,6 +15,26 @@ pub struct Config {
     pub interval: u64,
     pub verbose: bool,
     pub sd_sync: SDSyncConfig,
+    pub thresholds: ThresholdsConfig,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ThresholdsConfig {
+    pub cpu_warning: u8,
+    pub cpu_critical: u8,
+    pub ram_warning: u8,
+    pub ram_critical: u8,
+}
+
+impl Default for ThresholdsConfig {
+    fn default() -> Self {
+        Self {
+            cpu_warning: 70,
+            cpu_critical: 90,
+            ram_warning: 80,
+            ram_critical: 95,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -38,6 +58,7 @@ impl Default for Config {
                 sync_mode: "one_way".to_string(),
                 conflict_resolution: "host_wins".to_string(),
             },
+            thresholds: ThresholdsConfig::default(),
         }
     }
 }

@@ -58,3 +58,24 @@ fn test_load_env() {
     std::env::remove_var("SIDEEYE_INTERVAL");
     std::env::remove_var("SIDEEYE_BAUD_RATE");
 }
+
+#[test]
+fn test_threshold_config() {
+    let dir = tempdir().unwrap();
+    let config_path = dir.path().join("config.toml");
+    fs::write(
+        &config_path,
+        r#"[thresholds]
+cpu_warning = 60
+cpu_critical = 85
+ram_warning = 75
+ram_critical = 90"#,
+    )
+    .unwrap();
+
+    let config = Config::load(Some(config_path)).unwrap();
+    assert_eq!(config.thresholds.cpu_warning, 60);
+    assert_eq!(config.thresholds.cpu_critical, 85);
+    assert_eq!(config.thresholds.ram_warning, 75);
+    assert_eq!(config.thresholds.ram_critical, 90);
+}
