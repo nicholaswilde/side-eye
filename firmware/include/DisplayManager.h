@@ -5,6 +5,7 @@
 #include <Arduino_GFX_Library.h>
 #include <WiFi.h>
 #include "catppuccin_colors.h"
+#include "HistoryBuffer.h"
 #include <SD.h>
 
 /* 
@@ -24,6 +25,7 @@ enum Page {
     PAGE_STATUS,
     PAGE_SD,
     PAGE_THERMAL,
+    PAGE_NETWORK,
     NUM_PAGES
 };
 
@@ -40,6 +42,8 @@ struct SystemState {
     uint64_t disk_total = 0;
     uint64_t net_up = 0;
     uint64_t net_down = 0;
+    HistoryBuffer<uint64_t, 60> net_up_history;
+    HistoryBuffer<uint64_t, 60> net_down_history;
     uint64_t uptime = 0;
     uint64_t sd_used = 0;
     uint64_t sd_total = 0;
