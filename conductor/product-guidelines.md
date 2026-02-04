@@ -9,7 +9,7 @@
 ## User Experience (UX)
 - **Plug-and-Play:** The user should not need to configure serial ports manually in 90% of cases. Auto-detection is a critical UX requirement.
 - **Multi-Device Management:** The system should handle multiple connected monitors seamlessly, broadcasting updates to all active units.
-- **Easy Connectivity:** Wi-Fi setup should be seamless via a dedicated AP mode if credentials are missing, avoiding the need for hardcoded secrets.
+- **Easy Connectivity:** Wi-Fi setup should be seamless via a dedicated unique AP mode (`SideEye-XXXXXX`) if credentials are missing, avoiding the need for hardcoded secrets and allowing identification of specific devices.
 - **Resilience:** If the device is unplugged, the host software should wait patiently rather than crashing. When plugged back in, it should resume immediately.
 - **Visual Feedback:** The device should indicate a "Waiting for Host..." state on the screen if it has power but is not receiving data, distinguishing "no power" from "no data."
   - **Contextual UI:** Only display host-specific labels and metrics when a connection is active to maintain a clean aesthetic during idle periods.
