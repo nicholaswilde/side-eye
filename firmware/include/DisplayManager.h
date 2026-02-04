@@ -94,11 +94,15 @@ public:
 
     void drawBanner(const char* title, uint8_t alert_level = 0) {
         uint16_t bg_color = CATPPUCCIN_MAUVE;
-        if (alert_level == 1) bg_color = CATPPUCCIN_YELLOW;
-        else if (alert_level >= 2) bg_color = CATPPUCCIN_RED;
+        if (alert_level == 1) {
+            bg_color = CATPPUCCIN_YELLOW;
+        } else if (alert_level >= 2) {
+            // Flash red/base if critical
+            bg_color = ((millis() / 500) % 2 == 0) ? CATPPUCCIN_RED : CATPPUCCIN_BASE;
+        }
 
         gfx->fillRect(0, 0, 240, 20, bg_color);
-        gfx->setTextColor(CATPPUCCIN_CRUST);
+        gfx->setTextColor(bg_color == CATPPUCCIN_BASE ? CATPPUCCIN_RED : CATPPUCCIN_CRUST);
         gfx->setTextSize(1);
         
         int16_t x1, y1;

@@ -31,11 +31,11 @@ Connect your **Waveshare ESP32-C6-GEEK** and flash the receiver code. We recomme
 task firmware:flash
 ```
 
-### 3. Wi-Fi Setup
+### 3. Wi-Fi & MQTT Setup
 Upon first boot, the device will enter setup mode:
 1.  Connect to the Wi-Fi AP named **"SideEye-XXXXXX"** (where XXXXXX is the last part of your device's MAC) using your phone or laptop.
-2.  A captive portal should open (or navigate to `192.168.4.1`).
-3.  Enter your local Wi-Fi credentials and save.
+2.  Navigate to `192.168.4.1`.
+3.  Enter your Wi-Fi credentials and optional **MQTT Broker** details.
 4.  The device will reboot and show **"WiFi Online!"**.
 
 ### 4. Run the Host Binary
@@ -47,22 +47,42 @@ task host:run
 
 ---
 
-## :package: Components
+## :package: Components & Features
 
-### Part A: Rust Host
-- **Zero-Config Discovery:** Automatically finds the ESP32-C6 by VID (0x303A).
-- **Real-Time Telemetry:** Streams CPU usage, RAM bars, disk stats, and uptime every 1 second.
-- **Robustness:** Handles hot-plugging and automatic reconnection seamlessly.
-- **CLI Options:**
-    - `--verbose`: Enable detailed logging of configuration and payloads.
-    - `--dry-run`: Print stats to terminal without sending to serial.
-    - `--port <PATH>`: Manually specify a serial port.
+### Rust Host Agent
+- **Multi-Format Configuration:** Supports `side-eye.{toml,yaml,json}` and `.env` files.
+- **Zero-Config Discovery:** Automatically finds the ESP32-C6 by VID (0x303A) and creates a `/dev/side-eye` symlink via udev.
+- **SD Card Synchronization:** Synchronizes a local host directory to the device's integrated SD card over serial.
+- **Linux Packaging:** Officially supports `.deb` (Debian/Ubuntu) and `.rpm` (Fedora/RHEL) packages, plus systemd integration for auto-start.
 
-### Part B: ESP32-C6 Firmware
-- **Intelligent UI State:** Clean "Waiting for Host" mode when idle, automatically transitioning to a detailed dashboard upon connection.
-- **Orientation Support:** A physical button toggle rotates the screen 180 degrees to support any USB port orientation.
-- **WiFiManager:** User-friendly Wi-Fi configuration via captive portal.
-- **JSON Protocol:** Uses `ArduinoJson` for robust, extensible data handling.
+### ESP32-C6 Firmware
+- **Paged UI:** Cycles through **Identity**, **Resources** (CPU/RAM bars), **Status** (Disk/Uptime), **SD Card**, and **Thermal** (CPU Temp/GPU Load) pages.
+- **Visual Alerts:** Banner changes color based on resource usage thresholds (Mauve -> Yellow -> Flashing Red) and automatically switches to the Resources page.
+- **Home Assistant Integration:** Automatic MQTT Discovery—sensors appear instantly in your HA dashboard.
+- **Power Management:** 1-minute auto-off timeout to save screen life; wakes instantly on host data or button interaction.
+- **Automated Versioning:** Firmware version is automatically synchronized with the host's `Cargo.toml` during build.
+
+---
+
+## :mouse: Interactivity (Physical Button)
+
+The onboard "Boot" button (GPIO 9) provides full control:
+- **Single Click:** Advance to the next information page immediately.
+- **Double Click:** Rotate the display 180 degrees (supports any USB port orientation).
+- **Long Press (1s):** Toggle the LCD backlight on/off manually.
+
+---
+
+## :wrench: Configuration
+
+Precedence (highest to lowest):
+1.  **CLI Flags:** `--port`, `--baud-rate`, `--interval`, `--verbose`, `--config`, `--dry-run`, `--monitor-all`.
+2.  **Environment Variables:** Prefixed with `SIDEEYE_` (e.g., `SIDEEYE_INTERVAL=500`).
+3.  **Config Files:** 
+    -   Local: `side-eye.{toml,yaml,json}` in current directory.
+    -   Global: `~/.config/side-eye/config.{toml,yaml,json}`.
+    -   **Thresholds Section:** Configure `cpu_warning`, `cpu_critical`, `ram_warning`, and `ram_critical` (0-100).
+4.  **.env File:** Loaded from the current working directory.
 
 ---
 

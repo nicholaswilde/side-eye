@@ -196,6 +196,13 @@ void loop() {
         needsStaticDraw = false;
     }
 
+    // Refresh banner for flashing effect if in critical alert
+    static unsigned long lastFlashUpdate = 0;
+    if (state.alert_level >= 2 && millis() - lastFlashUpdate > 500) {
+        display.drawBanner("SIDEEYE MONITOR", state.alert_level);
+        lastFlashUpdate = millis();
+    }
+
     while (Serial.available()) {
         char c = Serial.read();
         if (c == '\n' || c == '\r') {
