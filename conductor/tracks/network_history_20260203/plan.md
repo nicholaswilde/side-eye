@@ -6,7 +6,7 @@
 - [x] Task: Firmware - Update `handleJson` to push new data into buffers. 569e3e4
 
 ## Phase 2: UI Implementation
-- [ ] Task: Firmware - Add `PAGE_NETWORK` to the state machine and `DisplayManager`.
+- [x] Task: Firmware - Add `PAGE_NETWORK` to the state machine and `DisplayManager`. c4980fb
 - [ ] Task: Firmware - Implement `drawSparkline` helper function in `DisplayManager`.
 - [ ] Task: Firmware - Implement `drawNetworkPage` using sparklines and current text values.
 
