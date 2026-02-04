@@ -56,8 +56,9 @@ task host:run
 - **Linux Packaging:** Officially supports `.deb` (Debian/Ubuntu) and `.rpm` (Fedora/RHEL) packages, plus systemd integration for auto-start.
 
 ### ESP32-C6 Firmware
-- **Paged UI:** Cycles through **Identity**, **Resources** (CPU/RAM bars), **Status** (Disk/Uptime), **SD Card**, and **Thermal** (CPU Temp/GPU Load) pages.
+- **Paged UI:** Cycles through **Identity**, **Resources** (CPU/RAM bars), **Status** (Disk/Uptime), **SD Card**, **Thermal** (CPU Temp/GPU Load), and **Network** pages.
 - **Visual Alerts:** Banner changes color based on resource usage thresholds (Mauve -> Yellow -> Flashing Red) and automatically switches to the Resources page.
+- **Network History:** Dedicated page with real-time sparklines for download and upload throughput history.
 - **Home Assistant Integration:** Automatic MQTT Discovery—sensors appear instantly in your HA dashboard.
 - **Power Management:** 1-minute auto-off timeout to save screen life; wakes instantly on host data or button interaction.
 - **Automated Versioning:** Firmware version is automatically synchronized with the host's `Cargo.toml` during build.

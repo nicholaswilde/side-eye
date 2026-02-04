@@ -313,11 +313,11 @@ public:
         if (labelsOnly) {
             gfx->setCursor(start_x, start_y + line_h * 0.5);
             gfx->setTextColor(CATPPUCCIN_GREEN);
-            gfx->print("Down: ");
+            gfx->print("Down v: ");
 
             gfx->setCursor(start_x, start_y + line_h * 3.0);
             gfx->setTextColor(CATPPUCCIN_MAUVE);
-            gfx->print("Up:   ");
+            gfx->print("Up ^:   ");
         } else {
             gfx->setTextColor(CATPPUCCIN_TEXT);
 
