@@ -51,25 +51,29 @@ All tasks follow a strict lifecycle:
    - Add dated note explaining the change
    - Resume implementation
 
-9. **Commit Code Changes:**
+9. **Update README.md (Feature Additions Only):**
+   - If the task adds a new user-facing feature or changes existing behavior significantly, you MUST update the `README.md` to reflect these changes.
+   - Ensure that "Quick Start", "Components & Features", and "Configuration" sections remain accurate.
+
+10. **Commit Code Changes:**
    - Stage all code changes related to the task.
    - Propose a clear, concise commit message e.g, `feat(ui): Create basic HTML structure for calculator`.
    - Perform the commit.
 
-10. **Attach Task Summary with Git Notes:**
-   - **Step 10.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
-   - **Step 10.2: Draft Note Content:** Create a detailed summary for the completed task. This should include the task name, a summary of changes, a list of all created/modified files, and the core "why" for the change.
-   - **Step 10.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
+11. **Attach Task Summary with Git Notes:**
+   - **Step 11.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
+   - **Step 11.2: Draft Note Content:** Create a detailed summary for the completed task. This should include the task name, a summary of changes, a list of all created/modified files, and the core "why" for the change.
+   - **Step 11.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
      ```bash
      # The note content from the previous step is passed via the -m flag.
      git notes add -m "<note content>" <commit_hash>
      ```
 
-11. **Get and Record Task Commit SHA:**
-    - **Step 11.1: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`, and append the first 7 characters of the *just-completed commit's* commit hash.
-    - **Step 11.2: Write Plan:** Write the updated content back to `plan.md`.
+12. **Get and Record Task Commit SHA:**
+    - **Step 12.1: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`, and append the first 7 characters of the *just-completed commit's* commit hash.
+    - **Step 12.2: Write Plan:** Write the updated content back to `plan.md`.
 
-12. **Commit Plan Update:**
+13. **Commit Plan Update:**
     - **Action:** Stage the modified `plan.md` file.
     - **Action:** Commit this change with a descriptive message (e.g., `conductor(plan): Mark task 'Create user model' as complete`).
 

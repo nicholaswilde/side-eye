@@ -13,7 +13,7 @@
  */
 #define LCD_SCK 1
 #define LCD_MOSI 2
-#define LCD_MISO -1
+#define LCD_MISO 0
 #define LCD_CS 5
 #define LCD_DC 3
 #define LCD_RST 4
@@ -58,7 +58,7 @@ struct SystemState {
 class DisplayManager {
 public:
     DisplayManager() {
-        bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+        bus = new Arduino_HWSPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI, LCD_MISO);
         gfx = new Arduino_ST7789(
             bus, LCD_RST, 0 /* rotation */, true /* IPS */,
             135 /* width */, 240 /* height */,

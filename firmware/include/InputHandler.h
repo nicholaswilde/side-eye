@@ -93,6 +93,7 @@ public:
         if (ev == Button::CLICK) {
             if (!_isScreenOn) {
                 setScreenOn(true);
+                needsStaticDraw = true; // Force redraw on wake
             } else {
                 // Next page
                 currentPage = static_cast<Page>((currentPage + 1) % NUM_PAGES);
@@ -107,6 +108,7 @@ public:
             _display.updateDynamicValues(state, currentPage, needsStaticDraw, false, version);
         } else if (ev == Button::HOLD) {
             setScreenOn(!_isScreenOn);
+            if (_isScreenOn) needsStaticDraw = true; // Force redraw on wake
         }
 
         // Auto-off for screen
@@ -119,6 +121,7 @@ public:
         _lastActivityTime = millis();
         if (!_isScreenOn) {
             setScreenOn(true);
+            // We don't set needsStaticDraw here because main.cpp loop or handleJson will usually follow up with one
         }
     }
 

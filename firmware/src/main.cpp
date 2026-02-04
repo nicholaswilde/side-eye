@@ -137,8 +137,16 @@ void handleJson(String json) {
 }
 
 void setup() {
+    // Immediate backlight activation to confirm hardware is alive
+    pinMode(6, OUTPUT);
+    digitalWrite(6, HIGH);
+
     Serial.begin(115200);
     deviceID = getDeviceID();
+    
+    // Explicitly initialize shared SPI bus for LCD and SD
+    SPI.begin(1, 0, 2, -1);
+    delay(100); 
     
     display.begin();
     input.begin();
@@ -171,14 +179,18 @@ void loop() {
     input.update(state, currentPage, lastPageChange, needsStaticDraw, FIRMWARE_VERSION);
     network.update(lastMqttRetry);
 
+    // Timeout for connection status
+    static unsigned long lastDataReceived = 0;
     if (state.has_data) {
+        lastDataReceived = millis();
         input.notifyActivity();
         state.has_data = false;
     }
 
-    // Timeout for connection status
-    static unsigned long lastDataReceived = 0;
-    if (state.has_data) lastDataReceived = millis(); // This was missing in logic above
+    if (state.connected && millis() - lastDataReceived > 10000) {
+        state.connected = false;
+        needsStaticDraw = true;
+    }
 
     // Logic for state.connected timeout
     // (Handled by handleJson and has_data flag in original, let's keep it simple)

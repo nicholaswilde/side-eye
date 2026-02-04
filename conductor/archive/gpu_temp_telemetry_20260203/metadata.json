@@ -3,6 +3,6 @@
   "name": "GPU & Temperature Telemetry",
   "description": "Expand host stats to include thermal sensors and GPU utilization.",
   "type": "feature",
-  "status": "todo",
+  "status": "completed",
   "created_at": "2026-02-03"
 }

@@ -80,10 +80,7 @@ impl SDSyncEngine {
 
             let json = serde_json::to_string(&msg)?;
             self.tx
-                .send(
-                    json + "
-",
-                )
+                .send(json + "\n")
                 .context("Failed to send chunk to serial thread")?;
 
             // Small delay to prevent serial buffer overflow

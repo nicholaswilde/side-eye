@@ -1,8 +1,0 @@
-{
-  "id": "visual_alerts_20260203",
-  "name": "Visual Alerts & Threshold Management",
-  "description": "Add threshold-based visual alerts to the host and firmware.",
-  "type": "feature",
-  "status": "todo",
-  "created_at": "2026-02-03"
-}

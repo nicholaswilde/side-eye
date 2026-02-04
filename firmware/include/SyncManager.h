@@ -14,11 +14,10 @@
 
 class SyncManager {
 public:
-    SyncManager() : _sdSPI(HSPI) {}
+    SyncManager() {}
 
     void begin() {
-        _sdSPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
-        if (!SD.begin(SD_CS, _sdSPI)) {
+        if (!SD.begin(SD_CS, SPI)) {
             Serial.println("SD Initialization failed!");
         } else {
             Serial.println("SD Initialized.");
@@ -65,6 +64,8 @@ public:
         size_t b64len = b64data.length();
         size_t decodedLen = (b64len * 3) / 4 + 1; 
         uint8_t* decoded = (uint8_t*)malloc(decodedLen);
+        if (!decoded) return false;
+        
         size_t actualLen = 0;
         
         int res = mbedtls_base64_decode(decoded, decodedLen, &actualLen, (const unsigned char*)b64data.c_str(), b64len);
@@ -75,7 +76,6 @@ public:
     }
 
 private:
-    SPIClass _sdSPI;
 };
 
 #endif

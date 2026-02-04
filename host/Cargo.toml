@@ -19,6 +19,7 @@ toml = "0.8"
 base64 = "0.22"
 figment = { version = "0.10", features = ["toml", "yaml", "json", "env"] }
 dotenvy = "0.15"
+nvml-wrapper = "0.10"
 
 [dev-dependencies]
 assert_cmd = "2.0"
