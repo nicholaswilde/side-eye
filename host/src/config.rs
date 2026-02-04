@@ -1,89 +1,85 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
+use figment::{
+    providers::{Env, Format, Json, Serialized, Toml, Yaml},
+    Figment,
+};
 use serde::{Deserialize, Serialize};
-use std::fs;
 use std::path::PathBuf;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
-    #[serde(default = "default_ports")]
     pub ports: Vec<String>,
-    #[serde(default = "default_monitor_all")]
     pub monitor_all: bool,
-    #[serde(default = "default_target_vids")]
-    pub target_vids: Vec<u16>,
-    #[serde(default = "default_baud_rate")]
+    pub filters: Vec<u16>,
     pub baud_rate: u32,
-    #[serde(default)]
+    pub interval: u64,
+    pub verbose: bool,
     pub sd_sync: SDSyncConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SDSyncConfig {
     pub local_path: Option<String>,
-    #[serde(default = "default_sync_mode")]
     pub sync_mode: String,
-    #[serde(default = "default_conflict_resolution")]
     pub conflict_resolution: String,
-}
-
-fn default_sync_mode() -> String {
-    "one_way".to_string()
-}
-
-fn default_conflict_resolution() -> String {
-    "host_wins".to_string()
-}
-
-fn default_ports() -> Vec<String> {
-    Vec::new()
-}
-
-fn default_monitor_all() -> bool {
-    true
-}
-
-fn default_target_vids() -> Vec<u16> {
-    vec![0x303A]
-}
-
-fn default_baud_rate() -> u32 {
-    115200
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            ports: default_ports(),
-            monitor_all: default_monitor_all(),
-            target_vids: default_target_vids(),
-            baud_rate: default_baud_rate(),
+            ports: Vec::new(),
+            monitor_all: true,
+            filters: vec![0x303A],
+            baud_rate: 115200,
+            interval: 1000,
+            verbose: false,
+            sd_sync: SDSyncConfig {
+                local_path: None,
+                sync_mode: "one_way".to_string(),
+                conflict_resolution: "host_wins".to_string(),
+            },
         }
     }
 }
 
 impl Config {
     pub fn load(path: Option<PathBuf>) -> Result<Self> {
-        let config_path = if let Some(p) = path {
-            p
-        } else {
-            // Default path: ~/.config/side-eye/config.toml
-            let mut p = home::home_dir().context("Could not find home directory")?;
-            p.push(".config");
-            p.push("side-eye");
-            p.push("config.toml");
-            p
-        };
+        dotenvy::dotenv().ok();
 
-        if !config_path.exists() {
-            return Ok(Config::default());
+        let mut figment =
+            Figment::from(Serialized::defaults(Config::default())).merge(Env::prefixed("SIDEEYE_"));
+
+        // Add config files from CWD
+        figment = figment
+            .merge(Toml::file("side-eye.toml"))
+            .merge(Yaml::file("side-eye.yaml"))
+            .merge(Yaml::file("side-eye.yml"))
+            .merge(Json::file("side-eye.json"));
+
+        // Add config files from ~/.config/side-eye/
+        if let Some(mut config_dir) = home::home_dir() {
+            config_dir.push(".config");
+            config_dir.push("side-eye");
+
+            figment = figment
+                .merge(Toml::file(config_dir.join("config.toml")))
+                .merge(Yaml::file(config_dir.join("config.yaml")))
+                .merge(Yaml::file(config_dir.join("config.yml")))
+                .merge(Json::file(config_dir.join("config.json")));
         }
 
-        let content = fs::read_to_string(&config_path)
-            .with_context(|| format!("Failed to read config file at {:?}", config_path))?;
+        // Merge explicit path if provided
+        if let Some(p) = path {
+            let extension = p.extension().and_then(|e| e.to_str()).unwrap_or("");
+            figment = match extension {
+                "toml" => figment.merge(Toml::file(p)),
+                "yaml" | "yml" => figment.merge(Yaml::file(p)),
+                "json" => figment.merge(Json::file(p)),
+                _ => figment, // Or error out?
+            };
+        }
 
-        let config: Config = toml::from_str(&content)
-            .with_context(|| format!("Failed to parse TOML config at {:?}", config_path))?;
-
+        let config: Config = figment.extract()?;
         Ok(config)
     }
 }

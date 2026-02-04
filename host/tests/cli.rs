@@ -62,3 +62,26 @@ fn dry_run_flag_works() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+#[test]
+fn test_cli_overrides_config() -> Result<(), Box<dyn std::error::Error>> {
+    let dir = tempfile::tempdir()?;
+    let config_path = dir.path().join("side-eye.toml");
+    std::fs::write(&config_path, "interval = 9999\nbaud_rate = 9600")?;
+
+    let mut cmd = assert_cmd::cargo::cargo_bin_cmd!("side-eye-host");
+    cmd.env("SIDEEYE_RUN_ONCE", "1")
+        .arg("--config")
+        .arg(config_path.to_str().unwrap())
+        .arg("--interval")
+        .arg("1234")
+        .arg("--verbose")
+        .arg("--dry-run");
+
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("interval: 1234"))
+        .stdout(predicate::str::contains("baud_rate: 9600"));
+
+    Ok(())
+}

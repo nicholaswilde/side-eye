@@ -1,6 +1,6 @@
 use local_ip_address::local_ip;
 use mac_address::get_mac_address;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sysinfo::{Disks, Networks, System, Users};
 
 pub struct SystemMonitor {
@@ -67,7 +67,15 @@ impl SystemMonitor {
             sys: System::new_all(),
         }
     }
+}
 
+impl Default for SystemMonitor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl SystemMonitor {
     pub fn get_static_info(&self) -> StaticInfo {
         let hostname = System::host_name().unwrap_or_else(|| "Unknown".to_string());
 

@@ -1,6 +1,6 @@
-mod config;
-mod monitor;
-mod sync;
+use side_eye_host::config;
+use side_eye_host::monitor;
+use side_eye_host::sync;
 
 use anyhow::{Context, Result};
 use clap::Parser;
@@ -20,8 +20,8 @@ struct Args {
     port: Option<String>,
 
     /// Baud rate
-    #[arg(short, long, default_value_t = 115200)]
-    baud_rate: u32,
+    #[arg(short, long)]
+    baud_rate: Option<u32>,
 
     /// Enable verbose output
     #[arg(short, long)]
@@ -37,7 +37,11 @@ struct Args {
 
     /// Automatically monitor all compatible devices
     #[arg(short, long)]
-    monitor_all: bool,
+    monitor_all: Option<bool>,
+
+    /// Data refresh interval in milliseconds
+    #[arg(short, long)]
+    interval: Option<u64>,
 }
 
 struct DeviceConnection {
@@ -54,21 +58,27 @@ fn main() -> Result<()> {
     if let Some(ref port) = args.port {
         config.ports = vec![port.clone()];
     }
-    if args.monitor_all {
-        config.monitor_all = true;
+    if let Some(monitor_all) = args.monitor_all {
+        config.monitor_all = monitor_all;
     }
-    if args.baud_rate != 115200 {
-        config.baud_rate = args.baud_rate;
+    if let Some(baud_rate) = args.baud_rate {
+        config.baud_rate = baud_rate;
+    }
+    if let Some(interval) = args.interval {
+        config.interval = interval;
+    }
+    if args.verbose {
+        config.verbose = true;
     }
 
-    if args.verbose {
+    if config.verbose {
         println!("Configuration: {:?}", config);
     }
 
     let mut monitor = monitor::SystemMonitor::new();
     let static_info = monitor.get_static_info();
 
-    if args.verbose {
+    if config.verbose {
         println!("Static Info: {:?}", static_info);
     }
 
@@ -79,7 +89,7 @@ fn main() -> Result<()> {
     // Discovery / Management Loop
     let discovery_connections = Arc::clone(&connections);
     let discovery_config = config.clone();
-    let verbose = args.verbose;
+    let verbose = config.verbose;
 
     if !args.dry_run {
         thread::spawn(move || loop {
@@ -99,7 +109,7 @@ fn main() -> Result<()> {
         let payload = serde_json::to_string(&msg).unwrap_or_else(|_| "".to_string());
 
         if args.dry_run {
-            if args.verbose {
+            if config.verbose {
                 println!("Stats: {:?}", msg);
             }
             println!("Dry-Run Payload: {}", payload);
@@ -108,11 +118,11 @@ fn main() -> Result<()> {
             let mut to_remove = Vec::new();
 
             for (name, conn) in cons.iter() {
-                if args.verbose {
+                if config.verbose {
                     println!("Sending to {}: {}", name, payload);
                 }
                 if conn.sender.send(payload.clone() + "\n").is_err() {
-                    if args.verbose {
+                    if config.verbose {
                         println!("Connection to {} lost.", name);
                     }
                     to_remove.push(name.clone());
@@ -127,7 +137,7 @@ fn main() -> Result<()> {
         if run_once {
             break;
         }
-        thread::sleep(Duration::from_secs(1)); // Faster updates per spec
+        thread::sleep(Duration::from_millis(config.interval)); // Configurable interval
     }
 
     Ok(())
@@ -148,7 +158,7 @@ fn discover_and_connect(
 
         let should_connect = if config.monitor_all {
             if let SerialPortType::UsbPort(UsbPortInfo { vid, .. }) = port.port_type {
-                config.target_vids.contains(&vid)
+                config.filters.contains(&vid)
             } else {
                 false
             }
