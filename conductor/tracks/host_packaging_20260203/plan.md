@@ -3,7 +3,7 @@
 ## Phases
 
 ### Phase 1: Configuration & Assets
-- [ ] Create `host/assets/side-eye.service` template.
+- [x] Create `host/assets/side-eye.service` template. d28b283
 - [ ] Create `host/assets/99-side-eye.rules`.
 - [ ] Verify udev rules against the actual hardware.
 
