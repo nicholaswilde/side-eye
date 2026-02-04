@@ -1,4 +1,4 @@
-# :eyes: SideEye: The USB Stat Monitor for Linux :terminal:
+# :eyes: SideEye: The USB Stat Monitor for Linux :desktop_computer:
 
 [![Rust](https://img.shields.io/badge/Host-Rust-orange?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
 [![PlatformIO](https://img.shields.io/badge/Firmware-PlatformIO-blue?style=for-the-badge&logo=platformio)](https://platformio.org/)
