@@ -3,11 +3,11 @@
 ## Phase 1: MQTT Client Infrastructure
 - [x] Task: Firmware - Add dependencies to `platformio.ini`. (3cc854b)
     - [x] Add `knolleary/PubSubClient` and `bblanchon/ArduinoJson`.
-- [ ] Task: Firmware - Implement Basic MQTT Connection.
-    - [ ] Add MQTT client setup to `main.cpp`.
-    - [ ] Add configuration fields to `WiFiManager` to collect MQTT credentials.
-- [ ] Task: Firmware - Implement Reconnection Logic.
-    - [ ] Non-blocking reconnection attempts in the `loop()`.
+- [x] Task: Firmware - Implement Basic MQTT Connection. (79e1a48)
+    - [x] Add MQTT client setup to `main.cpp`.
+    - [x] Add configuration fields to `WiFiManager` to collect MQTT credentials.
+- [x] Task: Firmware - Implement Reconnection Logic. (79e1a48)
+    - [x] Non-blocking reconnection attempts in the `loop()`.
 
 ## Phase 2: Home Assistant Discovery
 - [ ] Task: Firmware - Implement Discovery Payload Generation.
