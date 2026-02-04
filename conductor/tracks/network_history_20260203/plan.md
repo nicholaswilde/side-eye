@@ -8,7 +8,7 @@
 ## Phase 2: UI Implementation
 - [x] Task: Firmware - Add `PAGE_NETWORK` to the state machine and `DisplayManager`. c4980fb
 - [x] Task: Firmware - Implement `drawSparkline` helper function in `DisplayManager`. eb9a295
-- [ ] Task: Firmware - Implement `drawNetworkPage` using sparklines and current text values.
+- [x] Task: Firmware - Implement `drawNetworkPage` using sparklines and current text values. ea75e88
 
 ## Phase 3: Verification & Polish
 - [ ] Task: Integration - Verify graph scaling with different traffic loads.
