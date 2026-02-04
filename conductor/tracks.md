@@ -6,8 +6,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Firmware: UI State & Status Display.**
   *Link: [./conductor/tracks/ui_state_20260203/](./conductor/tracks/ui_state_20260203/)*
-- [x] **Track: Firmware: Version Tracking & Reporting.**
-  *Link: [./conductor/tracks/firmware_versioning_20260203/](./conductor/tracks/firmware_versioning_20260203/)*
 - [ ] **Track: Integration: Home Assistant via MQTT Discovery.**
   *Link: [./conductor/tracks/home_assistant_mqtt_20260203/](./conductor/tracks/home_assistant_mqtt_20260203/)*
 - [ ] **Track: Host: Linux System Integration & Packaging.**

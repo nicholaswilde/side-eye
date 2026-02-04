@@ -1,0 +1,7 @@
+{
+  "id": "firmware_versioning_20260203",
+  "name": "Firmware: Version Tracking & Reporting",
+  "description": "Implement version tracking in the firmware and report it to the host via serial.",
+  "created_at": "2026-02-03",
+  "status": "todo"
+}
