@@ -173,6 +173,7 @@ jobs:
 
     - name: Setup Custom Cross Image
       if: matrix.build == 'linux-armv6'
+      working-directory: host
       run: |
         # Create the Dockerfile on the fly
         echo "FROM ghcr.io/cross-rs/arm-unknown-linux-gnueabihf:main" > Dockerfile.custom
