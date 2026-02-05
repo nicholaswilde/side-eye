@@ -1,6 +1,14 @@
 version: '3'
 
 tasks:
+  deps:
+    desc: "Install dependencies"
+    cmds:
+      - sudo apt install gcovr
+      - rustup component add llvm-tools-preview
+      - cargo install cargo-llvm-cov
+      - cargo install coveralls
+
   default:
     desc: List available tasks
     cmds:
