@@ -49,33 +49,26 @@ struct DeviceConnection {
 }
 fn main() -> Result<()> {
     let args = Args::parse();
+    run(args)
+}
 
+fn run(args: Args) -> Result<()> {
     // Load configuration
     let config_path = args.config.as_ref().map(std::path::PathBuf::from);
     let mut config = config::Config::load(config_path)?;
 
     // Merge CLI args into config (CLI takes precedence)
-    if let Some(ref port) = args.port {
-        config.ports = vec![port.clone()];
-    }
-    if let Some(monitor_all) = args.monitor_all {
-        config.monitor_all = monitor_all;
-    }
-    if let Some(baud_rate) = args.baud_rate {
-        config.baud_rate = baud_rate;
-    }
-    if let Some(interval) = args.interval {
-        config.interval = interval;
-    }
-    if args.verbose {
-        config.verbose = true;
-    }
+    config = merge_args_into_config(config, &args);
 
     if config.verbose {
         println!("Configuration: {:?}", config);
     }
 
-    let mut monitor = monitor::SystemMonitor::new();
+    let monitor = monitor::SystemMonitor::new();
+    run_loop(config, monitor, args.dry_run)
+}
+
+fn run_loop(config: config::Config, mut monitor: monitor::SystemMonitor, dry_run: bool) -> Result<()> {
     let static_info = monitor.get_static_info();
 
     if config.verbose {
@@ -91,7 +84,7 @@ fn main() -> Result<()> {
     let discovery_config = config.clone();
     let verbose = config.verbose;
 
-    if !args.dry_run {
+    if !dry_run {
         thread::spawn(move || loop {
             if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose)
             {
@@ -108,7 +101,7 @@ fn main() -> Result<()> {
         let msg = monitor::HostMessage::Stats(stats);
         let payload = serde_json::to_string(&msg).unwrap_or_else(|_| "".to_string());
 
-        if args.dry_run {
+        if dry_run {
             if config.verbose {
                 println!("Stats: {:?}", msg);
             }
@@ -142,6 +135,90 @@ fn main() -> Result<()> {
 
     Ok(())
 }
+
+
+fn merge_args_into_config(mut config: config::Config, args: &Args) -> config::Config {
+    if let Some(ref port) = args.port {
+        config.ports = vec![port.clone()];
+    }
+    if let Some(monitor_all) = args.monitor_all {
+        config.monitor_all = monitor_all;
+    }
+    if let Some(baud_rate) = args.baud_rate {
+        config.baud_rate = baud_rate;
+    }
+    if let Some(interval) = args.interval {
+        config.interval = interval;
+    }
+    if args.verbose {
+        config.verbose = true;
+    }
+    config
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use side_eye_host::monitor::{StaticInfo, SystemStats, SystemDataProvider};
+
+    struct MockProvider;
+    impl SystemDataProvider for MockProvider {
+        fn get_static_info(&self) -> StaticInfo {
+            StaticInfo {
+                hostname: "test".into(),
+                ip: "1.1.1.1".into(),
+                mac: "AA".into(),
+                os: "OS".into(),
+                user: "user".into(),
+            }
+        }
+        fn update_and_get_stats(&mut self, _t: &config::ThresholdsConfig) -> SystemStats {
+            SystemStats {
+                cpu_percent: 0.0,
+                ram_used: 0,
+                ram_total: 100,
+                disk_used: 0,
+                disk_total: 100,
+                net_up: 0,
+                net_down: 0,
+                uptime: 0,
+                thermal_c: 0.0,
+                gpu_percent: 0.0,
+                alert_level: 0,
+            }
+        }
+    }
+
+    #[test]
+    fn test_merge_args() {
+        let config = config::Config::default();
+        let args = Args {
+            port: Some("/dev/test".into()),
+            baud_rate: Some(9600),
+            verbose: true,
+            dry_run: true,
+            config: None,
+            monitor_all: Some(false),
+            interval: Some(500),
+        };
+        let merged = merge_args_into_config(config, &args);
+        assert_eq!(merged.ports[0], "/dev/test");
+        assert_eq!(merged.baud_rate, 9600);
+        assert!(merged.verbose);
+        assert_eq!(merged.interval, 500);
+    }
+
+    #[test]
+    fn test_run_loop_dry_run() {
+        let config = config::Config::default();
+        let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
+        std::env::set_var("SIDEEYE_RUN_ONCE", "1");
+        let result = run_loop(config, monitor, true);
+        assert!(result.is_ok());
+        std::env::remove_var("SIDEEYE_RUN_ONCE");
+    }
+}
+
 
 fn discover_and_connect(
     config: &config::Config,

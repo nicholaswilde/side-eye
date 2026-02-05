@@ -4,12 +4,7 @@ use nvml_wrapper::Nvml;
 use serde::{Deserialize, Serialize};
 use sysinfo::{Components, Disks, Networks, System, Users};
 
-pub struct SystemMonitor {
-    sys: System,
-    nvml: Option<Nvml>,
-}
-
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[allow(dead_code)]
 pub struct StaticInfo {
     pub hostname: String,
@@ -19,7 +14,7 @@ pub struct StaticInfo {
     pub user: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[allow(dead_code)]
 pub struct SystemStats {
     pub cpu_percent: f32,
@@ -35,21 +30,21 @@ pub struct SystemStats {
     pub alert_level: u8,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FileInfo {
     pub n: String, // name
     pub s: u64,    // size
     pub d: bool,   // is_dir
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChunkData {
     pub path: String,
     pub offset: usize,
     pub data: String, // Base64 encoded
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum HostMessage {
     Identity(StaticInfo),
@@ -58,7 +53,7 @@ pub enum HostMessage {
     WriteChunk(ChunkData),
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum DeviceMessage {
     Version { version: String },
@@ -66,7 +61,17 @@ pub enum DeviceMessage {
     OperationResult { success: bool, message: String },
 }
 
-impl SystemMonitor {
+pub trait SystemDataProvider {
+    fn get_static_info(&self) -> StaticInfo;
+    fn update_and_get_stats(&mut self, thresholds: &crate::config::ThresholdsConfig) -> SystemStats;
+}
+
+pub struct RealDataProvider {
+    sys: System,
+    nvml: Option<Nvml>,
+}
+
+impl RealDataProvider {
     pub fn new() -> Self {
         Self {
             sys: System::new_all(),
@@ -75,14 +80,8 @@ impl SystemMonitor {
     }
 }
 
-impl Default for SystemMonitor {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl SystemMonitor {
-    pub fn get_static_info(&self) -> StaticInfo {
+impl SystemDataProvider for RealDataProvider {
+    fn get_static_info(&self) -> StaticInfo {
         let hostname = System::host_name().unwrap_or_else(|| "Unknown".to_string());
 
         let ip = match local_ip() {
@@ -117,31 +116,7 @@ impl SystemMonitor {
         }
     }
 
-    pub fn calculate_alert_level(
-        cpu_percent: f32,
-        ram_percent: f32,
-        thresholds: &crate::config::ThresholdsConfig,
-    ) -> u8 {
-        let cpu_level = if cpu_percent >= thresholds.cpu_critical as f32 {
-            2
-        } else if cpu_percent >= thresholds.cpu_warning as f32 {
-            1
-        } else {
-            0
-        };
-
-        let ram_level = if ram_percent >= thresholds.ram_critical as f32 {
-            2
-        } else if ram_percent >= thresholds.ram_warning as f32 {
-            1
-        } else {
-            0
-        };
-
-        std::cmp::max(cpu_level, ram_level)
-    }
-
-    pub fn update_and_get_stats(
+    fn update_and_get_stats(
         &mut self,
         thresholds: &crate::config::ThresholdsConfig,
     ) -> SystemStats {
@@ -152,7 +127,7 @@ impl SystemMonitor {
         let ram_total = self.sys.total_memory();
         let ram_percent = (ram_used as f32 / ram_total as f32) * 100.0;
 
-        let alert_level = Self::calculate_alert_level(cpu_percent, ram_percent, thresholds);
+        let alert_level = SystemMonitor::calculate_alert_level(cpu_percent, ram_percent, thresholds);
 
         let mut disk_used = 0;
         let mut disk_total = 0;
@@ -176,7 +151,6 @@ impl SystemMonitor {
         let mut thermal_c = 0.0;
         let components = Components::new_with_refreshed_list();
         for component in &components {
-            // Usually the first or "Core" component is most relevant, let's average or take max
             if component.label().to_lowercase().contains("cpu")
                 || component.label().to_lowercase().contains("core")
             {
@@ -211,10 +185,122 @@ impl SystemMonitor {
     }
 }
 
+pub struct SystemMonitor {
+    provider: Box<dyn SystemDataProvider>,
+}
+
+impl SystemMonitor {
+    pub fn new() -> Self {
+        Self {
+            provider: Box::new(RealDataProvider::new()),
+        }
+    }
+
+    pub fn with_provider(provider: Box<dyn SystemDataProvider>) -> Self {
+        Self { provider }
+    }
+
+    pub fn get_static_info(&self) -> StaticInfo {
+        self.provider.get_static_info()
+    }
+
+    pub fn update_and_get_stats(
+        &mut self,
+        thresholds: &crate::config::ThresholdsConfig,
+    ) -> SystemStats {
+        self.provider.update_and_get_stats(thresholds)
+    }
+
+    pub fn calculate_alert_level(
+        cpu_percent: f32,
+        ram_percent: f32,
+        thresholds: &crate::config::ThresholdsConfig,
+    ) -> u8 {
+        let cpu_level = if cpu_percent >= thresholds.cpu_critical as f32 {
+            2
+        } else if cpu_percent >= thresholds.cpu_warning as f32 {
+            1
+        } else {
+            0
+        };
+
+        let ram_level = if ram_percent >= thresholds.ram_critical as f32 {
+            2
+        } else if ram_percent >= thresholds.ram_warning as f32 {
+            1
+        } else {
+            0
+        };
+
+        std::cmp::max(cpu_level, ram_level)
+    }
+}
+
+impl Default for SystemMonitor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::config::ThresholdsConfig;
+
+    struct MockDataProvider {
+        static_info: StaticInfo,
+        stats: SystemStats,
+    }
+
+    impl SystemDataProvider for MockDataProvider {
+        fn get_static_info(&self) -> StaticInfo {
+            self.static_info.clone()
+        }
+        fn update_and_get_stats(
+            &mut self,
+            _thresholds: &crate::config::ThresholdsConfig,
+        ) -> SystemStats {
+            self.stats.clone()
+        }
+    }
+
+    #[test]
+    fn test_mock_monitor() {
+        let static_info = StaticInfo {
+            hostname: "test-host".into(),
+            ip: "1.2.3.4".into(),
+            mac: "AA:BB:CC:DD:EE:FF".into(),
+            os: "Test OS".into(),
+            user: "test-user".into(),
+        };
+        let stats = SystemStats {
+            cpu_percent: 10.0,
+            ram_used: 1000,
+            ram_total: 8000,
+            disk_used: 500,
+            disk_total: 1000,
+            net_up: 100,
+            net_down: 200,
+            uptime: 3600,
+            thermal_c: 45.0,
+            gpu_percent: 5.0,
+            alert_level: 0,
+        };
+
+        let provider = MockDataProvider {
+            static_info: static_info.clone(),
+            stats: stats.clone(),
+        };
+        let mut monitor = SystemMonitor::with_provider(Box::new(provider));
+
+        let info = monitor.get_static_info();
+        assert_eq!(info.hostname, "test-host");
+
+        let thresholds = ThresholdsConfig::default();
+        let s = monitor.update_and_get_stats(&thresholds);
+        assert_eq!(s.cpu_percent, 10.0);
+    }
 
     #[test]
     fn test_calculate_alert_level() {
@@ -256,3 +342,4 @@ mod tests {
         );
     }
 }
+
