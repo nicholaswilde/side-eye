@@ -23,4 +23,13 @@ side-eye.json
 host/config.toml
 
 # Gemini CLI
+
 .gemini/tmp/
+
+
+
+# Coverage Reports
+
+lcov.info
+
+coverage.xml

@@ -100,6 +100,18 @@ tasks:
       - cargo clippy -- -D warnings
       - cargo test
 
+  host:coverage:
+    desc: Run code coverage for the Host project
+    dir: host
+    cmds:
+      - cargo llvm-cov
+
+  host:coverage:lcov:
+    desc: Generate LCOV coverage report for the Host project (for Codecov)
+    dir: host
+    cmds:
+      - cargo llvm-cov --lcov --output-path ../lcov.info
+
   firmware:build:
     desc: Build the Firmware (PlatformIO)
     dir: firmware
@@ -132,7 +144,15 @@ tasks:
       - pio test -e native
 
   firmware:coverage:
-    desc: Run Firmware unit tests and generate coverage report
+    desc: Run Firmware unit tests and generate coverage report using gcovr
     dir: firmware
     cmds:
-      - python3 scripts/generate_coverage.py
+      - pio test -e native
+      - gcovr -r . --filter include/ --filter src/ --print-summary
+
+  firmware:coverage:xml:
+    desc: Generate Cobertura XML coverage report for the Firmware (for Codecov)
+    dir: firmware
+    cmds:
+      - pio test -e native
+      - gcovr -r . --filter include/ --filter src/ --xml-pretty -o ../coverage.xml
