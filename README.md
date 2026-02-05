@@ -11,7 +11,7 @@ SideEye is a tiny USB-powered monitor that gives your Linux rig the "SideEye" by
 ## :gear: System Architecture
 
 1.  **Host (The Sender):** A Rust-based daemon that gathers rich system telemetry (CPU, RAM, Disk, Uptime, Identity) and streams it over USB Serial using structured JSON.
-2.  **Firmware (The Receiver):** Arduino-based firmware running on the ESP32-C6-GEEK that parses the JSON payloads and renders a polished, color-coded UI on the built-in 1.14" LCD.
+2.  **Firmware (The Receiver):** Arduino-based firmware running on the [ESP32-C6-GEEK](https://www.waveshare.com/esp32-c6-geek.htm) that parses the JSON payloads and renders a polished, color-coded UI on the built-in 1.14" LCD.
 
 ---
 
