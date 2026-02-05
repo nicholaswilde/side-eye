@@ -65,13 +65,16 @@ fn run(args: Args) -> Result<()> {
     }
 
     let monitor = monitor::SystemMonitor::new();
-    run_loop(config, monitor, args.dry_run)
+    let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
+    run_loop(config, monitor, args.dry_run, run_once, None)
 }
 
 fn run_loop(
     config: config::Config,
     mut monitor: monitor::SystemMonitor,
     dry_run: bool,
+    run_once: bool,
+    injected_connections: Option<Arc<Mutex<HashMap<String, DeviceConnection>>>>,
 ) -> Result<()> {
     let static_info = monitor.get_static_info();
 
@@ -79,16 +82,14 @@ fn run_loop(
         println!("Static Info: {:?}", static_info);
     }
 
-    let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
-    let connections: Arc<Mutex<HashMap<String, DeviceConnection>>> =
-        Arc::new(Mutex::new(HashMap::new()));
+    let connections = injected_connections.unwrap_or_else(|| Arc::new(Mutex::new(HashMap::new())));
 
     // Discovery / Management Loop
     let discovery_connections = Arc::clone(&connections);
     let discovery_config = config.clone();
     let verbose = config.verbose;
 
-    if !dry_run {
+    if !dry_run && !run_once {
         thread::spawn(move || loop {
             if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose)
             {
@@ -99,6 +100,7 @@ fn run_loop(
             thread::sleep(Duration::from_secs(5));
         });
     }
+
 
     loop {
         let stats = monitor.update_and_get_stats(&config.thresholds);
@@ -111,24 +113,7 @@ fn run_loop(
             }
             println!("Dry-Run Payload: {}", payload);
         } else {
-            let mut cons = connections.lock().unwrap();
-            let mut to_remove = Vec::new();
-
-            for (name, conn) in cons.iter() {
-                if config.verbose {
-                    println!("Sending to {}: {}", name, payload);
-                }
-                if conn.sender.send(payload.clone() + "\n").is_err() {
-                    if config.verbose {
-                        println!("Connection to {} lost.", name);
-                    }
-                    to_remove.push(name.clone());
-                }
-            }
-
-            for name in to_remove {
-                cons.remove(&name);
-            }
+            broadcast_stats(&connections, &payload, config.verbose);
         }
 
         if run_once {
@@ -138,6 +123,31 @@ fn run_loop(
     }
 
     Ok(())
+}
+
+fn broadcast_stats(
+    connections: &Arc<Mutex<HashMap<String, DeviceConnection>>>,
+    payload: &str,
+    verbose: bool,
+) {
+    let mut cons = connections.lock().unwrap();
+    let mut to_remove = Vec::new();
+
+    for (name, conn) in cons.iter() {
+        if verbose {
+            println!("Sending to {}: {}", name, payload);
+        }
+        if conn.sender.send(payload.to_string() + "\n").is_err() {
+            if verbose {
+                println!("Connection to {} lost.", name);
+            }
+            to_remove.push(name.clone());
+        }
+    }
+
+    for name in to_remove {
+        cons.remove(&name);
+    }
 }
 
 fn merge_args_into_config(mut config: config::Config, args: &Args) -> config::Config {
@@ -159,6 +169,18 @@ fn merge_args_into_config(mut config: config::Config, args: &Args) -> config::Co
     config
 }
 
+fn should_connect(port: &serialport::SerialPortInfo, config: &config::Config) -> bool {
+    if config.monitor_all {
+        if let SerialPortType::UsbPort(UsbPortInfo { vid, .. }) = port.port_type {
+            config.filters.contains(&vid)
+        } else {
+            false
+        }
+    } else {
+        config.ports.contains(&port.port_name)
+    }
+}
+
 fn discover_and_connect(
     config: &config::Config,
     connections: &Arc<Mutex<HashMap<String, DeviceConnection>>>,
@@ -172,17 +194,7 @@ fn discover_and_connect(
             continue;
         }
 
-        let should_connect = if config.monitor_all {
-            if let SerialPortType::UsbPort(UsbPortInfo { vid, .. }) = port.port_type {
-                config.filters.contains(&vid)
-            } else {
-                false
-            }
-        } else {
-            config.ports.contains(&port.port_name)
-        };
-
-        if should_connect {
+        if should_connect(&port, config) {
             if verbose {
                 println!("Found new device at {}. Connecting...", port.port_name);
             }
@@ -251,6 +263,7 @@ fn discover_and_connect(
     Ok(())
 }
 
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -307,9 +320,95 @@ mod tests {
     fn test_run_loop_dry_run() {
         let config = config::Config::default();
         let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
-        std::env::set_var("SIDEEYE_RUN_ONCE", "1");
-        let result = run_loop(config, monitor, true);
+        let result = run_loop(config, monitor, true, true, None);
         assert!(result.is_ok());
-        std::env::remove_var("SIDEEYE_RUN_ONCE");
+    }
+
+    #[test]
+    fn test_run_loop_with_connection() {
+        let mut config = config::Config::default();
+        config.verbose = true;
+        let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
+
+        let (tx, rx) = std::sync::mpsc::channel();
+        let connections = Arc::new(Mutex::new(HashMap::new()));
+        connections.lock().unwrap().insert(
+            "test-port".to_string(),
+            DeviceConnection { sender: tx },
+        );
+
+        let result = run_loop(config, monitor, false, true, Some(connections));
+        assert!(result.is_ok());
+
+        let msg = rx.try_recv().expect("Should have received a message");
+        assert!(msg.contains("Stats"));
+    }
+
+    #[test]
+    fn test_run_loop_connection_lost() {
+        let mut config = config::Config::default();
+        config.verbose = true;
+        let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
+
+        let (tx, rx) = std::sync::mpsc::channel();
+        drop(rx); // Drop receiver immediately
+
+        let connections = Arc::new(Mutex::new(HashMap::new()));
+        connections.lock().unwrap().insert(
+            "lost-port".to_string(),
+            DeviceConnection { sender: tx },
+        );
+
+        let result = run_loop(config, monitor, false, true, Some(connections.clone()));
+        assert!(result.is_ok());
+
+        assert!(connections.lock().unwrap().is_empty());
+    }
+
+
+    #[test]
+    fn test_should_connect() {
+        use serialport::SerialPortInfo;
+
+        let mut config = config::Config::default();
+        config.monitor_all = true;
+        config.filters = vec![0x1234];
+
+        let port_ok = SerialPortInfo {
+            port_name: "COM1".into(),
+            port_type: SerialPortType::UsbPort(UsbPortInfo {
+                vid: 0x1234,
+                pid: 0x5678,
+                serial_number: None,
+                manufacturer: None,
+                product: None,
+            }),
+        };
+
+        let port_wrong_vid = SerialPortInfo {
+            port_name: "COM2".into(),
+            port_type: SerialPortType::UsbPort(UsbPortInfo {
+                vid: 0x9999,
+                pid: 0x5678,
+                serial_number: None,
+                manufacturer: None,
+                product: None,
+            }),
+        };
+
+        let port_not_usb = SerialPortInfo {
+            port_name: "COM3".into(),
+            port_type: SerialPortType::Unknown,
+        };
+
+        assert!(should_connect(&port_ok, &config));
+        assert!(!should_connect(&port_wrong_vid, &config));
+        assert!(!should_connect(&port_not_usb, &config));
+
+        config.monitor_all = false;
+        config.ports = vec!["COM3".into()];
+        assert!(should_connect(&port_not_usb, &config));
+        assert!(!should_connect(&port_ok, &config));
     }
 }
+
