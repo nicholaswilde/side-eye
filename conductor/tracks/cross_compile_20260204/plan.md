@@ -10,8 +10,8 @@
     - [x] Add `host:build:all` that calls the four architecture tasks
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Taskfile Integration' (Protocol in workflow.md) bb5a13b
 
-## Phase 2: Verification
+## Phase 2: Verification [checkpoint: 06e9a1a]
 - [x] Task: Verify task configuration 663e354
     - [x] Run `task --list` and confirm all new `host:build:*` tasks are visible
     - [x] Verify that each task is mapped to the correct target triple and uses `--release`
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Verification' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Verification' (Protocol in workflow.md) 06e9a1a
