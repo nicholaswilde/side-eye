@@ -8,6 +8,7 @@
 .pio/
 /firmware/.pio/
 /firmware/.vscode/
+/firmware/*.gcov
 
 # OS files
 .DS_Store
