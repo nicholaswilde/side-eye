@@ -124,3 +124,15 @@ tasks:
     dir: firmware
     cmds:
       - pio check
+
+  firmware:test:
+    desc: Run Firmware unit tests (native)
+    dir: firmware
+    cmds:
+      - pio test -e native
+
+  firmware:coverage:
+    desc: Run Firmware unit tests and generate coverage report
+    dir: firmware
+    cmds:
+      - python3 scripts/generate_coverage.py

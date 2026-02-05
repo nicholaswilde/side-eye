@@ -1,0 +1,45 @@
+        -:    0:Source:.pio/build/native/unity_config/unity_config.c
+        -:    0:Graph:/home/nicholas/git/nicholaswilde/side-eye/firmware/.pio/build/native/unity_config_build/unity_config.gcno
+        -:    0:Data:/home/nicholas/git/nicholaswilde/side-eye/firmware/.pio/build/native/unity_config_build/unity_config.gcda
+        -:    0:Runs:2
+        -:    1:#include <unity_config.h>
+        -:    2:
+        -:    3:#if !defined(UNITY_WEAK_ATTRIBUTE) && !defined(UNITY_WEAK_PRAGMA)
+        -:    4:#   if defined(__GNUC__) || defined(__ghs__) /* __GNUC__ includes clang */
+        -:    5:#       if !(defined(__WIN32__) && defined(__clang__)) && !defined(__TMS470__)
+        -:    6:#           define UNITY_WEAK_ATTRIBUTE __attribute__((weak))
+        -:    7:#       endif
+        -:    8:#   endif
+        -:    9:#endif
+        -:   10:
+        -:   11:#ifdef __cplusplus
+        -:   12:extern "C"
+        -:   13:{
+        -:   14:#endif
+        -:   15:
+        -:   16:#ifdef UNITY_WEAK_ATTRIBUTE
+    #####:   17:    UNITY_WEAK_ATTRIBUTE void setUp(void) { }
+    #####:   18:    UNITY_WEAK_ATTRIBUTE void tearDown(void) { }
+    #####:   19:    UNITY_WEAK_ATTRIBUTE void suiteSetUp(void) { }
+    #####:   20:    UNITY_WEAK_ATTRIBUTE int suiteTearDown(int num_failures) { return num_failures; }
+        -:   21:#elif defined(UNITY_WEAK_PRAGMA)
+        -:   22:    #pragma weak setUp
+        -:   23:    void setUp(void) { }
+        -:   24:    #pragma weak tearDown
+        -:   25:    void tearDown(void) { }
+        -:   26:    #pragma weak suiteSetUp
+        -:   27:    void suiteSetUp(void) { }
+        -:   28:    #pragma weak suiteTearDown
+        -:   29:    int suiteTearDown(int num_failures) { return num_failures; }
+        -:   30:#endif
+        -:   31:
+        -:   32:#ifdef __cplusplus
+        -:   33:}
+        -:   34:#endif /* extern "C" */
+        -:   35:
+        -:   36:
+        -:   37:#include <stdio.h>
+        2:   38:void unityOutputStart(unsigned long baudrate) { (void) baudrate; }
+      290:   39:void unityOutputChar(unsigned int c) { putchar(c); }
+        6:   40:void unityOutputFlush(void) { fflush(stdout); }
+        2:   41:void unityOutputComplete(void) { }
