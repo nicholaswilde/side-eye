@@ -66,7 +66,14 @@ fn run(args: Args) -> Result<()> {
 
     let monitor = monitor::SystemMonitor::new();
     let run_once = std::env::var("SIDEEYE_RUN_ONCE").is_ok();
-    run_loop(config, monitor, args.dry_run, run_once, None)
+    run_loop(
+        config,
+        monitor,
+        args.dry_run,
+        run_once,
+        None,
+        &RealPortScanner,
+    )
 }
 
 fn run_loop(
@@ -75,6 +82,7 @@ fn run_loop(
     dry_run: bool,
     run_once: bool,
     injected_connections: Option<Arc<Mutex<HashMap<String, DeviceConnection>>>>,
+    _scanner: &dyn PortScanner,
 ) -> Result<()> {
     let static_info = monitor.get_static_info();
 
@@ -91,8 +99,12 @@ fn run_loop(
 
     if !dry_run && !run_once {
         thread::spawn(move || loop {
-            if let Err(e) = discover_and_connect(&discovery_config, &discovery_connections, verbose)
-            {
+            if let Err(e) = discover_and_connect(
+                &discovery_config,
+                &discovery_connections,
+                verbose,
+                &RealPortScanner,
+            ) {
                 if verbose {
                     eprintln!("Discovery error: {}", e);
                 }
@@ -100,7 +112,6 @@ fn run_loop(
             thread::sleep(Duration::from_secs(5));
         });
     }
-
 
     loop {
         let stats = monitor.update_and_get_stats(&config.thresholds);
@@ -150,6 +161,17 @@ fn broadcast_stats(
     }
 }
 
+trait PortScanner: Send + Sync {
+    fn available_ports(&self) -> Result<Vec<serialport::SerialPortInfo>>;
+}
+
+struct RealPortScanner;
+impl PortScanner for RealPortScanner {
+    fn available_ports(&self) -> Result<Vec<serialport::SerialPortInfo>> {
+        serialport::available_ports().context("Failed to list serial ports")
+    }
+}
+
 fn merge_args_into_config(mut config: config::Config, args: &Args) -> config::Config {
     if let Some(ref port) = args.port {
         config.ports = vec![port.clone()];
@@ -185,8 +207,9 @@ fn discover_and_connect(
     config: &config::Config,
     connections: &Arc<Mutex<HashMap<String, DeviceConnection>>>,
     verbose: bool,
+    scanner: &dyn PortScanner,
 ) -> Result<()> {
-    let available_ports = serialport::available_ports().context("Failed to list serial ports")?;
+    let available_ports = scanner.available_ports()?;
     let mut cons = connections.lock().unwrap();
 
     for port in available_ports {
@@ -263,7 +286,6 @@ fn discover_and_connect(
     Ok(())
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -297,6 +319,15 @@ mod tests {
         }
     }
 
+    struct MockPortScanner {
+        ports: Vec<serialport::SerialPortInfo>,
+    }
+    impl PortScanner for MockPortScanner {
+        fn available_ports(&self) -> Result<Vec<serialport::SerialPortInfo>> {
+            Ok(self.ports.clone())
+        }
+    }
+
     #[test]
     fn test_merge_args() {
         let config = config::Config::default();
@@ -320,24 +351,33 @@ mod tests {
     fn test_run_loop_dry_run() {
         let config = config::Config::default();
         let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
-        let result = run_loop(config, monitor, true, true, None);
+        let result = run_loop(config, monitor, true, true, None, &RealPortScanner);
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_run_loop_with_connection() {
-        let mut config = config::Config::default();
-        config.verbose = true;
+        let config = config::Config {
+            verbose: true,
+            ..Default::default()
+        };
         let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
 
         let (tx, rx) = std::sync::mpsc::channel();
         let connections = Arc::new(Mutex::new(HashMap::new()));
-        connections.lock().unwrap().insert(
-            "test-port".to_string(),
-            DeviceConnection { sender: tx },
-        );
+        connections
+            .lock()
+            .unwrap()
+            .insert("test-port".to_string(), DeviceConnection { sender: tx });
 
-        let result = run_loop(config, monitor, false, true, Some(connections));
+        let result = run_loop(
+            config,
+            monitor,
+            false,
+            true,
+            Some(connections),
+            &RealPortScanner,
+        );
         assert!(result.is_ok());
 
         let msg = rx.try_recv().expect("Should have received a message");
@@ -346,33 +386,72 @@ mod tests {
 
     #[test]
     fn test_run_loop_connection_lost() {
-        let mut config = config::Config::default();
-        config.verbose = true;
+        let config = config::Config {
+            verbose: true,
+            ..Default::default()
+        };
         let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
 
         let (tx, rx) = std::sync::mpsc::channel();
         drop(rx); // Drop receiver immediately
 
         let connections = Arc::new(Mutex::new(HashMap::new()));
-        connections.lock().unwrap().insert(
-            "lost-port".to_string(),
-            DeviceConnection { sender: tx },
-        );
+        connections
+            .lock()
+            .unwrap()
+            .insert("lost-port".to_string(), DeviceConnection { sender: tx });
 
-        let result = run_loop(config, monitor, false, true, Some(connections.clone()));
+        let result = run_loop(
+            config,
+            monitor,
+            false,
+            true,
+            Some(connections.clone()),
+            &RealPortScanner,
+        );
         assert!(result.is_ok());
 
         assert!(connections.lock().unwrap().is_empty());
     }
 
+    #[test]
+    fn test_discover_and_connect_mock() {
+        let config = config::Config {
+            monitor_all: true,
+            filters: vec![0x1234],
+            ..Default::default()
+        };
+
+        let connections = Arc::new(Mutex::new(HashMap::new()));
+        let scanner = MockPortScanner {
+            ports: vec![serialport::SerialPortInfo {
+                port_name: "MOCK1".into(),
+                port_type: SerialPortType::UsbPort(UsbPortInfo {
+                    vid: 0x1234,
+                    pid: 0x5678,
+                    serial_number: None,
+                    manufacturer: None,
+                    product: None,
+                }),
+            }],
+        };
+
+        // This will attempt to open the port "MOCK1", which will fail because it doesn't exist.
+        // But we cover the decision logic.
+        let _ = discover_and_connect(&config, &connections, true, &scanner);
+        // It shouldn't have added it because open() failed.
+        assert!(connections.lock().unwrap().is_empty());
+    }
 
     #[test]
     fn test_should_connect() {
         use serialport::SerialPortInfo;
 
-        let mut config = config::Config::default();
-        config.monitor_all = true;
-        config.filters = vec![0x1234];
+        let config_monitor_all = config::Config {
+            monitor_all: true,
+            filters: vec![0x1234],
+            ..Default::default()
+        };
 
         let port_ok = SerialPortInfo {
             port_name: "COM1".into(),
@@ -401,14 +480,16 @@ mod tests {
             port_type: SerialPortType::Unknown,
         };
 
-        assert!(should_connect(&port_ok, &config));
-        assert!(!should_connect(&port_wrong_vid, &config));
-        assert!(!should_connect(&port_not_usb, &config));
+        assert!(should_connect(&port_ok, &config_monitor_all));
+        assert!(!should_connect(&port_wrong_vid, &config_monitor_all));
+        assert!(!should_connect(&port_not_usb, &config_monitor_all));
 
-        config.monitor_all = false;
-        config.ports = vec!["COM3".into()];
-        assert!(should_connect(&port_not_usb, &config));
-        assert!(!should_connect(&port_ok, &config));
+        let config_specific_ports = config::Config {
+            monitor_all: false,
+            ports: vec!["COM3".into()],
+            ..Default::default()
+        };
+        assert!(should_connect(&port_not_usb, &config_specific_ports));
+        assert!(!should_connect(&port_ok, &config_specific_ports));
     }
 }
-
