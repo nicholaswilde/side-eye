@@ -1,0 +1,8 @@
+{
+  "track_id": "cross_compile_20260204",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-04T08:42:00Z",
+  "updated_at": "2026-02-04T08:42:00Z",
+  "description": "add the ability to compile the rust binary using multiple architectures using cross. Reference https://github.com/nicholaswilde/proxmox-mcp-rs/raw/refs/heads/main/Taskfile.yml"
+}
