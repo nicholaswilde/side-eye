@@ -50,7 +50,7 @@ task host:run
 ## :package: Components & Features
 
 ### Rust Host Agent
-- **Multi-Format Configuration:** Supports `side-eye.{toml,yaml,json}` and `.env` files.
+- **Multi-Format Configuration:** Supports `side-eye.{toml,yaml,yml,json}` and `.env` files.
 - **Zero-Config Discovery:** Automatically finds the ESP32-C6 by VID (0x303A) and creates a `/dev/side-eye` symlink via udev.
 - **Multi-Device Support:** Seamlessly handles connections to multiple SideEye devices simultaneously.
 - **SD Card Synchronization:** Synchronizes a local host directory to the device's integrated SD card over serial.
@@ -79,12 +79,14 @@ The onboard "Boot" button (GPIO 9) provides full control:
 
 ## :wrench: Configuration
 
+See [host/config.toml.example](host/config.toml.example) for a documented template.
+
 Precedence (highest to lowest):
 1.  **CLI Flags:** `--port`, `--baud-rate`, `--interval`, `--verbose`, `--config`, `--dry-run`, `--monitor-all`.
 2.  **Environment Variables:** Prefixed with `SIDEEYE_` (e.g., `SIDEEYE_INTERVAL=500`).
 3.  **Config Files:** 
-    -   Local: `side-eye.{toml,yaml,json}` in current directory.
-    -   Global: `~/.config/side-eye/config.{toml,yaml,json}`.
+    -   Local: `side-eye.{toml,yaml,yml,json}` in current directory.
+    -   Global: `~/.config/side-eye/config.{toml,yaml,yml,json}`.
     -   **Thresholds Section:** Configure `cpu_warning`, `cpu_critical`, `ram_warning`, and `ram_critical` (0-100).
 4.  **.env File:** Loaded from the current working directory.
 

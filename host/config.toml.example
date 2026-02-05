@@ -1,0 +1,41 @@
+# SideEye Host Configuration Example
+
+# List of specific serial ports to monitor.
+# If empty and monitor_all is true, it will auto-detect compatible devices.
+# ports = ["/dev/ttyACM0", "/dev/ttyACM1"]
+ports = []
+
+# Whether to automatically monitor all detected SideEye devices.
+monitor_all = true
+
+# USB Vendor IDs to filter for auto-detection (Waveshare/ESP32 default).
+filters = [12346] # 0x303A in decimal
+
+# Serial communication baud rate.
+baud_rate = 115200
+
+# Telemetry update interval in milliseconds.
+interval = 1000
+
+# Enable verbose logging output.
+verbose = false
+
+[sd_sync]
+# Local directory path to synchronize with the device's SD card.
+# local_path = "/home/user/side-eye-sync"
+local_path = ""
+
+# Synchronization mode: "one_way" (host to device) or "two_way".
+sync_mode = "one_way"
+
+# Conflict resolution: "host_wins" or "device_wins".
+conflict_resolution = "host_wins"
+
+[thresholds]
+# CPU usage percentage thresholds for visual alerts.
+cpu_warning = 70
+cpu_critical = 90
+
+# RAM usage percentage thresholds for visual alerts.
+ram_warning = 80
+ram_critical = 95

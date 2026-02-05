@@ -14,5 +14,12 @@
 Thumbs.db
 *.swp
 
+# SideEye Config
+side-eye.toml
+side-eye.yaml
+side-eye.yml
+side-eye.json
+host/config.toml
+
 # Gemini CLI
 .gemini/tmp/

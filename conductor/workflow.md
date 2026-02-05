@@ -5,9 +5,17 @@
 1. **The Plan is the Source of Truth:** All work must be tracked in `plan.md`
 2. **The Tech Stack is Deliberate:** Changes to the tech stack must be documented in `tech-stack.md` *before* implementation
 3. **Test-Driven Development:** Write unit tests before implementing functionality
-4. **High Code Coverage:** Aim for >80% code coverage for all modules
-5. **User Experience First:** Every decision should prioritize user experience
-6. **Non-Interactive & CI-Aware:** Prefer non-interactive commands. Use `CI=true` for watch-mode tools (tests, linters) to ensure single execution.
+4. **High Code Coverage:** Always use `cargo-llvm-cov` for coverage reports. Aim for >80% code coverage for all modules.
+   - Summary: `cargo llvm-cov`
+   - Detailed: `cargo llvm-cov --html`
+5. **Quality Gate:** Before suggesting a PR, ensure coverage has not decreased.
+6. **Rust Style:** Prefer idiomatic Rust, leveraging the `anyhow` crate for error handling and `serde` for serialization.
+7. **User Experience First:** Every decision should prioritize user experience.
+8. **Non-Interactive & CI-Aware:** Prefer non-interactive commands. Use `CI=true` for watch-mode tools (tests, linters) to ensure single execution.
+
+## Gemini CLI Commands
+
+- When asked to "check the health" of the project, run `cargo llvm-cov` and `cargo clippy` in the `host` directory.
 
 ## Task Workflow
 
