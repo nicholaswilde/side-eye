@@ -68,7 +68,11 @@ fn run(args: Args) -> Result<()> {
     run_loop(config, monitor, args.dry_run)
 }
 
-fn run_loop(config: config::Config, mut monitor: monitor::SystemMonitor, dry_run: bool) -> Result<()> {
+fn run_loop(
+    config: config::Config,
+    mut monitor: monitor::SystemMonitor,
+    dry_run: bool,
+) -> Result<()> {
     let static_info = monitor.get_static_info();
 
     if config.verbose {
@@ -136,7 +140,6 @@ fn run_loop(config: config::Config, mut monitor: monitor::SystemMonitor, dry_run
     Ok(())
 }
 
-
 fn merge_args_into_config(mut config: config::Config, args: &Args) -> config::Config {
     if let Some(ref port) = args.port {
         config.ports = vec![port.clone()];
@@ -155,70 +158,6 @@ fn merge_args_into_config(mut config: config::Config, args: &Args) -> config::Co
     }
     config
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use side_eye_host::monitor::{StaticInfo, SystemStats, SystemDataProvider};
-
-    struct MockProvider;
-    impl SystemDataProvider for MockProvider {
-        fn get_static_info(&self) -> StaticInfo {
-            StaticInfo {
-                hostname: "test".into(),
-                ip: "1.1.1.1".into(),
-                mac: "AA".into(),
-                os: "OS".into(),
-                user: "user".into(),
-            }
-        }
-        fn update_and_get_stats(&mut self, _t: &config::ThresholdsConfig) -> SystemStats {
-            SystemStats {
-                cpu_percent: 0.0,
-                ram_used: 0,
-                ram_total: 100,
-                disk_used: 0,
-                disk_total: 100,
-                net_up: 0,
-                net_down: 0,
-                uptime: 0,
-                thermal_c: 0.0,
-                gpu_percent: 0.0,
-                alert_level: 0,
-            }
-        }
-    }
-
-    #[test]
-    fn test_merge_args() {
-        let config = config::Config::default();
-        let args = Args {
-            port: Some("/dev/test".into()),
-            baud_rate: Some(9600),
-            verbose: true,
-            dry_run: true,
-            config: None,
-            monitor_all: Some(false),
-            interval: Some(500),
-        };
-        let merged = merge_args_into_config(config, &args);
-        assert_eq!(merged.ports[0], "/dev/test");
-        assert_eq!(merged.baud_rate, 9600);
-        assert!(merged.verbose);
-        assert_eq!(merged.interval, 500);
-    }
-
-    #[test]
-    fn test_run_loop_dry_run() {
-        let config = config::Config::default();
-        let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
-        std::env::set_var("SIDEEYE_RUN_ONCE", "1");
-        let result = run_loop(config, monitor, true);
-        assert!(result.is_ok());
-        std::env::remove_var("SIDEEYE_RUN_ONCE");
-    }
-}
-
 
 fn discover_and_connect(
     config: &config::Config,
@@ -310,4 +249,67 @@ fn discover_and_connect(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use side_eye_host::monitor::{StaticInfo, SystemDataProvider, SystemStats};
+
+    struct MockProvider;
+    impl SystemDataProvider for MockProvider {
+        fn get_static_info(&self) -> StaticInfo {
+            StaticInfo {
+                hostname: "test".into(),
+                ip: "1.1.1.1".into(),
+                mac: "AA".into(),
+                os: "OS".into(),
+                user: "user".into(),
+            }
+        }
+        fn update_and_get_stats(&mut self, _t: &config::ThresholdsConfig) -> SystemStats {
+            SystemStats {
+                cpu_percent: 0.0,
+                ram_used: 0,
+                ram_total: 100,
+                disk_used: 0,
+                disk_total: 100,
+                net_up: 0,
+                net_down: 0,
+                uptime: 0,
+                thermal_c: 0.0,
+                gpu_percent: 0.0,
+                alert_level: 0,
+            }
+        }
+    }
+
+    #[test]
+    fn test_merge_args() {
+        let config = config::Config::default();
+        let args = Args {
+            port: Some("/dev/test".into()),
+            baud_rate: Some(9600),
+            verbose: true,
+            dry_run: true,
+            config: None,
+            monitor_all: Some(false),
+            interval: Some(500),
+        };
+        let merged = merge_args_into_config(config, &args);
+        assert_eq!(merged.ports[0], "/dev/test");
+        assert_eq!(merged.baud_rate, 9600);
+        assert!(merged.verbose);
+        assert_eq!(merged.interval, 500);
+    }
+
+    #[test]
+    fn test_run_loop_dry_run() {
+        let config = config::Config::default();
+        let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
+        std::env::set_var("SIDEEYE_RUN_ONCE", "1");
+        let result = run_loop(config, monitor, true);
+        assert!(result.is_ok());
+        std::env::remove_var("SIDEEYE_RUN_ONCE");
+    }
 }

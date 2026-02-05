@@ -63,7 +63,8 @@ pub enum DeviceMessage {
 
 pub trait SystemDataProvider {
     fn get_static_info(&self) -> StaticInfo;
-    fn update_and_get_stats(&mut self, thresholds: &crate::config::ThresholdsConfig) -> SystemStats;
+    fn update_and_get_stats(&mut self, thresholds: &crate::config::ThresholdsConfig)
+        -> SystemStats;
 }
 
 pub struct RealDataProvider {
@@ -77,6 +78,12 @@ impl RealDataProvider {
             sys: System::new_all(),
             nvml: Nvml::init().ok(),
         }
+    }
+}
+
+impl Default for RealDataProvider {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -127,7 +134,8 @@ impl SystemDataProvider for RealDataProvider {
         let ram_total = self.sys.total_memory();
         let ram_percent = (ram_used as f32 / ram_total as f32) * 100.0;
 
-        let alert_level = SystemMonitor::calculate_alert_level(cpu_percent, ram_percent, thresholds);
+        let alert_level =
+            SystemMonitor::calculate_alert_level(cpu_percent, ram_percent, thresholds);
 
         let mut disk_used = 0;
         let mut disk_total = 0;
@@ -242,7 +250,6 @@ impl Default for SystemMonitor {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -342,4 +349,3 @@ mod tests {
         );
     }
 }
-
