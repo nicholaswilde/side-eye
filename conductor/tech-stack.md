@@ -38,6 +38,12 @@
 ## Build & Task Automation
 - **Task Runner:** [go-task](https://taskfile.dev/) (`Taskfile.yml`)
 - **Usage:** Used for all common project operations including building, testing, linting, and flashing.
+- **Cross-Compilation:** [`cross`](https://github.com/cross-rs/cross) for multi-architecture builds.
+  - **Supported Architectures:**
+    - `x86_64-unknown-linux-gnu` (AMD64)
+    - `aarch64-unknown-linux-gnu` (ARM64)
+    - `armv7-unknown-linux-gnueabihf` (ARMv7)
+    - `arm-unknown-linux-gnueabihf` (ARMv6/v5te)
 - **Packaging:** `cargo-deb` and `cargo-generate-rpm` for Linux distribution.
 - **CI/CD:** GitHub Actions for automated build, test, and artifact generation on release tags.
 
