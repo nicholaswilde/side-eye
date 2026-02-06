@@ -193,6 +193,17 @@ public:
         _mqttClient.publish(binTopic.c_str(), binPayload.c_str(), true);
     }
 
+    void resetSettings() {
+        WiFiManager wm;
+        wm.resetSettings();
+        if (LittleFS.begin()) {
+            LittleFS.remove("/config.json");
+        }
+        Serial.println("Settings reset, restarting...");
+        delay(1000);
+        ESP.restart();
+    }
+
 private:
     WiFiClient _espClient;
     PubSubClient _mqttClient;

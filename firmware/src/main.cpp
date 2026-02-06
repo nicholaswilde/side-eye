@@ -176,7 +176,9 @@ void loop() {
         needsStaticDraw = true;
     }
 
-    input.update(state, currentPage, lastPageChange, needsStaticDraw, FIRMWARE_VERSION);
+    if (input.update(state, currentPage, lastPageChange, needsStaticDraw, FIRMWARE_VERSION)) {
+        network.resetSettings();
+    }
     network.update(lastMqttRetry);
 
     // Timeout for connection status

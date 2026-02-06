@@ -409,21 +409,23 @@ public:
 
     void drawConfigMode(const char* apName, const String& ip) {
         gfx->fillScreen(CATPPUCCIN_BASE);
-        drawBanner("SETUP MODE");
+        drawBanner("SETUP MODE", 1);
         
         gfx->setTextColor(CATPPUCCIN_TEXT);
         gfx->setTextSize(1);
-        gfx->setCursor(15, 40);
+        gfx->setCursor(15, 45);
         gfx->println("Connect to WiFi AP:");
         
         gfx->setTextColor(CATPPUCCIN_YELLOW);
-        gfx->setCursor(15, 55);
+        gfx->setCursor(15, 60);
         gfx->println(apName);
         
         gfx->setTextColor(CATPPUCCIN_TEXT);
-        gfx->setCursor(15, 80);
-        gfx->println("Then visit:");
+        gfx->setCursor(15, 90);
+        gfx->print("Then visit:");
+        
         gfx->setTextColor(CATPPUCCIN_GREEN);
+        gfx->setCursor(90, 90);
         gfx->println(ip);
     }
 
@@ -433,6 +435,26 @@ public:
         gfx->setCursor(15, start_y);
         gfx->setTextColor(CATPPUCCIN_GREEN);
         gfx->println("WiFi Online!");
+    }
+
+    void drawResetScreen(int secondsRemaining) {
+        gfx->fillScreen(CATPPUCCIN_BASE);
+        drawBanner("FACTORY RESET", 2); // Alert level 2 for red flashing
+        
+        gfx->setTextColor(CATPPUCCIN_TEXT);
+        gfx->setTextSize(1);
+        gfx->setCursor(15, 50);
+        gfx->println("Resetting in:");
+        
+        gfx->setTextColor(CATPPUCCIN_RED);
+        gfx->setTextSize(3);
+        gfx->setCursor(100, 75);
+        gfx->println(secondsRemaining);
+        
+        gfx->setTextColor(CATPPUCCIN_SUBTEXT0);
+        gfx->setTextSize(1);
+        gfx->setCursor(15, 115);
+        gfx->println("Release to cancel");
     }
 
 private:

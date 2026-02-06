@@ -137,7 +137,7 @@ tasks:
     desc: Flash the Firmware (PlatformIO)
     dir: firmware
     cmds:
-      - pio run -t upload
+      - pio run -e esp32-c6-geek -t upload
 
   firmware:monitor:
     desc: Start Serial Monitor (PlatformIO)

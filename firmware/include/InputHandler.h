@@ -6,7 +6,7 @@
 
 class Button {
 public:
-    enum Event { NONE, CLICK, DOUBLE_CLICK, HOLD };
+    enum Event { NONE, CLICK, DOUBLE_CLICK, HOLD, LONG_HOLD };
 
     Button(int pin) : _pin(pin) {}
 
@@ -30,6 +30,7 @@ public:
                 if (_stableState == LOW) { // Pressed
                     _pressStartTime = now;
                     _holdReported = false;
+                    _longHoldReported = false;
                     if (now - _lastClickTime < _doubleClickDelay) {
                         _pendingClick = false;
                         event = DOUBLE_CLICK;
@@ -43,11 +44,15 @@ public:
             }
         }
 
-        if (_stableState == LOW && !_holdReported) {
-            if (now - _pressStartTime > _holdDelay) {
+        if (_stableState == LOW) {
+            if (!_holdReported && (now - _pressStartTime > _holdDelay)) {
                 event = HOLD;
                 _holdReported = true;
                 _pendingClick = false;
+            }
+            if (!_longHoldReported && (now - _pressStartTime > _longHoldDelay)) {
+                event = LONG_HOLD;
+                _longHoldReported = true;
             }
         }
 
@@ -60,6 +65,9 @@ public:
         return event;
     }
 
+    bool isPressed() const { return _stableState == LOW; }
+    unsigned long getPressDuration() const { return isPressed() ? (millis() - _pressStartTime) : 0; }
+
 private:
     int _pin;
     int _lastState = HIGH;
@@ -68,9 +76,11 @@ private:
     unsigned long _debounceDelay = 50;
     unsigned long _pressStartTime = 0;
     unsigned long _holdDelay = 800;
+    unsigned long _longHoldDelay = 10000;
     unsigned long _lastClickTime = 0;
     unsigned long _doubleClickDelay = 300;
     bool _holdReported = false;
+    bool _longHoldReported = false;
     bool _pendingClick = false;
 };
 
@@ -83,8 +93,9 @@ public:
         _lastActivityTime = millis();
     }
 
-    void update(SystemState& state, Page& currentPage, unsigned long& lastPageChange, bool& needsStaticDraw, const char* version) {
+    bool update(SystemState& state, Page& currentPage, unsigned long& lastPageChange, bool& needsStaticDraw, const char* version) {
         Button::Event ev = _button.update();
+        bool resetTriggered = false;
         
         if (ev != Button::NONE) {
             _lastActivityTime = millis();
@@ -109,12 +120,31 @@ public:
         } else if (ev == Button::HOLD) {
             setScreenOn(!_isScreenOn);
             if (_isScreenOn) needsStaticDraw = true; // Force redraw on wake
+        } else if (ev == Button::LONG_HOLD) {
+            resetTriggered = true;
+        }
+
+        // Reset countdown visual feedback
+        if (_button.isPressed() && _isScreenOn) {
+            unsigned long duration = _button.getPressDuration();
+            if (duration > 2000) { // Show reset warning after 2s of holding
+                int remaining = (10000 - duration) / 1000;
+                if (remaining >= 0) {
+                    _display.drawResetScreen(remaining);
+                    _resetScreenActive = true;
+                }
+            }
+        } else if (_resetScreenActive) {
+            _resetScreenActive = false;
+            needsStaticDraw = true; // Restore normal UI when button released
         }
 
         // Auto-off for screen
         if (_isScreenOn && (millis() - _lastActivityTime > _autoOffDelay)) {
             setScreenOn(false);
         }
+
+        return resetTriggered;
     }
 
     void notifyActivity() {
@@ -136,6 +166,7 @@ private:
     Button _button;
     DisplayManager& _display;
     bool _isScreenOn = true;
+    bool _resetScreenActive = false;
     unsigned long _lastActivityTime = 0;
     const unsigned long _autoOffDelay = 60000; // 1 minute
 };
