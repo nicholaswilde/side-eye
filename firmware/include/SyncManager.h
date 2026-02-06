@@ -63,12 +63,12 @@ public:
         
         size_t b64len = b64data.length();
         size_t decodedLen = (b64len * 3) / 4 + 1; 
-        uint8_t* decoded = (uint8_t*)malloc(decodedLen);
+        uint8_t* decoded = static_cast<uint8_t*>(malloc(decodedLen));
         if (!decoded) return false;
         
         size_t actualLen = 0;
         
-        int res = mbedtls_base64_decode(decoded, decodedLen, &actualLen, (const unsigned char*)b64data.c_str(), b64len);
+        int res = mbedtls_base64_decode(decoded, decodedLen, &actualLen, reinterpret_cast<const unsigned char*>(b64data.c_str()), b64len);
         
         bool success = (res == 0) && writeChunk(path.c_str(), offset, decoded, actualLen);
         free(decoded);

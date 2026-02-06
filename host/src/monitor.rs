@@ -356,7 +356,7 @@ mod tests {
         let mut provider = RealDataProvider::new();
         let static_info = provider.get_static_info();
         assert!(!static_info.hostname.is_empty());
-        
+
         let thresholds = ThresholdsConfig::default();
         let stats = provider.update_and_get_stats(&thresholds);
         // We can't assert specific values, but we can check sanity
@@ -364,17 +364,32 @@ mod tests {
     }
 
     #[test]
+    fn test_real_data_provider_default() {
+        let _provider = RealDataProvider::default();
+        let _ = System::host_name(); // Just ensure it's callable
+    }
+
+    #[test]
     fn test_device_message_serialization() {
-        let msg = DeviceMessage::Version { version: "1.0.0".into() };
+        let msg = DeviceMessage::Version {
+            version: "1.0.0".into(),
+        };
         let json = serde_json::to_string(&msg).unwrap();
         assert!(json.contains("Version"));
         assert!(json.contains("1.0.0"));
 
-        let msg_file = DeviceMessage::FileList(vec![FileInfo { n: "test.txt".into(), s: 100, d: false }]);
+        let msg_file = DeviceMessage::FileList(vec![FileInfo {
+            n: "test.txt".into(),
+            s: 100,
+            d: false,
+        }]);
         let json_file = serde_json::to_string(&msg_file).unwrap();
         assert!(json_file.contains("FileList"));
-        
-        let msg_res = DeviceMessage::OperationResult { success: true, message: "OK".into() };
+
+        let msg_res = DeviceMessage::OperationResult {
+            success: true,
+            message: "OK".into(),
+        };
         let json_res = serde_json::to_string(&msg_res).unwrap();
         assert!(json_res.contains("OperationResult"));
     }

@@ -79,7 +79,7 @@ void handleJson(String json) {
         state.uptime = data["uptime"];
         state.thermal_c = data["thermal_c"];
         state.gpu_percent = data["gpu_percent"];
-        state.alert_level = data["alert_level"] | 0;
+        state.alert_level = data["alert_level"].as<uint8_t>();
         state.has_data = true;
         state.connected = true;
 
@@ -136,6 +136,7 @@ void handleJson(String json) {
     needsStaticDraw = false;
 }
 
+// cppcheck-suppress unusedFunction
 void setup() {
     // Immediate backlight activation to confirm hardware is alive
     pinMode(6, OUTPUT);
@@ -170,6 +171,7 @@ void setup() {
 
 String inputBuffer = "";
 
+// cppcheck-suppress unusedFunction
 void loop() {
     if (state.sd_sync_status == "Syncing..." && millis() - lastPageChange > 2000) {
         state.sd_sync_status = "Idle";

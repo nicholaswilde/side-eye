@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    T _buffer[Size];
+    T _buffer[Size] = {};
     size_t _head;
     size_t _count;
 };

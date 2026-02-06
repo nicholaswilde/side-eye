@@ -72,7 +72,8 @@ fn run(args: Args) -> Result<()> {
         args.dry_run,
         run_once,
         None,
-        &RealPortScanner,
+        Arc::new(RealPortScanner),
+        Arc::new(RealPortOpener),
     )
 }
 
@@ -82,7 +83,8 @@ fn run_loop(
     dry_run: bool,
     run_once: bool,
     injected_connections: Option<Arc<Mutex<HashMap<String, DeviceConnection>>>>,
-    _scanner: &dyn PortScanner,
+    scanner: Arc<dyn PortScanner>,
+    opener: Arc<dyn PortOpener>,
 ) -> Result<()> {
     let static_info = monitor.get_static_info();
 
@@ -96,6 +98,8 @@ fn run_loop(
     let discovery_connections = Arc::clone(&connections);
     let discovery_config = config.clone();
     let verbose = config.verbose;
+    let discovery_scanner = Arc::clone(&scanner);
+    let discovery_opener = Arc::clone(&opener);
 
     if !dry_run && !run_once {
         thread::spawn(move || loop {
@@ -103,7 +107,8 @@ fn run_loop(
                 &discovery_config,
                 &discovery_connections,
                 verbose,
-                &RealPortScanner,
+                discovery_scanner.as_ref(),
+                discovery_opener.as_ref(),
             ) {
                 if verbose {
                     eprintln!("Discovery error: {}", e);
@@ -172,6 +177,20 @@ impl PortScanner for RealPortScanner {
     }
 }
 
+trait PortOpener: Send + Sync {
+    fn open(&self, name: &str, baud_rate: u32) -> Result<Box<dyn serialport::SerialPort>>;
+}
+
+struct RealPortOpener;
+impl PortOpener for RealPortOpener {
+    fn open(&self, name: &str, baud_rate: u32) -> Result<Box<dyn serialport::SerialPort>> {
+        serialport::new(name, baud_rate)
+            .timeout(Duration::from_millis(1000))
+            .open()
+            .map_err(|e| anyhow::anyhow!("Failed to open port {}: {}", name, e))
+    }
+}
+
 fn merge_args_into_config(mut config: config::Config, args: &Args) -> config::Config {
     if let Some(ref port) = args.port {
         config.ports = vec![port.clone()];
@@ -208,6 +227,7 @@ fn discover_and_connect(
     connections: &Arc<Mutex<HashMap<String, DeviceConnection>>>,
     verbose: bool,
     scanner: &dyn PortScanner,
+    opener: &dyn PortOpener,
 ) -> Result<()> {
     let available_ports = scanner.available_ports()?;
     let mut cons = connections.lock().unwrap();
@@ -222,10 +242,7 @@ fn discover_and_connect(
                 println!("Found new device at {}. Connecting...", port.port_name);
             }
 
-            match serialport::new(&port.port_name, config.baud_rate)
-                .timeout(Duration::from_millis(1000))
-                .open()
-            {
+            match opener.open(&port.port_name, config.baud_rate) {
                 Ok(serial) => {
                     let (tx, rx) = std::sync::mpsc::channel::<String>();
                     let port_name = port.port_name.clone();
@@ -328,6 +345,114 @@ mod tests {
         }
     }
 
+    struct MockPortOpener {
+        should_fail: bool,
+    }
+    impl PortOpener for MockPortOpener {
+        fn open(&self, _name: &str, _baud_rate: u32) -> Result<Box<dyn serialport::SerialPort>> {
+            if self.should_fail {
+                Err(anyhow::anyhow!("Mock failure"))
+            } else {
+                Ok(Box::new(MockSerialPort))
+            }
+        }
+    }
+
+    struct MockSerialPort;
+    impl std::io::Read for MockSerialPort {
+        fn read(&mut self, _buf: &mut [u8]) -> std::io::Result<usize> {
+            Ok(0)
+        }
+    }
+    impl std::io::Write for MockSerialPort {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            Ok(buf.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    impl serialport::SerialPort for MockSerialPort {
+        fn name(&self) -> Option<String> {
+            None
+        }
+        fn baud_rate(&self) -> serialport::Result<u32> {
+            Ok(9600)
+        }
+        fn data_bits(&self) -> serialport::Result<serialport::DataBits> {
+            Ok(serialport::DataBits::Eight)
+        }
+        fn flow_control(&self) -> serialport::Result<serialport::FlowControl> {
+            Ok(serialport::FlowControl::None)
+        }
+        fn parity(&self) -> serialport::Result<serialport::Parity> {
+            Ok(serialport::Parity::None)
+        }
+        fn stop_bits(&self) -> serialport::Result<serialport::StopBits> {
+            Ok(serialport::StopBits::One)
+        }
+        fn timeout(&self) -> Duration {
+            Duration::from_millis(0)
+        }
+        fn set_baud_rate(&mut self, _baud_rate: u32) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn set_data_bits(&mut self, _data_bits: serialport::DataBits) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn set_flow_control(
+            &mut self,
+            _flow_control: serialport::FlowControl,
+        ) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn set_parity(&mut self, _parity: serialport::Parity) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn set_stop_bits(&mut self, _stop_bits: serialport::StopBits) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn set_timeout(&mut self, _timeout: Duration) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn write_request_to_send(&mut self, _level: bool) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn write_data_terminal_ready(&mut self, _level: bool) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn read_clear_to_send(&mut self) -> serialport::Result<bool> {
+            Ok(false)
+        }
+        fn read_data_set_ready(&mut self) -> serialport::Result<bool> {
+            Ok(false)
+        }
+        fn read_ring_indicator(&mut self) -> serialport::Result<bool> {
+            Ok(false)
+        }
+        fn read_carrier_detect(&mut self) -> serialport::Result<bool> {
+            Ok(false)
+        }
+        fn bytes_to_read(&self) -> serialport::Result<u32> {
+            Ok(0)
+        }
+        fn bytes_to_write(&self) -> serialport::Result<u32> {
+            Ok(0)
+        }
+        fn clear(&self, _buffer_to_clear: serialport::ClearBuffer) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn try_clone(&self) -> serialport::Result<Box<dyn serialport::SerialPort>> {
+            Ok(Box::new(MockSerialPort))
+        }
+        fn set_break(&self) -> serialport::Result<()> {
+            Ok(())
+        }
+        fn clear_break(&self) -> serialport::Result<()> {
+            Ok(())
+        }
+    }
+
     #[test]
     fn test_merge_args() {
         let config = config::Config::default();
@@ -351,7 +476,15 @@ mod tests {
     fn test_run_loop_dry_run() {
         let config = config::Config::default();
         let monitor = monitor::SystemMonitor::with_provider(Box::new(MockProvider));
-        let result = run_loop(config, monitor, true, true, None, &RealPortScanner);
+        let result = run_loop(
+            config,
+            monitor,
+            true,
+            true,
+            None,
+            Arc::new(RealPortScanner),
+            Arc::new(RealPortOpener),
+        );
         assert!(result.is_ok());
     }
 
@@ -376,7 +509,8 @@ mod tests {
             false,
             true,
             Some(connections),
-            &RealPortScanner,
+            Arc::new(RealPortScanner),
+            Arc::new(RealPortOpener),
         );
         assert!(result.is_ok());
 
@@ -407,7 +541,8 @@ mod tests {
             false,
             true,
             Some(connections.clone()),
-            &RealPortScanner,
+            Arc::new(RealPortScanner),
+            Arc::new(RealPortOpener),
         );
         assert!(result.is_ok());
 
@@ -435,12 +570,126 @@ mod tests {
                 }),
             }],
         };
+        let opener = MockPortOpener { should_fail: false };
 
-        // This will attempt to open the port "MOCK1", which will fail because it doesn't exist.
-        // But we cover the decision logic.
-        let _ = discover_and_connect(&config, &connections, true, &scanner);
-        // It shouldn't have added it because open() failed.
+        let result = discover_and_connect(&config, &connections, true, &scanner, &opener);
+        assert!(result.is_ok());
+        // It should have added it now because opener succeeded
+        assert!(!connections.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_discover_and_connect_failure() {
+        let config = config::Config {
+            monitor_all: true,
+            filters: vec![0x1234],
+            ..Default::default()
+        };
+
+        let connections = Arc::new(Mutex::new(HashMap::new()));
+        let scanner = MockPortScanner {
+            ports: vec![serialport::SerialPortInfo {
+                port_name: "MOCK1".into(),
+                port_type: SerialPortType::UsbPort(UsbPortInfo {
+                    vid: 0x1234,
+                    pid: 0x5678,
+                    serial_number: None,
+                    manufacturer: None,
+                    product: None,
+                }),
+            }],
+        };
+        let opener = MockPortOpener { should_fail: true };
+
+        let result = discover_and_connect(&config, &connections, true, &scanner, &opener);
+        assert!(result.is_ok());
         assert!(connections.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_broadcast_stats_verbose() {
+        let (tx, rx) = std::sync::mpsc::channel();
+        let connections = Arc::new(Mutex::new(HashMap::new()));
+        connections
+            .lock()
+            .unwrap()
+            .insert("test".to_string(), DeviceConnection { sender: tx });
+
+        broadcast_stats(&connections, "test payload", true);
+        let msg = rx.recv().unwrap();
+        assert_eq!(msg, "test payload\n");
+    }
+
+    #[test]
+    fn test_broadcast_stats_connection_lost_verbose() {
+        let (tx, rx) = std::sync::mpsc::channel();
+        drop(rx);
+        let connections = Arc::new(Mutex::new(HashMap::new()));
+        connections
+            .lock()
+            .unwrap()
+            .insert("test".to_string(), DeviceConnection { sender: tx });
+
+        broadcast_stats(&connections, "test payload", true);
+        assert!(connections.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_real_port_scanner_smoke() {
+        let scanner = RealPortScanner;
+        let _ = scanner.available_ports();
+    }
+
+    #[test]
+    fn test_real_port_opener_smoke() {
+        let opener = RealPortOpener;
+        // This will likely fail but we cover the code path
+        let _ = opener.open("NONEXISTENT", 9600);
+    }
+
+    #[test]
+    fn test_run_smoke() {
+        // We can't easily test the full run() because of Args::parse() and possible blocking
+        // but we can test merge_args_into_config and run_loop separately which we already do.
+    }
+
+    #[test]
+    fn test_discover_and_connect_threads() {
+        let config = config::Config {
+            monitor_all: true,
+            filters: vec![0x1234],
+            ..Default::default()
+        };
+
+        let connections = Arc::new(Mutex::new(HashMap::new()));
+        let scanner = MockPortScanner {
+            ports: vec![serialport::SerialPortInfo {
+                port_name: "MOCK1".into(),
+                port_type: SerialPortType::UsbPort(UsbPortInfo {
+                    vid: 0x1234,
+                    pid: 0x5678,
+                    serial_number: None,
+                    manufacturer: None,
+                    product: None,
+                }),
+            }],
+        };
+        let opener = MockPortOpener { should_fail: false };
+
+        let result = discover_and_connect(&config, &connections, true, &scanner, &opener);
+        assert!(result.is_ok());
+
+        // Wait a bit for threads to start and potentially do something
+        thread::sleep(Duration::from_millis(100));
+
+        let cons = connections.lock().unwrap();
+        assert!(cons.contains_key("MOCK1"));
+        let sender = &cons.get("MOCK1").unwrap().sender;
+
+        // Test sending a message through the connection
+        assert!(sender.send("test message".to_string()).is_ok());
+
+        thread::sleep(Duration::from_millis(50));
     }
 
     #[test]

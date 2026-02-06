@@ -8,7 +8,7 @@ class Button {
 public:
     enum Event { NONE, CLICK, DOUBLE_CLICK, HOLD, LONG_HOLD };
 
-    Button(int pin) : _pin(pin) {}
+    explicit Button(int pin) : _pin(pin) {}
 
     void begin() {
         pinMode(_pin, INPUT_PULLUP);

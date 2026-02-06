@@ -47,11 +47,12 @@ All tasks follow a strict lifecycle:
      ```
    - This ensures that formatting, linting, and all integration tests pass before proceeding.
 
-7. **Verify Coverage:** Run coverage reports using the project's chosen tools. For example, in a Python project, this might look like:
+7. **Verify Coverage:** Run coverage reports using the project's chosen tools.
    ```bash
-   pytest --cov=app --cov-report=html
+   task host:coverage
+   task firmware:coverage
    ```
-   Target: >80% coverage for new code. The specific tools and commands will vary by language and framework.
+   Target: >80% coverage for new code. Ensure that coverage has not decreased.
 
 8. **Document Deviations:** If implementation differs from tech stack:
    - **STOP** implementation

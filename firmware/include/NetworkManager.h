@@ -148,7 +148,7 @@ public:
             const char* icon;
         };
 
-        Sensor sensors[] = {
+        static const Sensor sensors[] = {
             {"Hostname", "hostname", "mdi:label"},
             {"IP Address", "ip", "mdi:ip-network"},
             {"MAC Address", "mac", "mdi:ethernet"},
@@ -210,10 +210,10 @@ private:
     String _deviceID;
     String _version;
 
-    char mqtt_server[40];
+    char mqtt_server[40] = "";
     char mqtt_port[6] = "1883";
-    char mqtt_user[40];
-    char mqtt_pass[40];
+    char mqtt_user[40] = "";
+    char mqtt_pass[40] = "";
     char mqtt_topic_prefix[40] = "side-eye";
 };
 

@@ -24,9 +24,9 @@ public:
     String(const char* s) : std::string(s) {}
     String(const std::string& s) : std::string(s) {}
     String() : std::string() {}
-    String(int i) : std::string(std::to_string(i)) {}
-    String(unsigned long i) : std::string(std::to_string(i)) {}
-    String(long i) : std::string(std::to_string(i)) {}
+    explicit String(int i) : std::string(std::to_string(i)) {}
+    explicit String(unsigned long i) : std::string(std::to_string(i)) {}
+    explicit String(long i) : std::string(std::to_string(i)) {}
     String(double d, int precision) {
         char buf[32];
         sprintf(buf, "%.*f", precision, d);

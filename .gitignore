@@ -33,3 +33,4 @@ host/config.toml
 lcov.info
 
 coverage.xml
+.env

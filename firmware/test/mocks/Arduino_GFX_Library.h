@@ -1,6 +1,9 @@
 #pragma once
 
-class Arduino_DataBus {};
+class Arduino_DataBus {
+public:
+    virtual ~Arduino_DataBus() = default;
+};
 
 class Arduino_HWSPI : public Arduino_DataBus {
 public:
@@ -9,6 +12,7 @@ public:
 
 class Arduino_GFX {
 public:
+    virtual ~Arduino_GFX() = default;
     bool begin(int32_t speed = 0) { return true; }
     void fillScreen(uint16_t color) {}
     void setRotation(uint8_t r) {}
@@ -17,9 +21,11 @@ public:
     void setCursor(int16_t x, int16_t y) {}
     void print(const char* s) {}
     void print(String s) {}
+    void print(int i) {}
     void print(float f, int p=2) {}
     void println(const char* s) {}
     void println(String s) {}
+    void println(int i) {}
     void printf(const char* format, ...) {}
     void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {}
     void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {}

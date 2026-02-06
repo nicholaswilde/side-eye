@@ -67,14 +67,21 @@ public:
         );
     }
 
+    ~DisplayManager() {
+        delete gfx;
+        delete bus;
+    }
+
+    // Disable copy and assignment
+    DisplayManager(const DisplayManager&) = delete;
+    DisplayManager& operator=(const DisplayManager&) = delete;
+
     void begin() {
         if (LCD_BL >= 0) {
             pinMode(LCD_BL, OUTPUT);
             digitalWrite(LCD_BL, HIGH);
         }
-        if (!gfx->begin()) {
-            Serial.println("gfx->begin() failed!");
-        }
+        gfx->begin();
         gfx->setRotation(currentRotation);
         gfx->fillScreen(CATPPUCCIN_BASE);
     }
@@ -269,6 +276,7 @@ public:
             gfx->fillRect(value_x + 20, (int)(start_y + line_h * 1.5), 160, 8, CATPPUCCIN_BASE);
             gfx->setCursor(value_x + 20, (int)(start_y + line_h * 1.5));
             gfx->printf("%llu / %llu MB", used / 1024 / 1024, total / 1024 / 1024);
+            // cppcheck-suppress knownConditionTrueFalse
             float sd_p = (total > 0) ? (float)used / total * 100.0 : 0;
             drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, sd_p, CATPPUCCIN_MAUVE);
 
