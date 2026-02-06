@@ -1,0 +1,5 @@
+---
+exclude:
+  - .pio
+  - tests
+  - target

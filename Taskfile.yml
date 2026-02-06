@@ -1,6 +1,12 @@
+---
 version: '3'
 
 tasks:
+  # New task to upload all coverage reports to Coveralls
+  coverage:upload:
+    desc: Upload both Host and Firmware coverage to Coveralls
+    cmds:
+      - coveralls --lcov lcov.info --extension .xml coverage.xml
   deps:
     desc: "Install dependencies"
     cmds:
@@ -156,11 +162,11 @@ tasks:
     dir: firmware
     cmds:
       - pio test -e native
-      - gcovr -r . --filter include/ --filter src/ --print-summary
+      - gcovr -r . --filter include/ --filter src/ --print-summary --exclude ".*/.pio/.*"
 
   firmware:coverage:xml:
-    desc: Generate Cobertura XML coverage report for the Firmware (for Codecov)
+    desc: Generate Cobertura XML coverage report for the Firmware
     dir: firmware
     cmds:
       - pio test -e native
-      - gcovr -r . --filter include/ --filter src/ --xml-pretty -o ../coverage.xml
+      - gcovr -r . --filter include/ --filter src/ --exclude ".*/.pio/.*" --xml-pretty -o ../coverage.xml
