@@ -30,7 +30,7 @@ fn test_update_and_get_stats() {
 
 #[test]
 fn test_host_message_serialization() {
-    use side_eye_host::monitor::{HostMessage, StaticInfo, SystemStats, ChunkData};
+    use side_eye_host::monitor::{ChunkData, HostMessage, StaticInfo, SystemStats};
 
     let static_info = StaticInfo {
         hostname: "test".into(),

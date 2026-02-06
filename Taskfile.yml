@@ -9,6 +9,7 @@ tasks:
     desc: Upload both Host and Firmware coverage to Coveralls
     cmds:
       - coveralls report lcov.info coverage.xml -n -r {{ .COVERALLS_REPO_TOKEN }}
+    silent: true
 
   deps:
     desc: "Install dependencies"
@@ -16,7 +17,6 @@ tasks:
       - sudo apt install gcovr
       - rustup component add llvm-tools-preview
       - cargo install cargo-llvm-cov
-      - cargo install coveralls
 
   default:
     desc: List available tasks

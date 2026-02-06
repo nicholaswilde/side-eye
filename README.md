@@ -5,6 +5,9 @@
 [![PlatformIO](https://img.shields.io/badge/Firmware-PlatformIO-blue?style=for-the-badge&logo=platformio)](https://platformio.org/)
 [![Hardware](https://img.shields.io/badge/Hardware-ESP32--C6--GEEK-white?style=for-the-badge&logo=espressif)](https://www.waveshare.com/esp32-c6-geek.htm)
 
+> [!WARNING]
+> This project is currently in active development (v0.X.X) and is **not production-ready**. Features may change, and breaking changes may occur without notice.
+
 SideEye is a tiny USB-powered monitor that gives your Linux rig the "SideEye" by displaying real-time system stats on a dedicated LCD. It consists of a lightweight Rust host binary and custom ESP32-C6 firmware.
 
 ---
