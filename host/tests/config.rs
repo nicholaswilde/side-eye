@@ -79,3 +79,14 @@ ram_critical = 90"#,
     assert_eq!(config.thresholds.ram_warning, 75);
     assert_eq!(config.thresholds.ram_critical, 90);
 }
+
+#[test]
+fn test_load_unknown_extension() {
+    let dir = tempdir().unwrap();
+    let config_path = dir.path().join("config.txt");
+    fs::write(&config_path, "some random text").unwrap();
+
+    // Should load defaults since extension is unknown and it ignores the file content
+    let result = Config::load(Some(config_path));
+    assert!(result.is_ok());
+}

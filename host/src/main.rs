@@ -649,8 +649,19 @@ mod tests {
 
     #[test]
     fn test_run_smoke() {
-        // We can't easily test the full run() because of Args::parse() and possible blocking
-        // but we can test merge_args_into_config and run_loop separately which we already do.
+        std::env::set_var("SIDEEYE_RUN_ONCE", "1");
+        let args = Args {
+            port: None,
+            baud_rate: None,
+            verbose: true,
+            dry_run: true,
+            config: None,
+            monitor_all: None,
+            interval: Some(1),
+        };
+        let result = run(args);
+        assert!(result.is_ok());
+        std::env::remove_var("SIDEEYE_RUN_ONCE");
     }
 
     #[test]
@@ -693,52 +704,99 @@ mod tests {
     }
 
     #[test]
-    fn test_should_connect() {
-        use serialport::SerialPortInfo;
+    fn test_merge_args_none() {
+        let config = config::Config::default();
+        let args = Args {
+            port: None,
+            baud_rate: None,
+            verbose: false,
+            dry_run: false,
+            config: None,
+            monitor_all: None,
+            interval: None,
+        };
+        let merged = merge_args_into_config(config.clone(), &args);
+        assert_eq!(merged.ports, config.ports);
+        assert_eq!(merged.baud_rate, config.baud_rate);
+        assert_eq!(merged.verbose, config.verbose);
+    }
 
-        let config_monitor_all = config::Config {
+    #[test]
+    fn test_discover_and_connect_already_connected() {
+        let config = config::Config {
             monitor_all: true,
             filters: vec![0x1234],
             ..Default::default()
         };
 
-        let port_ok = SerialPortInfo {
-            port_name: "COM1".into(),
-            port_type: SerialPortType::UsbPort(UsbPortInfo {
-                vid: 0x1234,
-                pid: 0x5678,
-                serial_number: None,
-                manufacturer: None,
-                product: None,
-            }),
-        };
+        let connections = Arc::new(Mutex::new(HashMap::new()));
+        let (tx, _rx) = std::sync::mpsc::channel();
+        connections
+            .lock()
+            .unwrap()
+            .insert("MOCK1".into(), DeviceConnection { sender: tx });
 
-        let port_wrong_vid = SerialPortInfo {
-            port_name: "COM2".into(),
-            port_type: SerialPortType::UsbPort(UsbPortInfo {
-                vid: 0x9999,
-                pid: 0x5678,
-                serial_number: None,
-                manufacturer: None,
-                product: None,
-            }),
+        let scanner = MockPortScanner {
+            ports: vec![serialport::SerialPortInfo {
+                port_name: "MOCK1".into(),
+                port_type: SerialPortType::UsbPort(UsbPortInfo {
+                    vid: 0x1234,
+                    pid: 0x5678,
+                    serial_number: None,
+                    manufacturer: None,
+                    product: None,
+                }),
+            }],
         };
+        let opener = MockPortOpener { should_fail: false };
 
-        let port_not_usb = SerialPortInfo {
-            port_name: "COM3".into(),
-            port_type: SerialPortType::Unknown,
-        };
+        let result = discover_and_connect(&config, &connections, true, &scanner, &opener);
+        assert!(result.is_ok());
+        // Should still only have 1 connection
+        assert_eq!(connections.lock().unwrap().len(), 1);
+    }
 
-        assert!(should_connect(&port_ok, &config_monitor_all));
-        assert!(!should_connect(&port_wrong_vid, &config_monitor_all));
-        assert!(!should_connect(&port_not_usb, &config_monitor_all));
+    #[test]
+    fn test_broadcast_stats_empty() {
+        let connections = Arc::new(Mutex::new(HashMap::new()));
+        broadcast_stats(&connections, "payload", false);
+        assert!(connections.lock().unwrap().is_empty());
+    }
 
-        let config_specific_ports = config::Config {
-            monitor_all: false,
-            ports: vec!["COM3".into()],
-            ..Default::default()
-        };
-        assert!(should_connect(&port_not_usb, &config_specific_ports));
-        assert!(!should_connect(&port_ok, &config_specific_ports));
+    #[test]
+    fn test_mock_serial_port_methods() {
+        let mut port = MockSerialPort;
+        use std::io::{Read, Write};
+        let mut buf = [0u8; 10];
+        assert_eq!(port.read(&mut buf).unwrap(), 0);
+        assert_eq!(port.write(&buf).unwrap(), 10);
+        assert!(port.flush().is_ok());
+
+        use serialport::SerialPort;
+        assert!(port.name().is_none());
+        assert_eq!(port.baud_rate().unwrap(), 9600);
+        assert_eq!(port.data_bits().unwrap(), serialport::DataBits::Eight);
+        assert_eq!(port.flow_control().unwrap(), serialport::FlowControl::None);
+        assert_eq!(port.parity().unwrap(), serialport::Parity::None);
+        assert_eq!(port.stop_bits().unwrap(), serialport::StopBits::One);
+        assert_eq!(port.timeout(), Duration::from_millis(0));
+        assert!(port.set_baud_rate(9600).is_ok());
+        assert!(port.set_data_bits(serialport::DataBits::Eight).is_ok());
+        assert!(port.set_flow_control(serialport::FlowControl::None).is_ok());
+        assert!(port.set_parity(serialport::Parity::None).is_ok());
+        assert!(port.set_stop_bits(serialport::StopBits::One).is_ok());
+        assert!(port.set_timeout(Duration::from_millis(0)).is_ok());
+        assert!(port.write_request_to_send(true).is_ok());
+        assert!(port.write_data_terminal_ready(true).is_ok());
+        assert!(!port.read_clear_to_send().unwrap());
+        assert!(!port.read_data_set_ready().unwrap());
+        assert!(!port.read_ring_indicator().unwrap());
+        assert!(!port.read_carrier_detect().unwrap());
+        assert_eq!(port.bytes_to_read().unwrap(), 0);
+        assert_eq!(port.bytes_to_write().unwrap(), 0);
+        assert!(port.clear(serialport::ClearBuffer::All).is_ok());
+        assert!(port.try_clone().is_ok());
+        assert!(port.set_break().is_ok());
+        assert!(port.clear_break().is_ok());
     }
 }
