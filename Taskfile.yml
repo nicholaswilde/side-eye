@@ -6,7 +6,8 @@ tasks:
   coverage:upload:
     desc: Upload both Host and Firmware coverage to Coveralls
     cmds:
-      - coveralls --lcov lcov.info --extension .xml coverage.xml
+      - coveralls report lcov.info coverage.xml
+
   deps:
     desc: "Install dependencies"
     cmds:

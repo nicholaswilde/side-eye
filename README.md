@@ -1,5 +1,6 @@
 # :eyes: SideEye: The USB Stat Monitor for Linux :desktop_computer:
 
+[![Coveralls](https://img.shields.io/coveralls/github/nicholaswilde/side-eye/main?style=for-the-badge&logo=coveralls)](https://coveralls.io/github/nicholaswilde/side-eye?branch=main)
 [![Rust](https://img.shields.io/badge/Host-Rust-orange?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
 [![PlatformIO](https://img.shields.io/badge/Firmware-PlatformIO-blue?style=for-the-badge&logo=platformio)](https://platformio.org/)
 [![Hardware](https://img.shields.io/badge/Hardware-ESP32--C6--GEEK-white?style=for-the-badge&logo=espressif)](https://www.waveshare.com/esp32-c6-geek.htm)
