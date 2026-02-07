@@ -133,7 +133,7 @@ tasks:
     desc: Build the Firmware (PlatformIO)
     dir: firmware
     cmds:
-      - pio run
+      - pio run -e esp32-c6-geek
 
   firmware:flash:
     desc: Flash the Firmware (PlatformIO)
