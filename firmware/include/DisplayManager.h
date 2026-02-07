@@ -278,7 +278,11 @@ public:
             // Sync Status
             gfx.fillRect(value_x + 10, (int)(start_y + line_h * 3.5), 170, 8, CATPPUCCIN_BASE);
             gfx.setCursor(value_x + 10, (int)(start_y + line_h * 3.5));
-            gfx.print(state.sd_sync_status);
+            if (state.connected) {
+                gfx.print(state.sd_sync_status);
+            } else {
+                gfx.print("Disconnected");
+            }
         }
     }
 
@@ -355,14 +359,14 @@ public:
         gfx.setCursor(start_x, start_y);
         gfx.print("Status:");
 
-        if (state.connected) {
+        if (state.connected || currentPage == PAGE_SD) {
             switch (currentPage) {
-                case PAGE_IDENTITY: drawIdentityPage(state, true); break;
-                case PAGE_RESOURCES: drawResourcesPage(state, true); break;
-                case PAGE_STATUS: drawStatusPage(state, true); break;
+                case PAGE_IDENTITY: if (state.connected) drawIdentityPage(state, true); break;
+                case PAGE_RESOURCES: if (state.connected) drawResourcesPage(state, true); break;
+                case PAGE_STATUS: if (state.connected) drawStatusPage(state, true); break;
                 case PAGE_SD: drawSDPage(state, true); break;
-                case PAGE_THERMAL: drawThermalPage(state, true); break;
-                case PAGE_NETWORK: drawNetworkPage(state, true); break;
+                case PAGE_THERMAL: if (state.connected) drawThermalPage(state, true); break;
+                case PAGE_NETWORK: if (state.connected) drawNetworkPage(state, true); break;
                 default: break;
             }
         }
@@ -386,19 +390,21 @@ public:
         if (state.connected) {
             gfx.setTextColor(CATPPUCCIN_GREEN);
             gfx.println("Connected");
-
-            switch (currentPage) {
-                case PAGE_IDENTITY: drawIdentityPage(state, false); break;
-                case PAGE_RESOURCES: drawResourcesPage(state, false); break;
-                case PAGE_STATUS: drawStatusPage(state, false); break;
-                case PAGE_SD: drawSDPage(state, false); break;
-                case PAGE_THERMAL: drawThermalPage(state, false); break;
-                case PAGE_NETWORK: drawNetworkPage(state, false); break;
-                default: break;
-            }
         } else {
             gfx.setTextColor(CATPPUCCIN_PEACH);
             gfx.println("Waiting...");
+        }
+
+        if (state.connected || currentPage == PAGE_SD) {
+            switch (currentPage) {
+                case PAGE_IDENTITY: if (state.connected) drawIdentityPage(state, false); break;
+                case PAGE_RESOURCES: if (state.connected) drawResourcesPage(state, false); break;
+                case PAGE_STATUS: if (state.connected) drawStatusPage(state, false); break;
+                case PAGE_SD: drawSDPage(state, false); break;
+                case PAGE_THERMAL: if (state.connected) drawThermalPage(state, false); break;
+                case PAGE_NETWORK: if (state.connected) drawNetworkPage(state, false); break;
+                default: break;
+            }
         }
     }
 

@@ -1,0 +1,8 @@
+{
+  "track_id": "disconnected_sd_card_access_20260206",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-06T13:40:00Z",
+  "updated_at": "2026-02-06T13:40:00Z",
+  "description": "allow the sd card screen to be shown when the status of the firmware is disconnted, meaning the binary is not running"
+}

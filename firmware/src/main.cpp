@@ -213,7 +213,7 @@ void loop() {
     // (Handled by handleJson and has_data flag in original, let's keep it simple)
 
     // Page cycling
-    if (state.connected && input.isScreenOn() && !input.isResetActive()) {
+    if (input.isScreenOn() && !input.isResetActive()) {
         unsigned long now = millis();
         if (now - lastPageChange > PAGE_DURATION) {
             currentPage = static_cast<Page>((currentPage + 1) % NUM_PAGES);

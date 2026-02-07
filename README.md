@@ -42,6 +42,9 @@ Upon first boot, the device will enter setup mode:
 3.  Enter your Wi-Fi credentials and optional **MQTT Broker** details.
 4.  The device will reboot and show **"WiFi Online!"**.
 
+> [!TIP]
+> You can also bake in default credentials at compile-time by creating `firmware/include/secrets.h` (see `secrets.h.example`).
+
 ### 4. Run the Host Binary
 The host will automatically attempt to detect the ESP32 on your serial ports.
 
@@ -63,11 +66,12 @@ task host:run
 ### ESP32-C6 Firmware
 - **Catppuccin UI:** Polished, color-coded interface using the Catppuccin Mocha color palette.
 - **Paged UI:** Cycles through **Identity**, **Resources** (CPU/RAM bars), **Status** (Disk/Uptime), **SD Card**, **Thermal** (CPU Temp/GPU Load), and **Network** pages.
+- **Offline Access:** The **SD Card** page remains accessible via button cycle even when disconnected from the host, showing local storage usage.
 - **Intelligent UI State:** Clean "Waiting..." mode when idle, automatically transitioning to a detailed dashboard upon host connection.
 - **Visual Alerts:** Banner changes color based on resource usage thresholds (Mauve -> Yellow -> Flashing Red) and automatically switches to the Resources page.
 - **Network History:** Dedicated page with real-time sparklines for download and upload throughput history.
 - **Home Assistant Integration:** Automatic MQTT Discovery—sensors appear instantly in your HA dashboard.
-- **Power Management:** 1-minute auto-off timeout to save screen life; wakes instantly on host data or button interaction.
+- **Power Management:** 1-minute auto-off timeout to save screen life; wakes instantly on button interaction.
 - **Automated Versioning:** Firmware version is automatically synchronized with the host's `Cargo.toml` during build.
 
 ---
@@ -75,9 +79,10 @@ task host:run
 ## :mouse: Interactivity (Physical Button)
 
 The onboard "Boot" button (GPIO 9) provides full control:
-- **Single Click:** Advance to the next information page (or wakes the screen if it's off).
-- **Double Click:** Rotate the display 180 degrees (supports any USB port orientation).
-- **Long Press (1s):** Toggle the LCD backlight on/off manually.
+- **Single Click:** Advance to the next information page (works even when disconnected or wakes the screen if it's off).
+- **Double Click:** Rotate the display 180 degrees (supports any USB port orientation). **Works even on the setup screen!**
+- **Hold (1s):** Toggle the LCD backlight on/off manually.
+- **Long Hold (10s):** Factory Reset. Clears all Wi-Fi and MQTT settings. A countdown will appear on screen.
 
 ---
 

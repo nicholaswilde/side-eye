@@ -310,16 +310,56 @@ void test_display_manager_extended() {
     display.updateDynamicValues(state, PAGE_IDENTITY, true, false, "1.0.0");
 }
 
+void test_input_click_disconnected(void) {
+    DisplayManager display;
+    InputHandler input(9, display);
+    SystemState state;
+    state.connected = false;
+    Page page = PAGE_IDENTITY;
+    unsigned long lastPageChange = 0;
+    bool needsStaticDraw = false;
+
+    input.begin();
+    _mock_digitalRead_val = LOW;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1");
+    _mock_millis += 60;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1");
+    _mock_digitalRead_val = HIGH;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1");
+    _mock_millis += 60;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1");
+    _mock_millis += 400;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1");
+
+    TEST_ASSERT_TRUE(needsStaticDraw);
+    TEST_ASSERT_EQUAL(PAGE_RESOURCES, page);
+}
+
+void test_display_sd_disconnected() {
+    DisplayManager display;
+    SystemState state;
+    state.connected = false;
+    
+    display.begin();
+    display.drawSDPage(state, true);
+    display.drawSDPage(state, false);
+    
+    display.drawStaticUI(state, PAGE_SD, "1.0.0");
+    display.updateDynamicValues(state, PAGE_SD, true, false, "1.0.0");
+}
+
 int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_history_push_and_get);
     RUN_TEST(test_history_max);
     RUN_TEST(test_input_click);
+    RUN_TEST(test_input_click_disconnected);
     RUN_TEST(test_input_double_click_and_hold);
     RUN_TEST(test_input_notify_activity);
     RUN_TEST(test_display_draw_identity);
     RUN_TEST(test_display_format_speed);
     RUN_TEST(test_display_draw_smoke);
+    RUN_TEST(test_display_sd_disconnected);
     RUN_TEST(test_sync_manager_full);
     RUN_TEST(test_network_manager_full);
     RUN_TEST(test_input_handler_extended);
