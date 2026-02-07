@@ -33,6 +33,8 @@ public:
         assign(buf);
     }
     const char* c_str() const { return std::string::c_str(); }
+    size_t write(uint8_t c) { push_back(c); return 1; }
+    size_t write(const uint8_t *s, size_t n) { append((const char*)s, n); return n; }
 };
 
 class SerialMock {

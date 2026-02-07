@@ -2,16 +2,16 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <SD.h>
+#include <LittleFS.h>
+#include <WiFiManager.h>
+#include <PubSubClient.h>
+#include <esp_mac.h>
+#include "../../test/mocks/mocks.cpp"
 #include "HistoryBuffer.h"
 #include "InputHandler.h"
 #include "DisplayManager.h"
-
-// Mocks
-unsigned long _mock_millis = 0;
-int _mock_digitalRead_val = HIGH;
-SerialMock Serial;
-WiFiClass WiFi;
-SDClass SD;
+#include "SyncManager.h"
+#include "NetworkManager.h"
 
 void setUp(void) {
     _mock_millis = 0;
@@ -153,6 +153,28 @@ void test_display_draw_smoke() {
     display.updateDynamicValues(state, PAGE_RESOURCES, true, false, "1.0.0");
 }
 
+void test_sync_manager_smoke() {
+    SyncManager sync;
+    sync.begin();
+    sync.listFiles("/");
+    
+    JsonDocument doc;
+    doc["path"] = "test.txt";
+    doc["offset"] = 0;
+    doc["data"] = "SGVsbG8="; // "Hello"
+    sync.handleWriteChunk(doc.as<JsonObject>());
+}
+
+void test_network_manager_smoke() {
+    SideEyeNetworkManager network;
+    SystemState state;
+    unsigned long retry = 0;
+    
+    network.saveConfig(false);
+    network.update(retry);
+    network.publishState(state);
+}
+
 int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_history_push_and_get);
@@ -163,6 +185,8 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_draw_identity);
     RUN_TEST(test_display_format_speed);
     RUN_TEST(test_display_draw_smoke);
+    RUN_TEST(test_sync_manager_smoke);
+    RUN_TEST(test_network_manager_smoke);
     UNITY_END();
     return 0;
 }
