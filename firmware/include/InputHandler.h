@@ -129,13 +129,15 @@ public:
             unsigned long duration = _button.getPressDuration();
             if (duration > 2000) { // Show reset warning after 2s of holding
                 int remaining = (10000 - duration) / 1000;
-                if (remaining >= 0) {
-                    _display.drawResetScreen(remaining);
+                if (remaining >= 0 && remaining != _lastRemaining) {
+                    _display.drawResetScreen(remaining, !_resetScreenActive);
+                    _lastRemaining = remaining;
                     _resetScreenActive = true;
                 }
             }
         } else if (_resetScreenActive) {
             _resetScreenActive = false;
+            _lastRemaining = -1;
             needsStaticDraw = true; // Restore normal UI when button released
         }
 
@@ -167,6 +169,7 @@ private:
     DisplayManager& _display;
     bool _isScreenOn = true;
     bool _resetScreenActive = false;
+    int _lastRemaining = -1;
     unsigned long _lastActivityTime = 0;
     const unsigned long _autoOffDelay = 60000; // 1 minute
 };

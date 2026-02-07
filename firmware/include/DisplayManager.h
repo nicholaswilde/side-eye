@@ -440,24 +440,28 @@ public:
         gfx.println("WiFi Online!");
     }
 
-    void drawResetScreen(int secondsRemaining) {
-        gfx.fillScreen(CATPPUCCIN_BASE);
-        drawBanner("FACTORY RESET", 2); // Alert level 2 for red flashing
+    void drawResetScreen(int secondsRemaining, bool forceRedraw = false) {
+        if (forceRedraw) {
+            gfx.fillScreen(CATPPUCCIN_BASE);
+            drawBanner("FACTORY RESET", 0); // Use alert 0 to avoid banner flashing
+            
+            gfx.setTextColor(CATPPUCCIN_TEXT);
+            gfx.setTextSize(1);
+            gfx.setCursor(15, 50);
+            gfx.println("Resetting in:");
+            
+            gfx.setTextColor(CATPPUCCIN_SUBTEXT0);
+            gfx.setTextSize(1);
+            gfx.setCursor(15, 115);
+            gfx.println("Release to cancel");
+        }
         
-        gfx.setTextColor(CATPPUCCIN_TEXT);
-        gfx.setTextSize(1);
-        gfx.setCursor(15, 50);
-        gfx.println("Resetting in:");
-        
+        // Clear and update only the number area
+        gfx.fillRect(100, 75, 40, 25, CATPPUCCIN_BASE);
         gfx.setTextColor(CATPPUCCIN_RED);
         gfx.setTextSize(3);
         gfx.setCursor(100, 75);
         gfx.println(secondsRemaining);
-        
-        gfx.setTextColor(CATPPUCCIN_SUBTEXT0);
-        gfx.setTextSize(1);
-        gfx.setCursor(15, 115);
-        gfx.println("Release to cancel");
     }
 
 private:
