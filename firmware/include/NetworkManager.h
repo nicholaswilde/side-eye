@@ -9,9 +9,29 @@
 #include <esp_mac.h>
 #include "DisplayManager.h"
 
+#if __has_include("secrets.h")
+#include "secrets.h"
+#endif
+
 class SideEyeNetworkManager {
 public:
-    SideEyeNetworkManager() : _mqttClient(_espClient) {}
+    SideEyeNetworkManager() : _mqttClient(_espClient) {
+#ifdef MQTT_HOST
+        strncpy(mqtt_server, MQTT_HOST, sizeof(mqtt_server) - 1);
+#endif
+#ifdef MQTT_PORT
+        strncpy(mqtt_port, String(MQTT_PORT).c_str(), sizeof(mqtt_port) - 1);
+#endif
+#ifdef MQTT_USER
+        strncpy(mqtt_user, MQTT_USER, sizeof(mqtt_user) - 1);
+#endif
+#ifdef MQTT_PASS
+        strncpy(mqtt_pass, MQTT_PASS, sizeof(mqtt_pass) - 1);
+#endif
+#ifdef MQTT_TOPIC_PREFIX
+        strncpy(mqtt_topic_prefix, MQTT_TOPIC_PREFIX, sizeof(mqtt_topic_prefix) - 1);
+#endif
+    }
 
     void begin(const String& deviceID, const char* version, void (*saveCallback)(), void (*configCallback)(WiFiManager*), void (*webServerCallback)()) {
         _deviceID = deviceID;
@@ -42,6 +62,10 @@ public:
         wm.setSaveConfigCallback(saveCallback);
         wm.setAPCallback(configCallback);
         wm.setWebServerCallback(webServerCallback);
+
+#if defined(WIFI_SSID) && defined(WIFI_PASSWORD)
+        wm.preloadWiFi(WIFI_SSID, WIFI_PASSWORD);
+#endif
 
         WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqtt_server, 40);
         WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqtt_port, 6);
