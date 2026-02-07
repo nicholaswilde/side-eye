@@ -132,7 +132,9 @@ void handleJson(String json) {
         Serial.println();
     }
 
-    display.updateDynamicValues(state, currentPage, needsStaticDraw, waitingMessageActive, FIRMWARE_VERSION);
+    if (!input.isResetActive()) {
+        display.updateDynamicValues(state, currentPage, needsStaticDraw, waitingMessageActive, FIRMWARE_VERSION);
+    }
     needsStaticDraw = false;
 }
 
@@ -200,7 +202,7 @@ void loop() {
     // (Handled by handleJson and has_data flag in original, let's keep it simple)
 
     // Page cycling
-    if (state.connected && input.isScreenOn()) {
+    if (state.connected && input.isScreenOn() && !input.isResetActive()) {
         unsigned long now = millis();
         if (now - lastPageChange > PAGE_DURATION) {
             currentPage = static_cast<Page>((currentPage + 1) % NUM_PAGES);
@@ -209,7 +211,7 @@ void loop() {
         }
     }
 
-    if (needsStaticDraw) {
+    if (needsStaticDraw && !input.isResetActive()) {
         display.updateDynamicValues(state, currentPage, true, false, FIRMWARE_VERSION);
         needsStaticDraw = false;
     }

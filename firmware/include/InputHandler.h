@@ -158,6 +158,7 @@ public:
     }
 
     bool isScreenOn() const { return _isScreenOn; }
+    bool isResetActive() const { return _resetScreenActive; }
 
 private:
     void setScreenOn(bool on) {
