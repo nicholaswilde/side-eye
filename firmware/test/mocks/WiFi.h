@@ -27,8 +27,10 @@ public:
 
 class ESPClass {
 public:
-    void restart() {}
+    ESPClass() : _restarted(false) {}
+    void restart() { _restarted = true; }
     uint32_t getFreeHeap() { return 100000; }
+    bool _restarted;
 };
 
 extern ESPClass ESP;

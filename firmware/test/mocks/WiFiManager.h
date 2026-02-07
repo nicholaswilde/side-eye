@@ -22,7 +22,8 @@ public:
     void setAPCallback(void (*func)(WiFiManager*)) {}
     void setWebServerCallback(void (*func)()) {}
     void addParameter(WiFiManagerParameter *p) {}
-    bool autoConnect(const char *apName, const char *apPassword = NULL) { return true; }
+    bool autoConnect(const char *apName, const char *apPassword = NULL) { return _autoConnectResult; }
     void resetSettings() {}
     bool preloadWiFi(String ssid, String pass) { return true; }
+    bool _autoConnectResult = true;
 };

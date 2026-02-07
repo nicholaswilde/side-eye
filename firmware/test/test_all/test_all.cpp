@@ -162,6 +162,9 @@ void test_sync_manager_full() {
     // Mock SD.open returns a valid file by default now, so it should find one file named "test"
     TEST_ASSERT_EQUAL_STRING("[{\"n\":\"test\",\"s\":4,\"d\":false}]", list.c_str());
     
+    // Test listFiles with invalid dir
+    TEST_ASSERT_EQUAL_STRING("[]", sync.listFiles("invalid").c_str());
+    
     // Test handleWriteChunk
     JsonDocument doc;
     doc["path"] = "test.txt";
@@ -210,11 +213,24 @@ public:
         nm.saveConfig(true);
         LittleFS._setFailNextOpen(true);
         nm.saveConfig(true);
+
+        // 8. Reset settings
+        ESP._restarted = false;
+        nm.resetSettings();
+        TEST_ASSERT_TRUE(ESP._restarted);
+    }
+    
+    static void testFailure() {
+        SideEyeNetworkManager nm;
+        nm._mqttClient._setConnected(false);
+        nm._mqttClient._setState(-1);
+        nm.reconnectMQTT();
     }
 };
 
 void test_network_manager_full() {
     NetworkManagerTest::test();
+    NetworkManagerTest::testFailure();
 }
 
 void test_input_handler_extended() {
