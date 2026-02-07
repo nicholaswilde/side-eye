@@ -153,26 +153,161 @@ void test_display_draw_smoke() {
     display.updateDynamicValues(state, PAGE_RESOURCES, true, false, "1.0.0");
 }
 
-void test_sync_manager_smoke() {
+void test_sync_manager_full() {
     SyncManager sync;
     sync.begin();
-    sync.listFiles("/");
     
+    // Test listFiles with no files (mock returns empty list)
+    String list = sync.listFiles("/");
+    // Mock SD.open returns a valid file by default now, so it should find one file named "test"
+    TEST_ASSERT_EQUAL_STRING("[{\"n\":\"test\",\"s\":4,\"d\":false}]", list.c_str());
+    
+    // Test handleWriteChunk
     JsonDocument doc;
     doc["path"] = "test.txt";
     doc["offset"] = 0;
     doc["data"] = "SGVsbG8="; // "Hello"
-    sync.handleWriteChunk(doc.as<JsonObject>());
+    bool success = sync.handleWriteChunk(doc.as<JsonObject>());
+    TEST_ASSERT_TRUE(success);
 }
 
-void test_network_manager_smoke() {
-    SideEyeNetworkManager network;
+void dummy_callback() {}
+void dummy_config_callback(WiFiManager* wm) {}
+
+class NetworkManagerTest {
+public:
+    static void test() {
+        SideEyeNetworkManager nm;
+        SystemState state;
+        unsigned long retry = 0;
+        
+        // 1. Initial state (disconnected)
+        nm.update(retry); 
+        nm.publishState(state);
+        
+        // 2. Setup with config
+        LittleFS._setFile("/config.json", "{\"mqtt_server\":\"localhost\",\"mqtt_port\":1883,\"mqtt_user\":\"user\",\"mqtt_pass\":\"pass\"}");
+        nm.begin("DEV1", "1.0.0", dummy_callback, dummy_config_callback, dummy_callback);
+        
+        // 3. Trigger reconnect
+        nm._mqttClient._setConnected(false);
+        nm.update(retry);
+        
+        // 4. Publish while connected
+        nm._mqttClient._setConnected(true);
+        nm.publishState(state);
+        
+        // 5. Discovery
+        nm.publishHADiscovery();
+        
+        // 6. Setup without config
+        SideEyeNetworkManager nm2;
+        nm2.begin("DEV2", "1.0.0", dummy_callback, dummy_config_callback, dummy_callback);
+        nm2._mqttClient._setConnected(false);
+        nm2.reconnectMQTT(); // Test anonymous MQTT connect
+        
+        // 7. Save config paths
+        nm.saveConfig(true);
+        LittleFS._setFailNextOpen(true);
+        nm.saveConfig(true);
+    }
+};
+
+void test_network_manager_full() {
+    NetworkManagerTest::test();
+}
+
+void test_input_handler_extended() {
     SystemState state;
-    unsigned long retry = 0;
+    Page page = PAGE_IDENTITY;
+    unsigned long lastPageChange = 0;
+    bool needsStaticDraw = false;
+
+    _mock_digitalRead_val = HIGH;
+    _mock_millis = 0;
+    DisplayManager display;
+    InputHandler input(9, display);
+    input.begin();
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Register HIGH
     
-    network.saveConfig(false);
-    network.update(retry);
-    network.publishState(state);
+    // Test Hold (toggle screen)
+    _mock_digitalRead_val = LOW;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Start press
+    _mock_millis += 100;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Register press
+    _mock_millis += 1000;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Register HOLD
+    _mock_digitalRead_val = HIGH;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Release
+    _mock_millis += 100;
+    input.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Register Release
+    TEST_ASSERT_FALSE(input.isScreenOn());
+    
+    // Test Long Hold (Reset)
+    _mock_digitalRead_val = HIGH;
+    _mock_millis += 100;
+    InputHandler input2(9, display);
+    input2.begin();
+    input2.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Register HIGH
+    
+    _mock_digitalRead_val = LOW;
+    input2.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Start press
+    _mock_millis += 100;
+    input2.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Register press
+    
+    bool reset = false;
+    for(int i=0; i<30; i++) {
+        _mock_millis += 500;
+        if (input2.update(state, page, lastPageChange, needsStaticDraw, "v1")) {
+            reset = true;
+            break;
+        }
+    }
+    TEST_ASSERT_TRUE(reset);
+    TEST_ASSERT_TRUE(input2.isResetActive());
+    _mock_digitalRead_val = HIGH;
+    input2.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Release
+    _mock_millis += 100;
+    input2.update(state, page, lastPageChange, needsStaticDraw, "v1"); // Register Release
+    TEST_ASSERT_FALSE(input2.isResetActive());
+}
+
+void test_display_manager_extended() {
+    DisplayManager display;
+    SystemState state;
+    state.connected = true;
+    
+    display.begin();
+    
+    // Test all alert levels in banner
+    display.drawBanner("Alert 0", 0);
+    _mock_millis += 1000;
+    display.drawBanner("Alert 1", 1);
+    display.drawBanner("Alert 2", 2);
+    
+    // Test various states
+    state.cpu_percent = 90; // Red progress bar
+    display.drawResourcesPage(state, false);
+    state.cpu_percent = 60; // Yellow progress bar
+    display.drawResourcesPage(state, false);
+    
+    // Test Sparkline with 0 max
+    HistoryBuffer<uint64_t, 60> emptyBuffer;
+    display.drawSparkline(0, 0, 100, 20, emptyBuffer, 0xFFFF);
+    emptyBuffer.push(0);
+    emptyBuffer.push(0);
+    display.drawSparkline(0, 0, 100, 20, emptyBuffer, 0xFFFF);
+    
+    // Test other screens
+    display.drawBootScreen("1.0.0");
+    display.drawConfigMode("AP", "1.2.3.4");
+    display.drawWiFiOnline();
+    display.drawResetScreen(5, true);
+    display.drawResetScreen(4, false);
+    
+    // Test updateDynamicValues with disconnected state
+    state.connected = false;
+    display.updateDynamicValues(state, PAGE_IDENTITY, true, false, "1.0.0");
 }
 
 int main(int argc, char **argv) {
@@ -185,8 +320,10 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_draw_identity);
     RUN_TEST(test_display_format_speed);
     RUN_TEST(test_display_draw_smoke);
-    RUN_TEST(test_sync_manager_smoke);
-    RUN_TEST(test_network_manager_smoke);
+    RUN_TEST(test_sync_manager_full);
+    RUN_TEST(test_network_manager_full);
+    RUN_TEST(test_input_handler_extended);
+    RUN_TEST(test_display_manager_extended);
     UNITY_END();
     return 0;
 }

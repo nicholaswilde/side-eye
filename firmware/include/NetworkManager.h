@@ -15,6 +15,7 @@
 
 class SideEyeNetworkManager {
 public:
+    friend class NetworkManagerTest;
     SideEyeNetworkManager() : _mqttClient(_espClient) {
 #ifdef MQTT_HOST
         strncpy(mqtt_server, MQTT_HOST, sizeof(mqtt_server) - 1);
