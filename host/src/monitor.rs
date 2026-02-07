@@ -408,8 +408,17 @@ mod tests {
         assert!(json.contains("Identity"));
 
         let stats = SystemStats {
-            cpu_percent: 0.0, ram_used: 0, ram_total: 0, disk_used: 0, disk_total: 0,
-            net_up: 0, net_down: 0, uptime: 0, thermal_c: 0.0, gpu_percent: 0.0, alert_level: 0
+            cpu_percent: 0.0,
+            ram_used: 0,
+            ram_total: 0,
+            disk_used: 0,
+            disk_total: 0,
+            net_up: 0,
+            net_down: 0,
+            uptime: 0,
+            thermal_c: 0.0,
+            gpu_percent: 0.0,
+            alert_level: 0,
         };
         let msg_stats = HostMessage::Stats(stats);
         let json_stats = serde_json::to_string(&msg_stats).unwrap();
