@@ -128,7 +128,7 @@ public:
         if (_button.isPressed() && _isScreenOn) {
             unsigned long duration = _button.getPressDuration();
             if (duration > 2000) { // Show reset warning after 2s of holding
-                int remaining = (10000 - duration) / 1000;
+                int remaining = (duration < 10000) ? (10000 - duration) / 1000 : 0;
                 if (remaining >= 0 && remaining != _lastRemaining) {
                     _display.drawResetScreen(remaining, !_resetScreenActive);
                     _lastRemaining = remaining;
