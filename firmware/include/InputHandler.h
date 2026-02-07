@@ -168,10 +168,6 @@ public:
 
     void notifyActivity() {
         _lastActivityTime = millis();
-        if (!_isScreenOn) {
-            setScreenOn(true);
-            // We don't set needsStaticDraw here because main.cpp loop or handleJson will usually follow up with one
-        }
     }
 
     bool isScreenOn() const { return _isScreenOn; }
