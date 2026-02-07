@@ -1,4 +1,4 @@
-# Implementation Plan: Disconnected SD Card Access
+# Implementation Plan: Disconnected SD Card Access [checkpoint: 7a5c36c]
 
 ## Phase 1: Navigation Logic Update
 - [x] Task: Update `InputHandler` unit tests to verify button navigation while disconnected
@@ -7,7 +7,7 @@
 - [x] Task: Implement navigation logic in `InputHandler`
     - [x] Modify `InputHandler::update` to allow page cycling regardless of connection status
     - [x] Ensure "Waiting..." indicator remains visible or accessible via cycle
-- [ ] Task: Conductor - User Manual Verification 'Navigation Logic Update' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Navigation Logic Update' (Protocol in workflow.md)
 
 ## Phase 2: SD Page Telemetry & Status
 - [x] Task: Update `DisplayManager` unit tests for disconnected states
@@ -18,12 +18,12 @@
     - [x] Ensure calculations are efficient and do not block the UI
 - [x] Task: Implement disconnected status UI
     - [x] Update status rendering to show "Disconnected" when `state.connected` is false
-- [ ] Task: Conductor - User Manual Verification 'SD Page Telemetry & Status' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'SD Page Telemetry & Status' (Protocol in workflow.md)
 
 ## Phase 3: Final Integration & Coverage
-- [ ] Task: Verify firmware stability and coverage
-    - [ ] Run `task firmware:test`
-    - [ ] Run `task firmware:coverage` and ensure >80% coverage
-- [ ] Task: Update documentation
-    - [ ] Update `README.md` or `docs/` if button behavior changes are user-facing
-- [ ] Task: Conductor - User Manual Verification 'Final Integration & Coverage' (Protocol in workflow.md)
+- [x] Task: Verify firmware stability and coverage
+    - [x] Run `task firmware:test`
+    - [x] Run `task firmware:coverage` and ensure >80% coverage
+- [x] Task: Update documentation
+    - [x] Update `README.md` or `docs/` if button behavior changes are user-facing
+- [x] Task: Conductor - User Manual Verification 'Final Integration & Coverage' (Protocol in workflow.md)
