@@ -13,11 +13,11 @@ class SideEyeNetworkManager {
 public:
     SideEyeNetworkManager() : _mqttClient(_espClient) {}
 
-    void begin(const String& deviceID, const char* version, void (*saveCallback)(), void (*configCallback)(WiFiManager*)) {
+    void begin(const String& deviceID, const char* version, void (*saveCallback)(), void (*configCallback)(WiFiManager*), void (*webServerCallback)()) {
         _deviceID = deviceID;
         _version = version;
 
-        // Read configuration from LittleFS
+        // ... (LittleFS code) ...
         if (LittleFS.begin()) {
             Serial.println("mounted file system");
             if (LittleFS.exists("/config.json")) {
@@ -41,6 +41,7 @@ public:
         WiFiManager wm;
         wm.setSaveConfigCallback(saveCallback);
         wm.setAPCallback(configCallback);
+        wm.setWebServerCallback(webServerCallback);
 
         WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqtt_server, 40);
         WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqtt_port, 6);

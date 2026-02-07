@@ -46,6 +46,17 @@ void configModeCallback(WiFiManager *myWiFiManager) {
     display.drawConfigMode(("SideEye-" + deviceID).c_str(), WiFi.softAPIP().toString());
 }
 
+void configLoopCallback() {
+    static int lastRotation = display.getRotation();
+    if (input.update(state, currentPage, lastPageChange, needsStaticDraw, FIRMWARE_VERSION)) {
+        // Long hold reset not usually handled here, but we check for rotation change
+    }
+    if (display.getRotation() != lastRotation) {
+        lastRotation = display.getRotation();
+        display.drawConfigMode(("SideEye-" + deviceID).c_str(), WiFi.softAPIP().toString());
+    }
+}
+
 void handleJson(String json) {
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, json);
@@ -159,7 +170,7 @@ void setup() {
     Serial.printf("\n--- SideEye Firmware v%s starting ---\n", FIRMWARE_VERSION);
     delay(2000);
 
-    network.begin(deviceID, FIRMWARE_VERSION, saveConfigCallback, configModeCallback);
+    network.begin(deviceID, FIRMWARE_VERSION, saveConfigCallback, configModeCallback, configLoopCallback);
     network.saveConfig(shouldSaveConfig);
     
     display.drawWiFiOnline();
