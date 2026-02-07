@@ -96,6 +96,7 @@ public:
     bool update(SystemState& state, Page& currentPage, unsigned long& lastPageChange, bool& needsStaticDraw, const char* version) {
         Button::Event ev = _button.update();
         bool resetTriggered = false;
+        bool isPressed = _button.isPressed();
         
         if (ev != Button::NONE) {
             _lastActivityTime = millis();
@@ -118,16 +119,24 @@ public:
             needsStaticDraw = true;
             _display.updateDynamicValues(state, currentPage, needsStaticDraw, false, version);
         } else if (ev == Button::HOLD) {
-            setScreenOn(!_isScreenOn);
-            if (_isScreenOn) needsStaticDraw = true; // Force redraw on wake
+            if (!_isScreenOn) {
+                setScreenOn(true);
+                needsStaticDraw = true;
+            } else {
+                _pendingScreenOff = true; // Defer screen off until release, unless it becomes a reset
+            }
         } else if (ev == Button::LONG_HOLD) {
             resetTriggered = true;
         }
 
         // Reset countdown visual feedback
-        if (_button.isPressed() && _isScreenOn) {
+        if (isPressed) {
             unsigned long duration = _button.getPressDuration();
             if (duration > 2000) { // Show reset warning after 2s of holding
+                _pendingScreenOff = false; // It's a reset hold, cancel pending screen off
+                if (!_isScreenOn) {
+                    setScreenOn(true);
+                }
                 int remaining = (duration < 10000) ? (10000 - duration) / 1000 : 0;
                 if (remaining >= 0 && remaining != _lastRemaining) {
                     _display.drawResetScreen(remaining, !_resetScreenActive);
@@ -135,15 +144,23 @@ public:
                     _resetScreenActive = true;
                 }
             }
-        } else if (_resetScreenActive) {
-            _resetScreenActive = false;
-            _lastRemaining = -1;
-            needsStaticDraw = true; // Restore normal UI when button released
+        } else {
+            // Button released
+            if (_pendingScreenOff) {
+                setScreenOn(false);
+                _pendingScreenOff = false;
+            }
+            if (_resetScreenActive) {
+                _resetScreenActive = false;
+                _lastRemaining = -1;
+                needsStaticDraw = true; // Restore normal UI when button released
+            }
         }
 
         // Auto-off for screen
         if (_isScreenOn && (millis() - _lastActivityTime > _autoOffDelay)) {
             setScreenOn(false);
+            _pendingScreenOff = false;
         }
 
         return resetTriggered;
@@ -170,6 +187,7 @@ private:
     DisplayManager& _display;
     bool _isScreenOn = true;
     bool _resetScreenActive = false;
+    bool _pendingScreenOff = false;
     int _lastRemaining = -1;
     unsigned long _lastActivityTime = 0;
     const unsigned long _autoOffDelay = 60000; // 1 minute
