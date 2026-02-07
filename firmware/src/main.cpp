@@ -48,7 +48,7 @@ void configModeCallback(WiFiManager *myWiFiManager) {
 
 void configLoopCallback() {
     static int lastRotation = display.getRotation();
-    if (input.update(state, currentPage, lastPageChange, needsStaticDraw, FIRMWARE_VERSION)) {
+    if (input.update(state, currentPage, lastPageChange, needsStaticDraw, FIRMWARE_VERSION, true)) {
         // Long hold reset not usually handled here, but we check for rotation change
     }
     if (display.getRotation() != lastRotation) {

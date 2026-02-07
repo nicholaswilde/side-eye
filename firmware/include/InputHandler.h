@@ -93,7 +93,7 @@ public:
         _lastActivityTime = millis();
     }
 
-    bool update(SystemState& state, Page& currentPage, unsigned long& lastPageChange, bool& needsStaticDraw, const char* version) {
+    bool update(SystemState& state, Page& currentPage, unsigned long& lastPageChange, bool& needsStaticDraw, const char* version, bool isConfigMode = false) {
         Button::Event ev = _button.update();
         bool resetTriggered = false;
         bool isPressed = _button.isPressed();
@@ -108,16 +108,20 @@ public:
                 needsStaticDraw = true; // Force redraw on wake
             } else {
                 // Next page
-                currentPage = static_cast<Page>((currentPage + 1) % NUM_PAGES);
-                lastPageChange = millis();
-                needsStaticDraw = true;
-                _display.updateDynamicValues(state, currentPage, needsStaticDraw, false, version);
+                if (!isConfigMode) {
+                    currentPage = static_cast<Page>((currentPage + 1) % NUM_PAGES);
+                    lastPageChange = millis();
+                    needsStaticDraw = true;
+                    _display.updateDynamicValues(state, currentPage, needsStaticDraw, false, version);
+                }
             }
         } else if (ev == Button::DOUBLE_CLICK) {
             int newRotation = (_display.getRotation() == 1) ? 3 : 1;
             _display.setRotation(newRotation);
-            needsStaticDraw = true;
-            _display.updateDynamicValues(state, currentPage, needsStaticDraw, false, version);
+            if (!isConfigMode) {
+                needsStaticDraw = true;
+                _display.updateDynamicValues(state, currentPage, needsStaticDraw, false, version);
+            }
         } else if (ev == Button::HOLD) {
             if (!_isScreenOn) {
                 setScreenOn(true);
