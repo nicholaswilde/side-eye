@@ -45,6 +45,7 @@ tasks:
       - task: lint
       - cargo test --profile ci
       - task: clippy
+      - task: firmware:test
       - task: firmware:check
 
   clippy:
