@@ -57,9 +57,20 @@ Once connected to your broker, you can interact with the device via MQTT. For ex
 mosquitto_pub -h <MQTT_BROKER_IP> -t "side-eye/<DEVICE_ID>/rotate" -m "1"
 ```
 
-### 5. Run the Host Binary
+### 5. Install & Run the Host Binary
 The host will automatically attempt to detect the ESP32 on your serial ports.
 
+#### Homebrew (Linux)
+```bash
+brew tap nicholaswilde/homebrew-tap
+brew install side-eye
+side-eye
+```
+
+#### Manual Installation
+Download the `.deb` or `.rpm` from the [latest release](https://github.com/nicholaswilde/side-eye/releases).
+
+#### Run from Source
 ```bash
 task host:run
 ```
@@ -73,7 +84,7 @@ task host:run
 - **Zero-Config Discovery:** Automatically finds the ESP32-C6 by VID (0x303A) and creates a `/dev/side-eye` symlink via udev.
 - **Multi-Device Support:** Seamlessly handles connections to multiple SideEye devices simultaneously.
 - **SD Card Synchronization:** Synchronizes a local host directory to the device's integrated SD card over serial.
-- **Linux Packaging:** Officially supports `.deb` (Debian/Ubuntu) and `.rpm` (Fedora/RHEL) packages, plus systemd integration for auto-start.
+- **Linux Packaging:** Officially supports Homebrew, `.deb` (Debian/Ubuntu), and `.rpm` (Fedora/RHEL) packages, plus systemd integration for auto-start.
 
 ### ESP32-C6 Firmware
 - **Catppuccin UI:** Polished, color-coded interface using the Catppuccin Mocha color palette.
