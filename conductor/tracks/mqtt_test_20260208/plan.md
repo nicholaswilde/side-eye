@@ -5,7 +5,7 @@
     - [ ] Create `tests/mqtt/` directory.
     - [ ] Create `tests/mqtt/compose.yaml` with a basic Mosquitto service.
     - [ ] Create a minimal `mosquitto.conf` allowing anonymous access for testing.
-- [ ] Task: Conductor - User Manual Verification 'Environment Scaffolding' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Environment Scaffolding' (Protocol in workflow.md)
 
 ## Phase 2: Validation Tooling
 - [ ] Task: Create a simple MQTT validator script

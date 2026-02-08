@@ -118,6 +118,12 @@ tasks:
       - cargo clippy -- -D warnings
       - cargo test
 
+  host:deps:update:
+    desc: Update Host dependencies to latest versions
+    dir: host
+    cmds:
+      - cargo update
+
   host:coverage:
     desc: Run code coverage for the Host project
     dir: host
@@ -179,6 +185,12 @@ tasks:
     dir: firmware
     cmds:
       - pio check
+
+  firmware:deps:update:
+    desc: Update Firmware dependencies to latest versions
+    dir: firmware
+    cmds:
+      - pio pkg update
 
   firmware:test:
     desc: Run Firmware unit tests (native)

@@ -6,25 +6,25 @@ description = "A minimalist, USB-powered hardware monitor for Linux system telem
 license = "Apache-2.0"
 
 [dependencies]
-serialport = "4.2"
-sysinfo = "0.30"
-local-ip-address = "0.5"
+serialport = "4.6"
+sysinfo = "0.33"
+local-ip-address = "0.6"
 mac_address = "1.1"
 anyhow = "1.0"
-clap = { version = "4.4", features = ["derive"] }
+clap = { version = "4.5", features = ["derive"] }
 home = "0.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-toml = "0.8"
+toml = "0.9"
 base64 = "0.22"
 figment = { version = "0.10", features = ["toml", "yaml", "json", "env"] }
 dotenvy = "0.15"
-nvml-wrapper = "0.10"
+nvml-wrapper = "0.11"
 
 [dev-dependencies]
 assert_cmd = "2.0"
-predicates = "3.0"
-tempfile = "3.8"
+predicates = "3.1"
+tempfile = "3.16"
 
 # Profile for CI/CD builds (inherits from dev)
 [profile.ci]

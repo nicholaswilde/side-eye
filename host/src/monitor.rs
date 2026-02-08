@@ -129,7 +129,7 @@ impl SystemDataProvider for RealDataProvider {
     ) -> SystemStats {
         self.sys.refresh_all();
 
-        let cpu_percent = self.sys.global_cpu_info().cpu_usage();
+        let cpu_percent = self.sys.global_cpu_usage();
         let ram_used = self.sys.used_memory();
         let ram_total = self.sys.total_memory();
         let ram_percent = (ram_used as f32 / ram_total as f32) * 100.0;
@@ -162,7 +162,7 @@ impl SystemDataProvider for RealDataProvider {
             if component.label().to_lowercase().contains("cpu")
                 || component.label().to_lowercase().contains("core")
             {
-                thermal_c = component.temperature();
+                thermal_c = component.temperature().unwrap_or(0.0);
                 break;
             }
         }
