@@ -1,6 +1,6 @@
 [package]
 name = "side-eye-host"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 description = "A minimalist, USB-powered hardware monitor for Linux system telemetry."
 license = "Apache-2.0"
