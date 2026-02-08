@@ -1,13 +1,13 @@
 # Implementation Plan: SD Card Sync Testing
 
 ## Phase 1: Firmware Integration Tests
-- [ ] Task: Create/Update firmware unit tests for `SyncManager`
+- [x] Task: Create/Update firmware unit tests for `SyncManager` 4fab5e8
     - [ ] Add `test_sync_manager_single_file` to `test_all.cpp`
     - [ ] Add `test_sync_manager_multi_chunk` to `test_all.cpp`
     - [ ] Add `test_sync_manager_nested_dir` to `test_all.cpp`
-- [ ] Task: Implement missing mock logic for SD card operations
+- [x] Task: Implement missing mock logic for SD card operations 4fab5e8
     - [ ] Enhance `SD.h` and `LittleFS.h` mocks to track "written" data for verification
-- [ ] Task: Verify firmware tests pass
+- [x] Task: Verify firmware tests pass 4fab5e8
     - [ ] Run `task firmware:test` and ensure all scenarios are covered
 - [ ] Task: Conductor - User Manual Verification 'Firmware Integration Tests' (Protocol in workflow.md)
 
