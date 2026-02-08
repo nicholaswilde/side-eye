@@ -50,4 +50,5 @@
 
 ## Deployment
 - **Docker:** Multi-stage `Dockerfile` using `cargo-chef` for build optimization and `gcr.io/distroless/cc-debian12` for a minimal runtime environment.
+- **Automated Builds:** GitHub Actions workflow automatically builds multi-arch images (`amd64`, `arm64`, `arm/v7`) and publishes them to Docker Hub (`nicholaswilde/side-eye-host`) and GHCR (`ghcr.io/nicholaswilde/side-eye-host`) on every release tag.
 - **Hardware Access:** Requires `--privileged` mode or direct device mapping for USB serial access.
