@@ -45,6 +45,13 @@ services:
       # Log level (error, warn, info, debug, trace)
       - RUST_LOG=info
 
+      # Option: SideEye-specific configurations (prefixed with SIDEEYE_)
+      # - SIDEEYE_INTERVAL=1000
+      # - SIDEEYE_VERBOSE=true
+      # - SIDEEYE_THRESHOLDS_CPU_WARNING=70
+      # - SIDEEYE_THRESHOLDS_RAM_WARNING=80
+      # - SIDEEYE_SD_SYNC_LOCAL_PATH=/app/sync
+
     # Option: Restart Policy
     # Automatically restart the container unless it is explicitly stopped.
     # restart: unless-stopped
