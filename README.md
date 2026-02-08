@@ -29,11 +29,13 @@ sudo apt install pkg-config libudev-dev
 ```
 
 ### 2. Flash the Firmware
-Connect your **Waveshare ESP32-C6-GEEK** and flash the receiver code. We recommend using `task`.
+Connect your **Waveshare ESP32-C6-GEEK** and flash the receiver code. You can use `task` to build and flash locally:
 
 ```bash
 task firmware:flash
 ```
+
+Alternatively, download the pre-compiled `side-eye-<version>-firmware.zip` from the [latest release](https://github.com/nicholaswilde/side-eye/releases) and flash the included `.bin` files using `esptool.py` or your preferred ESP32 flashing tool.
 
 ### 3. Wi-Fi & MQTT Setup
 Upon first boot, the device will enter setup mode:
@@ -72,6 +74,7 @@ task host:run
 - **Network History:** Dedicated page with real-time sparklines for download and upload throughput history.
 - **Home Assistant Integration:** Automatic MQTT Discovery—sensors appear instantly in your HA dashboard.
 - **Power Management:** 1-minute auto-off timeout to save screen life; wakes instantly on button interaction.
+- **Integrated Releases:** Unified GitHub Releases provide synchronized host binaries and a complete firmware bundle (`firmware.bin`, `bootloader.bin`, `partitions.bin`) in a single zip.
 - **Automated Versioning:** Firmware version is automatically synchronized with the host's `Cargo.toml` during build.
 
 ---

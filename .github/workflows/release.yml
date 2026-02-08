@@ -84,7 +84,7 @@ jobs:
           tag_name="${{ needs.create-release.outputs.version }}"
           zip_name="side-eye-${tag_name}-firmware.zip"
           cd .pio/build/esp32-c6-geek
-          zip -j "../../../${zip_name}" firmware.bin bootloader.bin partitions.bin
+          zip -j "../../../${zip_name}" firmware.bin bootloader.bin partitions.bin ../../../../README.md ../../../../LICENSE
           cd ../../..
           shasum -a 256 "${zip_name}" > "${zip_name}.sha256"
           echo "FIRMWARE_ZIP=${zip_name}" >> $GITHUB_ENV
