@@ -7,7 +7,7 @@
     - [ ] Create a minimal `mosquitto.conf` allowing anonymous access for testing.
 - [x] Task: Conductor - User Manual Verification 'Environment Scaffolding' (Protocol in workflow.md)
 
-## Phase 2: Validation Tooling
+## Phase 2: Validation Tooling [checkpoint: 2d8bbe1]
 - [x] 2a6b4ca Task: Create a simple MQTT validator script
     - [x] Use Python (with `paho-mqtt`) or a simple shell script (using `mosquitto_sub`) to listen for SideEye topics.
     - [x] Implement basic JSON validation to ensure payloads are well-formed.
