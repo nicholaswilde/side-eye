@@ -1,0 +1,8 @@
+{
+  "track_id": "docker_compose_20260208",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-02-08T09:45:00Z",
+  "updated_at": "2026-02-08T09:45:00Z",
+  "description": "Create a docker compose file named `compose.yaml`. It shall use the ghcr.io image url instead of building from source. Add all options to it and comment out the optional requirements."
+}
