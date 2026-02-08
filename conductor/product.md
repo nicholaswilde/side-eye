@@ -13,6 +13,7 @@ SideEye is a minimalist, USB-powered hardware monitor designed to provide Linux 
 - **Wi-Fi Configuration:** Integrated `WiFiManager` for user-friendly network setup via a unique captive portal SSID (`SideEye-XXXXXX`).
 - **SD Card Synchronization:** Synchronize local host directories with the device's integrated SD card over USB serial.
 - **Linux System Integration:** Native systemd service for automatic startup and lifecycle management.
+- **Smart Home Integration:** MQTT support for seamless integration with Home Assistant and other automation platforms.
 - **Permission Management:** Bundled udev rules ensure non-root access and stable `/dev/side-eye` symlinks.
 - **Multi-Distro Packaging:** Officially supported `.deb` (Debian/Ubuntu) and `.rpm` (Fedora/RHEL) packages.
 - **Cross-Platform Host Agent:** A lightweight Rust binary (`side-eye-host`) that runs efficiently in the background.

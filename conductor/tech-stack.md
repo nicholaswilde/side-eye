@@ -25,6 +25,7 @@
 - **JSON Parsing:** `bblanchon/ArduinoJson` for structured data updates.
 - **UI Theming:** Custom `catppuccin_colors.h` (RGB565 Mocha palette).
 - **Communication:** Native ESP32-C6 USB CDC (Serial over USB-C).
+- **Integrations:** MQTT (via `paho-mqtt` for testing/validation).
 
 ## Communication Protocol
 - **Physical Layer:** USB-C (USB 2.0 Serial Emulation).
