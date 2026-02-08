@@ -4,7 +4,7 @@ use nvml_wrapper::Nvml;
 use serde::{Deserialize, Serialize};
 use sysinfo::{Components, Disks, Networks, System, Users};
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(dead_code)]
 pub struct StaticInfo {
     pub hostname: String,
@@ -14,7 +14,7 @@ pub struct StaticInfo {
     pub user: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(dead_code)]
 pub struct SystemStats {
     pub cpu_percent: f32,
@@ -44,7 +44,7 @@ pub struct ChunkData {
     pub data: String, // Base64 encoded
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum HostMessage {
     Identity(StaticInfo),
