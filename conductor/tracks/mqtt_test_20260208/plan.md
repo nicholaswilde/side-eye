@@ -8,15 +8,15 @@
 - [x] Task: Conductor - User Manual Verification 'Environment Scaffolding' (Protocol in workflow.md)
 
 ## Phase 2: Validation Tooling
-- [ ] Task: Create a simple MQTT validator script
-    - [ ] Use Python (with `paho-mqtt`) or a simple shell script (using `mosquitto_sub`) to listen for SideEye topics.
-    - [ ] Implement basic JSON validation to ensure payloads are well-formed.
-- [ ] Task: Add Documentation
-    - [ ] Create `tests/mqtt/README.md` with instructions on:
+- [x] 2a6b4ca Task: Create a simple MQTT validator script
+    - [x] Use Python (with `paho-mqtt`) or a simple shell script (using `mosquitto_sub`) to listen for SideEye topics.
+    - [x] Implement basic JSON validation to ensure payloads are well-formed.
+- [x] 2a6b4ca Task: Add Documentation
+    - [x] Create `tests/mqtt/README.md` with instructions on:
         - Starting the harness.
         - Configuring the firmware `secrets.h` to use the host's IP.
         - Verifying results.
-- [ ] Task: Conductor - User Manual Verification 'Validation Tooling' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Validation Tooling' (Protocol in workflow.md)
 
 ## Phase 3: Live Verification
 - [ ] Task: Perform End-to-End Test
