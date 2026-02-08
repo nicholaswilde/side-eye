@@ -2,8 +2,13 @@ name: ci
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*.*.*'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -17,7 +22,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libudev-dev
+          sudo apt-get install -y pkg-config libudev-dev gcovr
 
       - name: Install Task
         uses: arduino/setup-task@v2
@@ -27,6 +32,11 @@ jobs:
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: llvm-tools-preview
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -40,3 +50,15 @@ jobs:
 
       - name: Run CI Tests
         run: task test:ci
+
+      - name: Generate Host Coverage (LCOV)
+        run: task host:coverage:lcov
+
+      - name: Generate Firmware Coverage (XML)
+        run: task firmware:coverage:xml
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          files: lcov.info coverage.xml
+          github-token: ${{ secrets.GITHUB_TOKEN }}
