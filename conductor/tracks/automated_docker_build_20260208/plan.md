@@ -13,7 +13,7 @@
     - [x] Implement `Create manifest list and push` using `docker buildx imagetools`.
 - [x] Task: Conductor - User Manual Verification 'Workflow Scaffolding' (Protocol in workflow.md) 9f58e49
 
-## Phase 2: Secrets and Validation
+## Phase 2: Secrets and Validation [checkpoint: 6841926]
 - [x] Task: Verify Repository Secrets 275ecc3
     - [x] Ensure `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are ready for use (note: instructions for the user).
 - [x] Task: Perform Dry-Run/Manual Validation bbd09e0
