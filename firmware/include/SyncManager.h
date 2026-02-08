@@ -39,8 +39,10 @@ public:
             obj["n"] = String(file.name());
             obj["s"] = file.size();
             obj["d"] = file.isDirectory();
+            file.close();
             file = root.openNextFile();
         }
+        root.close();
         
         String output;
         serializeJson(doc, output);
