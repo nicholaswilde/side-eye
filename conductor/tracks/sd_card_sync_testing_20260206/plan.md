@@ -11,14 +11,14 @@
     - [ ] Run `task firmware:test` and ensure all scenarios are covered
 - [x] Task: Conductor - User Manual Verification 'Firmware Integration Tests' (Protocol in workflow.md) a0169ba
 
-## Phase 2: Host End-to-End Test
+## Phase 2: Host End-to-End Test [checkpoint: ed42900]
 - [x] Task: Create host integration test for synchronization protocol 4e6a280
     - [x] Create `host/tests/sync_protocol.rs` 4e6a280
     - [x] Implement a test that mocks the `SerialPort` to intercept `WriteChunk` JSON messages 4e6a280
     - [x] Verify the host correctly splits a test file into the expected number of chunks and offsets 4e6a280
 - [x] Task: Implement data integrity verification in host tests 4e6a280
     - [x] Reassemble the intercepted chunks in the test and compare with the source file 4e6a280
-- [ ] Task: Conductor - User Manual Verification 'Host End-to-End Test' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Host End-to-End Test' (Protocol in workflow.md) ed42900
 
 ## Phase 3: Final Integration & Coverage
 - [ ] Task: Run full CI suite
