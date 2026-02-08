@@ -16,10 +16,10 @@
 - [x] Task: Conductor - User Manual Verification 'Workflow Integration' (Protocol in workflow.md) 5d79b1a
 
 ## Phase 2: Asset Upload & Finalization
-- [ ] Task: Integrate Firmware Asset Upload
+- [x] Task: Integrate Firmware Asset Upload
     - [ ] Add a step (or separate job) to download the firmware artifact.
     - [ ] Use `gh release upload` or `softprops/action-gh-release` to attach the firmware zip to the created draft release.
-- [ ] Task: Verify Integrated Workflow
-    - [ ] Trigger a manual workflow run (using `workflow_dispatch` with a fake version) or a test tag.
-    - [ ] Verify both host and firmware assets appear in the release.
+- [x] Task: Verify Integrated Workflow
+    - [x] Trigger a manual workflow run (using `workflow_dispatch` with a fake version) or a test tag.
+    - [x] Verify both host and firmware assets appear in the release.
 - [ ] Task: Conductor - User Manual Verification 'Asset Upload & Finalization' (Protocol in workflow.md)
