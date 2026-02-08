@@ -21,9 +21,9 @@
 - [x] Task: Conductor - User Manual Verification 'Host End-to-End Test' (Protocol in workflow.md) ed42900
 
 ## Phase 3: Final Integration & Coverage
-- [ ] Task: Run full CI suite
-    - [ ] Execute `task test:ci`
-- [ ] Task: Verify code coverage
-    - [ ] Run `task firmware:coverage` and `task host:coverage`
-    - [ ] Ensure new tests contribute to the >80% coverage goal
-- [ ] Task: Conductor - User Manual Verification 'Final Integration & Coverage' (Protocol in workflow.md)
+- [x] Task: Run full CI suite 4329860
+    - [x] Execute `task test:ci` 4329860
+- [x] Task: Verify code coverage 4329860
+    - [x] Run `task firmware:coverage` and `task host:coverage` 4329860
+    - [x] Ensure new tests contribute to the >80% coverage goal 4329860
+- [x] Task: Conductor - User Manual Verification 'Final Integration & Coverage' (Protocol in workflow.md)
