@@ -16,7 +16,7 @@
 ## Phase 2: Secrets and Validation
 - [x] Task: Verify Repository Secrets 275ecc3
     - [x] Ensure `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are ready for use (note: instructions for the user).
-- [ ] Task: Perform Dry-Run/Manual Validation
-    - [ ] Run the workflow manually using `workflow_dispatch` with a `fake_tag` (if permissions allow).
-    - [ ] Verify that artifacts (digests) are correctly uploaded and the manifest creation step logic is sound.
-- [ ] Task: Conductor - User Manual Verification 'Secrets and Validation' (Protocol in workflow.md)
+- [x] Task: Perform Dry-Run/Manual Validation bbd09e0
+    - [x] Run the workflow manually using `workflow_dispatch` with a `fake_tag` (if permissions allow).
+    - [x] Verify that artifacts (digests) are correctly uploaded and the manifest creation step logic is sound.
+- [x] Task: Conductor - User Manual Verification 'Secrets and Validation' (Protocol in workflow.md) b0ec50b
