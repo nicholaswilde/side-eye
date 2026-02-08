@@ -3,7 +3,7 @@
 [![Coveralls](https://img.shields.io/coveralls/github/nicholaswilde/side-eye/main?style=for-the-badge&logo=coveralls)](https://coveralls.io/github/nicholaswilde/side-eye?branch=main)
 [![task](https://img.shields.io/badge/Task-Enabled-brightgreen?style=for-the-badge&logo=task&logoColor=white)](https://taskfile.dev/#/)
 [![ci](https://img.shields.io/github/actions/workflow/status/nicholaswilde/side-eye/ci.yml?label=CI&style=for-the-badge&logo=github-actions)](https://github.com/nicholaswilde/side-eye/actions/workflows/ci.yml)
-[![docker](https://img.shields.io/github/actions/workflow/status/nicholaswilde/side-eye/docker.yml?label=Docker&style=for-the-badge&logo=docker)](https://github.com/nicholaswilde/side-eye/actions/workflows/docker.yml)
+[![docker](https://img.shields.io/github/actions/workflow/status/nicholaswilde/side-eye/docker.yml?label=Docker&style=for-the-badge&logo=docker&tag=latest)](https://github.com/nicholaswilde/side-eye/actions/workflows/docker.yml)
 [![release](https://img.shields.io/github/actions/workflow/status/nicholaswilde/side-eye/release.yml?label=Release&style=for-the-badge&logo=github-actions)](https://github.com/nicholaswilde/side-eye/actions/workflows/release.yml)
 [![Rust](https://img.shields.io/badge/Host-Rust-orange?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
 [![PlatformIO](https://img.shields.io/badge/Firmware-PlatformIO-blue?style=for-the-badge&logo=platformio)](https://platformio.org/)
