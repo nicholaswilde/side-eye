@@ -46,6 +46,11 @@ public:
         return true;
     }
     
+    bool remove(const char* path) {
+        _mock_sd_files.erase(path);
+        return true;
+    }
+    
     uint64_t totalBytes() { return 1024*1024; }
     uint64_t usedBytes() { return 512*1024; }
 };

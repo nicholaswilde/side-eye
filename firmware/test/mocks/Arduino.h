@@ -35,6 +35,27 @@ public:
     const char* c_str() const { return std::string::c_str(); }
     size_t write(uint8_t c) { push_back(c); return 1; }
     size_t write(const uint8_t *s, size_t n) { append((const char*)s, n); return n; }
+    
+    String substring(unsigned int beginIndex, unsigned int endIndex) const {
+        if (beginIndex > length()) return String("");
+        unsigned int len = endIndex - beginIndex;
+        if (beginIndex + len > length()) len = length() - beginIndex;
+        return String(substr(beginIndex, len));
+    }
+    String substring(unsigned int beginIndex) const {
+        if (beginIndex > length()) return String("");
+        return String(substr(beginIndex));
+    }
+    int lastIndexOf(char c) const {
+        size_t pos = rfind(c);
+        if (pos == std::string::npos) return -1;
+        return (int)pos;
+    }
+    int indexOf(char c) const {
+        size_t pos = find(c);
+        if (pos == std::string::npos) return -1;
+        return (int)pos;
+    }
 };
 
 class SerialMock {
