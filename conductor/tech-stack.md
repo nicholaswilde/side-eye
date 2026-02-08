@@ -47,3 +47,7 @@
 - **Packaging:** `cargo-deb` and `cargo-generate-rpm` for Linux distribution.
 - **CI/CD:** Unified GitHub Actions workflow for automated build, test, and synchronized release of both host binaries and firmware artifacts.
 
+
+## Deployment
+- **Docker:** Multi-stage `Dockerfile` using `cargo-chef` for build optimization and `gcr.io/distroless/cc-debian12` for a minimal runtime environment.
+- **Hardware Access:** Requires `--privileged` mode or direct device mapping for USB serial access.
