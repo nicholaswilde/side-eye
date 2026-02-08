@@ -9,14 +9,14 @@ TOPICS = [
     "side-eye/+/identity"
 ]
 
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
+def on_connect(client, userdata, flags, reason_code, properties):
+    if reason_code == 0:
         print("Connected to MQTT Broker!")
         for topic in TOPICS:
             client.subscribe(topic)
             print(f"Subscribed to {topic}")
     else:
-        print(f"Failed to connect, return code {rc}")
+        print(f"Failed to connect, return code {reason_code}")
         sys.exit(1)
 
 def on_message(client, userdata, msg):
@@ -43,7 +43,8 @@ def main():
     broker = "localhost"
     port = 1883
 
-    client = mqtt.Client()
+    # Use CallbackAPIVersion.VERSION2 for paho-mqtt 2.x
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect
     client.on_message = on_message
 

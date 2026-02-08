@@ -19,8 +19,8 @@
 - [x] Task: Conductor - User Manual Verification 'Validation Tooling' (Protocol in workflow.md)
 
 ## Phase 3: Live Verification
-- [ ] Task: Perform End-to-End Test
-    - [ ] Flash firmware with test broker settings.
-    - [ ] Verify connectivity and payload receipt in the validator script.
-    - [ ] Stop and restart the Mosquitto container to verify firmware reconnection.
-- [ ] Task: Conductor - User Manual Verification 'Live Verification' (Protocol in workflow.md)
+- [x] Task: Perform End-to-End Test
+    - [x] Flash firmware with test broker settings.
+    - [x] Verify connectivity and payload receipt in the validator script.
+    - [x] Stop and restart the Mosquitto container to verify firmware reconnection.
+- [x] Task: Conductor - User Manual Verification 'Live Verification' (Protocol in workflow.md)
