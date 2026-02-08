@@ -205,9 +205,14 @@ tasks:
       - pio test -e native
       - gcovr -r . --filter include/ --filter src/ --print-summary --exclude ".*/.pio/.*" --gcov-ignore-errors=no_working_dir_found
 
-  firmware:coverage:xml:
-    desc: Generate Cobertura XML coverage report for the Firmware
-    dir: firmware
+  test:mqtt:
+    desc: Run automated MQTT integration tests
     cmds:
-      - pio test -e native
-      - gcovr -r . --filter include/ --filter src/ --exclude ".*/.pio/.*" --xml-pretty -o ../coverage.xml --gcov-ignore-errors=no_working_dir_found
+      - sudo docker compose -f tests/mqtt/compose.yaml up -d
+      - defer: sudo docker compose -f tests/mqtt/compose.yaml down
+      - |
+        ./tests/mqtt/.venv/bin/python tests/mqtt/validator.py --test --timeout 10 &
+        sleep 2
+        sudo docker compose -f tests/mqtt/compose.yaml exec mosquitto mosquitto_pub -h localhost -t "side-eye/test-device/stats" -m '{"version": "1.0.0", "uptime": 100}'
+        wait
+

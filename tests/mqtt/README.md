@@ -4,14 +4,15 @@ This harness allows you to test the SideEye firmware's MQTT functionality using 
 
 ## Setup
 
-1.  **Start the test broker:**
+1.  **Run automated tests (recommended):**
+    ```bash
+    task test:mqtt
+    ```
+
+2.  **Manual setup (optional):**
     ```bash
     cd tests/mqtt
     sudo docker compose up -d
-    ```
-
-2.  **Setup virtual environment and install dependencies:**
-    ```bash
     python3 -m venv .venv
     source .venv/bin/activate
     pip install paho-mqtt
