@@ -1,0 +1,10 @@
+target/
+firmware/
+conductor/
+.git/
+.pio/
+README.md
+LICENSE
+Taskfile.yml
+.github/
+.gemini/

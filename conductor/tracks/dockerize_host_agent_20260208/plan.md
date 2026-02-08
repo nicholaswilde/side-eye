@@ -10,7 +10,7 @@
 - [x] Task: Conductor - User Manual Verification 'Build Environment & Scaffolding' (Protocol in workflow.md) 8434a26
 
 ## Phase 2: Runtime Optimization
-- [ ] Task: Implement minimal runtime stage
+- [~] Task: Implement minimal runtime stage
     - [ ] Use `gcr.io/distroless/cc-debian12` as the runtime base.
     - [ ] Copy the `side-eye-host` binary from the builder stage.
     - [ ] Configure the default configuration path via environment variable or documentation.
