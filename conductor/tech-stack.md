@@ -45,5 +45,5 @@
     - `armv7-unknown-linux-gnueabihf` (ARMv7)
     - `arm-unknown-linux-gnueabihf` (ARMv6/v5te)
 - **Packaging:** `cargo-deb` and `cargo-generate-rpm` for Linux distribution.
-- **CI/CD:** GitHub Actions for automated build, test, and artifact generation on release tags.
+- **CI/CD:** Unified GitHub Actions workflow for automated build, test, and synchronized release of both host binaries and firmware artifacts.
 
