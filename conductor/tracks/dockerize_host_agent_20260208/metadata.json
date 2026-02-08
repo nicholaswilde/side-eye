@@ -1,0 +1,8 @@
+{
+  "track_id": "dockerize_host_agent_20260208",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-08T01:45:00Z",
+  "updated_at": "2026-02-08T01:45:00Z",
+  "description": "Create a Dockerfile to run the rust host binary. base it off of https://github.com/nicholaswilde/adguardhome-mcp-rs/raw/refs/heads/main/Dockerfile"
+}

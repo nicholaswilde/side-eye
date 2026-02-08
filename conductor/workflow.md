@@ -12,6 +12,7 @@
 6. **Rust Style:** Prefer idiomatic Rust, leveraging the `anyhow` crate for error handling and `serde` for serialization.
 7. **User Experience First:** Every decision should prioritize user experience.
 8. **Non-Interactive & CI-Aware:** Prefer non-interactive commands. Use `CI=true` for watch-mode tools (tests, linters) to ensure single execution.
+9. **Search Tool Preference:** Use Brave MCP (`brave_web_search`) for all web searches.
 
 ## Gemini CLI Commands
 
