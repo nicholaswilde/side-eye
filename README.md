@@ -1,6 +1,10 @@
 # :eyes: SideEye: The USB Stat Monitor for Linux :desktop_computer:
 
 [![Coveralls](https://img.shields.io/coveralls/github/nicholaswilde/side-eye/main?style=for-the-badge&logo=coveralls)](https://coveralls.io/github/nicholaswilde/side-eye?branch=main)
+[![task](https://img.shields.io/badge/Task-Enabled-brightgreen?style=for-the-badge&logo=task&logoColor=white)](https://taskfile.dev/#/)
+[![ci](https://img.shields.io/github/actions/workflow/status/nicholaswilde/side-eye/ci.yml?label=CI&style=for-the-badge&logo=github-actions)](https://github.com/nicholaswilde/side-eye/actions/workflows/ci.yml)
+[![docker](https://img.shields.io/github/actions/workflow/status/nicholaswilde/side-eye/docker.yml?label=Docker&style=for-the-badge&logo=docker)](https://github.com/nicholaswilde/side-eye/actions/workflows/docker.yml)
+[![release](https://img.shields.io/github/actions/workflow/status/nicholaswilde/side-eye/release.yml?label=Release&style=for-the-badge&logo=github-actions)](https://github.com/nicholaswilde/side-eye/actions/workflows/release.yml)
 [![Rust](https://img.shields.io/badge/Host-Rust-orange?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
 [![PlatformIO](https://img.shields.io/badge/Firmware-PlatformIO-blue?style=for-the-badge&logo=platformio)](https://platformio.org/)
 [![Hardware](https://img.shields.io/badge/Hardware-ESP32--C6--GEEK-white?style=for-the-badge&logo=espressif)](https://www.waveshare.com/esp32-c6-geek.htm)
@@ -47,7 +51,13 @@ Upon first boot, the device will enter setup mode:
 > [!TIP]
 > You can also bake in default credentials at compile-time by creating `firmware/include/secrets.h` (see `secrets.h.example`).
 
-### 4. Run the Host Binary
+### 4. MQTT Usage
+Once connected to your broker, you can interact with the device via MQTT. For example, to manually rotate the screen:
+```bash
+mosquitto_pub -h <MQTT_BROKER_IP> -t "side-eye/<DEVICE_ID>/rotate" -m "1"
+```
+
+### 5. Run the Host Binary
 The host will automatically attempt to detect the ESP32 on your serial ports.
 
 ```bash
