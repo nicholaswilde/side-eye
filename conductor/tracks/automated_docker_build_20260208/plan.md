@@ -14,8 +14,8 @@
 - [x] Task: Conductor - User Manual Verification 'Workflow Scaffolding' (Protocol in workflow.md) 9f58e49
 
 ## Phase 2: Secrets and Validation
-- [ ] Task: Verify Repository Secrets
-    - [ ] Ensure `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are ready for use (note: instructions for the user).
+- [x] Task: Verify Repository Secrets 275ecc3
+    - [x] Ensure `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are ready for use (note: instructions for the user).
 - [ ] Task: Perform Dry-Run/Manual Validation
     - [ ] Run the workflow manually using `workflow_dispatch` with a `fake_tag` (if permissions allow).
     - [ ] Verify that artifacts (digests) are correctly uploaded and the manifest creation step logic is sound.
