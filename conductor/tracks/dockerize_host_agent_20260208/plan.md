@@ -19,9 +19,9 @@
 - [x] Task: Conductor - User Manual Verification 'Runtime Optimization' (Protocol in workflow.md) a4ed656
 
 ## Phase 3: Integration & Testing
-- [ ] Task: Perform test build
-    - [ ] Run `docker build -t side-eye-host .` and ensure it completes without errors.
-- [ ] Task: Validate hardware access and configuration
-    - [ ] Document and test the `docker run` command with `--privileged` and `-v`.
-    - [ ] Verify the agent starts and detects hardware in the container logs.
+- [x] Task: Perform test build 1f68b86
+    - [x] Run `docker build -t side-eye-host .` and ensure it completes without errors. 1f68b86
+- [x] Task: Validate hardware access and configuration 1f68b86
+    - [x] Document and test the `docker run` command with `--privileged` and `-v`. 1f68b86
+    - [x] Verify the agent starts and detects hardware in the container logs. 1f68b86
 - [ ] Task: Conductor - User Manual Verification 'Integration & Testing' (Protocol in workflow.md)
