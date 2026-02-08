@@ -1,13 +1,13 @@
 # Implementation Plan: Dockerize Rust Host Agent
 
-## Phase 1: Build Environment & Scaffolding
+## Phase 1: Build Environment & Scaffolding [checkpoint: 8434a26]
 - [x] Task: Create `Dockerfile` with multi-stage setup 3a9d384
     - [x] Define the `chef` stage using `rust:latest`.
     - [x] Install `cargo-chef`, `libudev-dev`, and `pkg-config` in the build environment.
     - [x] Define the `planner` and `builder` stages.
 - [x] Task: Configure dependency caching 3a9d384
     - [x] Implement `cargo chef prepare` and `cargo chef cook` steps. 3a9d384
-- [ ] Task: Conductor - User Manual Verification 'Build Environment & Scaffolding' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Build Environment & Scaffolding' (Protocol in workflow.md) 8434a26
 
 ## Phase 2: Runtime Optimization
 - [ ] Task: Implement minimal runtime stage
