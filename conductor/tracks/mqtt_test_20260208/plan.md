@@ -1,6 +1,6 @@
 # Implementation Plan: MQTT Integration Testing Harness
 
-## Phase 1: Environment Scaffolding
+## Phase 1: Environment Scaffolding [checkpoint: a7d95c4]
 - [x] 7c88fe5 Task: Create MQTT test directory structure
     - [ ] Create `tests/mqtt/` directory.
     - [ ] Create `tests/mqtt/compose.yaml` with a basic Mosquitto service.
