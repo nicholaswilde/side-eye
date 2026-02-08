@@ -50,12 +50,32 @@ public:
     }
 
     bool writeChunk(const char* path, size_t offset, uint8_t* data, size_t len) {
+        if (offset == 0) {
+            ensureDirectory(path);
+            if (SD.exists(path)) {
+                SD.remove(path); // Ensure fresh file
+            }
+        }
+        
         File file = SD.open(path, offset == 0 ? FILE_WRITE : FILE_APPEND);
         if (!file) return false;
         file.seek(offset);
         size_t written = file.write(data, len);
         file.close();
         return written == len;
+    }
+
+    void ensureDirectory(const char* path) {
+        String p = String(path);
+        for (int i = 0; i < p.length(); i++) {
+            if (p[i] == '/') {
+                if (i == 0) continue; 
+                String dir = p.substring(0, i);
+                if (!SD.exists(dir.c_str())) {
+                    SD.mkdir(dir.c_str());
+                }
+            }
+        }
     }
 
     bool handleWriteChunk(JsonObject data) {

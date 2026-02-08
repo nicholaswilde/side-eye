@@ -12,3 +12,6 @@ ESPClass ESP;
 SDClass SD;
 LittleFSClass LittleFS;
 SPIClass SPI;
+
+std::map<std::string, std::string> _mock_sd_files;
+std::map<std::string, std::string> _mock_lfs_files;

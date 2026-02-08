@@ -237,6 +237,65 @@ void test_sync_manager_full() {
     TEST_ASSERT_TRUE(success);
 }
 
+void test_sync_manager_single_file() {
+    SyncManager sync;
+    sync.begin();
+    
+    JsonDocument doc;
+    doc["path"] = "/single.txt";
+    doc["offset"] = 0;
+    doc["data"] = "SGVsbG8="; // "Hello"
+    
+    bool success = sync.handleWriteChunk(doc.as<JsonObject>());
+    TEST_ASSERT_TRUE(success);
+    
+    // Verify content (Mock SD required to support this)
+    TEST_ASSERT_TRUE(SD.exists("/single.txt"));
+    File f = SD.open("/single.txt");
+    TEST_ASSERT_TRUE(f);
+    TEST_ASSERT_EQUAL(5, f.size());
+    // We would read content here if mock supported it
+    f.close();
+}
+
+void test_sync_manager_multi_chunk() {
+    SyncManager sync;
+    sync.begin();
+    
+    // Chunk 1: "He"
+    JsonDocument doc1;
+    doc1["path"] = "/multi.txt";
+    doc1["offset"] = 0;
+    doc1["data"] = "SGU="; // "He"
+    TEST_ASSERT_TRUE(sync.handleWriteChunk(doc1.as<JsonObject>()));
+    
+    // Chunk 2: "llo"
+    JsonDocument doc2;
+    doc2["path"] = "/multi.txt";
+    doc2["offset"] = 2;
+    doc2["data"] = "bGxv"; // "llo"
+    TEST_ASSERT_TRUE(sync.handleWriteChunk(doc2.as<JsonObject>()));
+    
+    TEST_ASSERT_TRUE(SD.exists("/multi.txt"));
+    File f = SD.open("/multi.txt");
+    TEST_ASSERT_EQUAL(5, f.size());
+    f.close();
+}
+
+void test_sync_manager_nested_dir() {
+    SyncManager sync;
+    sync.begin();
+    
+    JsonDocument doc;
+    doc["path"] = "/nested/dir/test.txt";
+    doc["offset"] = 0;
+    doc["data"] = "SGVsbG8="; // "Hello"
+    
+    bool success = sync.handleWriteChunk(doc.as<JsonObject>());
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_TRUE(SD.exists("/nested/dir/test.txt"));
+}
+
 void dummy_callback() {}
 void dummy_config_callback(WiFiManager* wm) {}
 
@@ -409,6 +468,9 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_draw_smoke);
     RUN_TEST(test_display_sd_disconnected);
     RUN_TEST(test_sync_manager_full);
+    RUN_TEST(test_sync_manager_single_file);
+    RUN_TEST(test_sync_manager_multi_chunk);
+    RUN_TEST(test_sync_manager_nested_dir);
     RUN_TEST(test_network_manager_full);
     RUN_TEST(test_input_handler_extended);
     RUN_TEST(test_display_manager_extended);
