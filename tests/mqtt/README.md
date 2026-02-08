@@ -10,14 +10,16 @@ This harness allows you to test the SideEye firmware's MQTT functionality using 
     sudo docker compose up -d
     ```
 
-2.  **Install validator dependencies (one-time):**
+2.  **Setup virtual environment and install dependencies:**
     ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
     pip install paho-mqtt
     ```
 
 3.  **Run the validator:**
     ```bash
-    ./validator.py
+    ./.venv/bin/python validator.py
     ```
 
 ## Firmware Configuration
@@ -36,14 +38,19 @@ To point your SideEye device to this local broker:
 
 ## Verifying Results
 
-When the device connects and publishes, you should see output in the `validator.py` terminal:
+When the device connects and publishes, you should see output in the `validator.py` terminal.
 
+To simulate a message without `mosquitto_pub` installed on your host:
+```bash
+sudo docker compose exec mosquitto mosquitto_pub -h localhost -t "side-eye/test-device/stats" -m '{"version": "1.0.0", "uptime": 100}'
+```
+
+You should see:
 ```text
-[Received] Topic: side-eye/device-id/stats
+[Received] Topic: side-eye/test-device/stats
 {
   "version": "1.0.0",
-  "uptime": 123,
-  ...
+  "uptime": 100
 }
 PASSED: Stats payload is well-formed.
 ```

@@ -20,8 +20,7 @@ def on_connect(client, userdata, flags, rc):
         sys.exit(1)
 
 def on_message(client, userdata, msg):
-    print(f"
-[Received] Topic: {msg.topic}")
+    print(f"\n[Received] Topic: {msg.topic}")
     try:
         payload = json.loads(msg.payload.decode())
         print(json.dumps(payload, indent=2))
@@ -59,8 +58,7 @@ def main():
     try:
         client.loop_forever()
     except KeyboardInterrupt:
-        print("
-Stopping validator...")
+        print("\nStopping validator...")
         client.disconnect()
 
 if __name__ == "__main__":
