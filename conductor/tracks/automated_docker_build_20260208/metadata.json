@@ -1,8 +1,0 @@
-{
-  "track_id": "automated_docker_build_20260208",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-02-08T02:40:00Z",
-  "updated_at": "2026-02-08T02:40:00Z",
-  "description": "Create a docker.yml github action that builds and publishes the Dockfiile. It should publish both to docker hub and ghcr.io. Use https://github.com/nicholaswilde/adguardhome-mcp-rs/raw/refs/heads/main/.github/workflows/docker.yml as a template"
-}
