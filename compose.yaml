@@ -1,0 +1,58 @@
+# Docker Compose file for SideEye Host Agent
+#
+# This file provides a standard configuration for deploying the SideEye Host Agent.
+# It defaults to using the official container image from GHCR.
+
+services:
+  side-eye-host:
+    # 1. Primary Image
+    # Uses the official image from GitHub Container Registry
+    image: ghcr.io/nicholaswilde/side-eye-host:latest
+
+    # Option: Build from Source
+    # Uncomment the following lines to build the image locally from the project root.
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+
+    container_name: side-eye-host
+
+    # 2. Hardware Access
+    # Privileged mode is required by default to ensure access to USB serial devices
+    # across different Linux distributions and kernel versions.
+    privileged: true
+    volumes:
+      - /dev:/dev
+
+    # Option: Specific Device Mapping (More Secure)
+    # If you prefer not to use privileged mode, you can map the specific device.
+    # Note: You may need to ensure the container user has permissions (e.g., dialout group).
+    # privileged: false
+    # devices:
+    #   - /dev/side-eye:/dev/side-eye
+    #   - /dev/ttyUSB0:/dev/ttyUSB0
+
+    # Option: Custom Configuration
+    # Mount your local configuration file into the container.
+    # volumes:
+    #   - /dev:/dev
+    #   - ./side-eye.toml:/etc/side-eye/config.toml:ro
+
+    # 3. Environment Variables
+    environment:
+      # Timezone for accurate log timestamps
+      - TZ=UTC
+      # Log level (error, warn, info, debug, trace)
+      - RUST_LOG=info
+
+    # Option: Restart Policy
+    # Automatically restart the container unless it is explicitly stopped.
+    # restart: unless-stopped
+
+    # Option: Log Management
+    # Limit the size of logs to prevent disk exhaustion.
+    # logging:
+    #   driver: "json-file"
+    #   options:
+    #     max-size: "10m"
+    #     max-file: "3"
