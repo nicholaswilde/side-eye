@@ -334,13 +334,12 @@ A task is complete when:
 - [ ] Backup created
 
 ### Deployment Steps
-1. Merge feature branch to main
-2. Tag release with version
-3. Push to deployment service
-4. Run database migrations
-5. Verify deployment
-6. Test critical paths
-7. Monitor for errors
+1. Merge feature branch to main. Push the branch and the version tag together using the atomic flag: `git push --atomic origin main v<version>`
+2. Push to deployment service
+3. Run database migrations
+4. Verify deployment
+5. Test critical paths
+6. Monitor for errors
 
 ### Post-Deployment
 1. Monitor analytics
