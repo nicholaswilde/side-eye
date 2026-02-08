@@ -28,6 +28,16 @@ host/config.toml
 
 
 
+# Python
+
+.venv/
+
+__pycache__/
+
+*.pyc
+
+
+
 # Coverage Reports
 
 lcov.info
