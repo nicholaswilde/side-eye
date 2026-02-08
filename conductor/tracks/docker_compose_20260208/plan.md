@@ -14,4 +14,6 @@
 - [x] Task: Perform Smoke Test 62f69ae
     - [x] Run `docker compose config` to ensure the file is syntactically correct.
     - [x] Add additional environment variable examples.
+- [x] Task: Add Docker Compose tasks to `Taskfile.yml` fe65a30
+    - [x] Add `docker:up`, `docker:down`, and `docker:logs` to `Taskfile.yml`.
 - [~] Task: Conductor - User Manual Verification 'Validation and Refinement' (Protocol in workflow.md)

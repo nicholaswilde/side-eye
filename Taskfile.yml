@@ -140,6 +140,21 @@ tasks:
     cmds:
       - docker run --privileged -v /dev:/dev -v ./side-eye.toml:/etc/side-eye/config.toml side-eye-host
 
+  docker:up:
+    desc: Start SideEye using Docker Compose
+    cmds:
+      - docker compose up -d
+
+  docker:down:
+    desc: Stop SideEye using Docker Compose
+    cmds:
+      - docker compose down
+
+  docker:logs:
+    desc: View SideEye logs using Docker Compose
+    cmds:
+      - docker compose logs -f
+
   firmware:build:
     desc: Build the Firmware (PlatformIO)
     dir: firmware
