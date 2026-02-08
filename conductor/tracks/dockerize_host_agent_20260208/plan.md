@@ -9,14 +9,14 @@
     - [x] Implement `cargo chef prepare` and `cargo chef cook` steps. 3a9d384
 - [x] Task: Conductor - User Manual Verification 'Build Environment & Scaffolding' (Protocol in workflow.md) 8434a26
 
-## Phase 2: Runtime Optimization
-- [~] Task: Implement minimal runtime stage
-    - [ ] Use `gcr.io/distroless/cc-debian12` as the runtime base.
-    - [ ] Copy the `side-eye-host` binary from the builder stage.
-    - [ ] Configure the default configuration path via environment variable or documentation.
-- [ ] Task: Add `.dockerignore`
-    - [ ] Create a `.dockerignore` file to exclude `target/`, `firmware/`, and other unnecessary files.
-- [ ] Task: Conductor - User Manual Verification 'Runtime Optimization' (Protocol in workflow.md)
+## Phase 2: Runtime Optimization [checkpoint: a4ed656]
+- [x] Task: Implement minimal runtime stage 079dfcc
+    - [x] Use `gcr.io/distroless/cc-debian12` as the runtime base. 079dfcc
+    - [x] Copy the `side-eye-host` binary from the builder stage. 079dfcc
+    - [x] Configure the default configuration path via environment variable or documentation. 079dfcc
+- [x] Task: Add `.dockerignore` a4ed656
+    - [x] Create a `.dockerignore` file to exclude `target/`, `firmware/`, and other unnecessary files. a4ed656
+- [x] Task: Conductor - User Manual Verification 'Runtime Optimization' (Protocol in workflow.md) a4ed656
 
 ## Phase 3: Integration & Testing
 - [ ] Task: Perform test build
