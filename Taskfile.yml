@@ -205,6 +205,13 @@ tasks:
       - pio test -e native
       - gcovr -r . --filter include/ --filter src/ --print-summary --exclude ".*/.pio/.*" --gcov-ignore-errors=no_working_dir_found
 
+  firmware:coverage:xml:
+    desc: Generate Cobertura XML coverage report for the Firmware
+    dir: firmware
+    cmds:
+      - pio test -e native
+      - gcovr -r . --filter include/ --filter src/ --exclude ".*/.pio/.*" --xml-pretty -o ../coverage.xml --gcov-ignore-errors=no_working_dir_found
+
   test:mqtt:
     desc: Run automated MQTT integration tests
     cmds:
