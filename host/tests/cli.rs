@@ -19,7 +19,10 @@ fn version_flag_works() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("--version");
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("side-eye-host 0.1.0"));
+        .stdout(predicate::str::contains(format!(
+            "side-eye-host {}",
+            env!("CARGO_PKG_VERSION")
+        )));
 
     Ok(())
 }
