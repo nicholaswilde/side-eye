@@ -18,10 +18,10 @@
     - [x] Create a `.dockerignore` file to exclude `target/`, `firmware/`, and other unnecessary files. a4ed656
 - [x] Task: Conductor - User Manual Verification 'Runtime Optimization' (Protocol in workflow.md) a4ed656
 
-## Phase 3: Integration & Testing
+## Phase 3: Integration & Testing [checkpoint: af2677b]
 - [x] Task: Perform test build 1f68b86
     - [x] Run `docker build -t side-eye-host .` and ensure it completes without errors. 1f68b86
 - [x] Task: Validate hardware access and configuration 1f68b86
     - [x] Document and test the `docker run` command with `--privileged` and `-v`. 1f68b86
     - [x] Verify the agent starts and detects hardware in the container logs. 1f68b86
-- [ ] Task: Conductor - User Manual Verification 'Integration & Testing' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Integration & Testing' (Protocol in workflow.md) af2677b
