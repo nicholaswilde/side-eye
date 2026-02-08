@@ -18,7 +18,7 @@
         - Verifying results.
 - [x] Task: Conductor - User Manual Verification 'Validation Tooling' (Protocol in workflow.md)
 
-## Phase 3: Live Verification
+## Phase 3: Live Verification [checkpoint: 4e9c066]
 - [x] Task: Perform End-to-End Test
     - [x] Flash firmware with test broker settings.
     - [x] Verify connectivity and payload receipt in the validator script.
