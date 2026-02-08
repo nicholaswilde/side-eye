@@ -130,6 +130,16 @@ tasks:
     cmds:
       - cargo llvm-cov --lcov --output-path ../lcov.info
 
+  host:docker:build:
+    desc: Build the Host agent Docker image
+    cmds:
+      - docker build -t side-eye-host .
+
+  host:docker:run:
+    desc: Run the Host agent Docker image
+    cmds:
+      - docker run --privileged -v /dev:/dev -v ./side-eye.toml:/etc/side-eye/config.toml side-eye-host
+
   firmware:build:
     desc: Build the Firmware (PlatformIO)
     dir: firmware
