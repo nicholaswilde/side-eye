@@ -1,6 +1,6 @@
 # Implementation Plan: Automated Docker Build and Publish
 
-## Phase 1: Workflow Scaffolding
+## Phase 1: Workflow Scaffolding [checkpoint: cbf3c48]
 - [x] Task: Create `.github/workflows/docker.yml` bbd09e0
     - [x] Define name, triggers (tags, workflow_dispatch), and environment variables.
     - [x] Implement the `build` job using the "by digest" strategy for `linux/amd64`, `linux/arm/v7`, and `linux/arm64`.
