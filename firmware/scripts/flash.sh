@@ -19,3 +19,26 @@ log() {
         *) echo -e "[$timestamp] $msg" ;;
     esac
 }
+
+# Check if a command exists
+commandExists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Check for required dependencies
+check_dependencies() {
+    local dependencies=("curl" "grep" "unzip" "esptool")
+    local missing=()
+
+    for dep in "${dependencies[@]}"; do
+        if ! commandExists "$dep"; then
+            missing+=("$dep")
+        fi
+    done
+
+    if [ ${#missing[@]} -ne 0 ]; then
+        log "ERRO" "Missing required dependencies: ${missing[*]}"
+        log "INFO" "Please install them and try again."
+        exit 1
+    fi
+}
