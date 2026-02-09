@@ -9,7 +9,7 @@ This plan outlines the steps to create a Bash script for downloading and flashin
     - [ ] Define color constants and `log` function
 - [x] Task: Implement dependency verification (25517f8)
     - [ ] Create `check_dependencies` function to verify `curl`, `grep`, `unzip`, and `esptool`
-- [ ] Task: Implement argument parsing
+- [x] Task: Implement argument parsing (79f3cb8)
     - [ ] Parse version tag (optional first argument)
     - [ ] Parse `--dry-run` flag
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Preparation & Scaffolding' (Protocol in workflow.md)
