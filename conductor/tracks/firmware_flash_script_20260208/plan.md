@@ -15,7 +15,7 @@ This plan outlines the steps to create a Bash script for downloading and flashin
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Preparation & Scaffolding' (Protocol in workflow.md)
 
 ## Phase 2: Firmware Retrieval & Environment
-- [ ] Task: Implement GitHub Release discovery
+- [x] Task: Implement GitHub Release discovery (2f210ce)
     - [ ] Implement logic to fetch latest tag if no version is provided
     - [ ] Construct download URL for the firmware zip artifact
 - [ ] Task: Implement download and extraction

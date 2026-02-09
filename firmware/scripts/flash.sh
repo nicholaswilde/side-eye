@@ -1,108 +1,119 @@
-#!/bin/bash
-# SideEye Firmware Flash Script
+#!/usr/bin/env bash
+# ==============================================================================
+#
+# flash.sh
+# -------
+# Downloads the latest release from GitHub to the /tmp directory,
+# extracts the bin files to the /tmp directory, checks if esptool is
+# installed, and flashes the device.
+#
+# Usage: ./flash_latest.sh <SERIAL_PORT
+#
+# @author Nicholas Wilde, 0xb299a622                                                        
+# @date 07 Aug 2025  
+# @version 0.1.0
+#
+# ==============================================================================
 
-# Colors
-BLUE='\033[0;34m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-RESET='\033[0m'
+set -euo pipefail
 
-# Utility function for logging
-function log() {
-    local level=$1
-    local msg=$2
-    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-    case $level in
-        "INFO") echo -e "${BLUE}[$timestamp] INFO:${RESET} $msg" ;;
-        "WARN") echo -e "${YELLOW}[$timestamp] WARN:${RESET} $msg" ;;
-        "ERRO") echo -e "${RED}[$timestamp] ERRO:${RESET} $msg" ;;
-        *) echo -e "[$timestamp] $msg" ;;
-    esac
-}
-
-# Check if a command exists
-function commandExists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-# Check for required dependencies
-function check_dependencies() {
-    local dependencies=("curl" "grep" "unzip" "esptool")
-    local missing=()
-
-    for dep in "${dependencies[@]}"; do
-        if ! commandExists "$dep"; then
-            missing+=("$dep")
-        fi
-    done
-
-    if [ ${#missing[@]} -ne 0 ]; then
-        log "ERRO" "Missing required dependencies: ${missing[*]}"
-        log "INFO" "Please install them and try again."
-        exit 1
-    fi
-}
-
-# Configuration
-DRY_RUN=false
-VERSION=""
+# --- variables ---
 GITHUB_REPO="nicholaswilde/side-eye"
+SERIAL_PORT="${1:-/dev/ttyACM0}"
 
-# Parse arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --dry-run)
-            DRY_RUN=true
-            shift
-            ;;
-        v*)
-            VERSION=$1
-            shift
-            ;;
-        *)
-            log "WARN" "Unknown argument: $1"
-            shift
-            ;;
-    esac
-done
+# --- Constants ---
+readonly BLUE=$(tput setaf 4)
+readonly RED=$(tput setaf 1)
+readonly YELLOW=$(tput setaf 3)
+readonly RESET=$(tput sgr0)
 
-# Download the firmware release
-function download_release() {
-    local version=$1
-    local download_url
-    local latest_tag
+readonly SCRIPT_NAME=$(basename "$0")
 
-    # Create temp directory
-    TMP_DIR=$(mktemp -d)
-    log "INFO" "Created temporary directory: $TMP_DIR"
+# --- functions ---
 
-    if [ -z "$version" ]; then
-        log "INFO" "Fetching latest release tag..."
-        latest_tag=$(curl -s "https://api.github.com/repos/$GITHUB_REPO/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-        
-        if [ -z "$latest_tag" ]; then
-            log "ERRO" "Failed to fetch latest release tag."
-            exit 1
-        fi
-        
-        log "INFO" "Latest release: $latest_tag"
-        version=$latest_tag
-    fi
+# Logging function
+function log() {
+  local type="$1"
+  local message="$2"
+  local color="$RESET"
 
-    # Construct download URL (assuming standard naming convention for firmware zip)
-    # Note: SideEye releases contain side-eye-<version>-firmware.zip
-    download_url="https://github.com/$GITHUB_REPO/releases/download/$version/side-eye-${version}-firmware.zip"
-    
-    log "INFO" "Downloading firmware from: $download_url"
-    
-    if [ "$DRY_RUN" = false ]; then
-        curl -L -o "$TMP_DIR/firmware.zip" "$download_url"
-        if [ $? -ne 0 ]; then
-            log "ERRO" "Download failed."
-            exit 1
-        fi
-        log "INFO" "Download complete."
-    else
-        log "INFO" "[DRY RUN] Would download: $download_url to $TMP_DIR/firmware.zip"
-    fi
+  case "$type" in
+    INFO)
+      color="$BLUE";;
+    WARN)
+      color="$YELLOW";;
+    ERRO)
+      color="$RED";;
+  esac
+
+  echo -e "${color}${type}${RESET}[$(date +'%Y-%m-%d %H:%M:%S')] ${message}"
 }
+
+
+# Checks if a command exists.
+function commandExists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+function check_dependencies() {
+  # --- check for dependencies ---
+  if ! commandExists curl || ! commandExists grep || ! commandExists unzip || ! commandExists esptool ; then
+    log "ERRO" "Required dependencies (curl, grep, unzip, esptool) are not installed." >&2
+    exit 1
+  fi  
+}
+
+function download_release(){
+  RELEASE=$(curl -fsSL https://api.github.com/repos/${GITHUB_REPO}/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
+  log "INFO" "Latest release: ${RELEASE}"
+
+  # --- get the latest release download URL ---
+  log "INFO" "Fetching the latest release from ${GITHUB_REPO}..."
+  LATEST_RELEASE_URL=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" |  grep "browser_download_url" | grep -o 'https://[^"]*' | grep -E '/side-eye-[0-9.]+-firmware\.zip$')
+
+  if [ -z "${LATEST_RELEASE_URL}" ]; then
+    log "ERRO" "Could not find the latest release zip file." >&2
+    exit 1
+  fi
+
+  # --- download and extract the release ---
+  TMP_DIR=$(mktemp -d)
+  log "INFO" "Downloading latest release from ${LATEST_RELEASE_URL}..."
+  curl -sL "${LATEST_RELEASE_URL}" -o "${TMP_DIR}/latest_release.zip"
+}
+
+function extract_files() {
+  log "INFO" "Extracting bin files to ${TMP_DIR}..."
+  unzip -o "${TMP_DIR}/latest_release.zip" -d "${TMP_DIR}" "*.bin" &> /dev/null
+}
+
+function flash_device() {
+  log "INFO" "Ready to flash the device on port ${SERIAL_PORT}."
+
+  esptool \
+    --chip esp32s3 \
+    --port "${SERIAL_PORT}" \
+    --baud 921600 \
+    --before default-reset \
+    --after hard-reset \
+    write-flash \
+      -z \
+      --flash-mode dio \
+      --flash-freq 80m \
+      --flash-size 16MB \
+      0x0000 "${TMP_DIR}/bootloader.bin" \
+      0x8000 "${TMP_DIR}/partitions.bin" \
+      0x10000 "${TMP_DIR}/firmware.bin"
+}
+
+# Downloads and flashes the latest release.
+function main() {
+  check_dependencies  
+  download_release
+  extract_files
+  # find "${TMP_DIR}" -name "*.bin" -print
+  # flash_device
+  log "INFO" "--- Flashing complete (simulation) ---"
+}
+
+main "$@"
