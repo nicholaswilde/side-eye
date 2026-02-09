@@ -7,7 +7,7 @@ This plan outlines the steps to create a Bash script for downloading and flashin
     - [ ] Create `firmware/scripts/flash.sh`
     - [ ] Add shebang and basic script headers
     - [ ] Define color constants and `log` function
-- [ ] Task: Implement dependency verification
+- [x] Task: Implement dependency verification (25517f8)
     - [ ] Create `check_dependencies` function to verify `curl`, `grep`, `unzip`, and `esptool`
 - [ ] Task: Implement argument parsing
     - [ ] Parse version tag (optional first argument)
