@@ -8,7 +8,7 @@ YELLOW='\033[1;33m'
 RESET='\033[0m'
 
 # Utility function for logging
-log() {
+function log() {
     local level=$1
     local msg=$2
     local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
@@ -21,12 +21,12 @@ log() {
 }
 
 # Check if a command exists
-commandExists() {
+function commandExists() {
     command -v "$1" >/dev/null 2>&1
 }
 
 # Check for required dependencies
-check_dependencies() {
+function check_dependencies() {
     local dependencies=("curl" "grep" "unzip" "esptool")
     local missing=()
 
