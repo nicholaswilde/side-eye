@@ -46,6 +46,7 @@ function check_dependencies() {
 # Configuration
 DRY_RUN=false
 VERSION=""
+GITHUB_REPO="nicholaswilde/side-eye"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -64,3 +65,44 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Download the firmware release
+function download_release() {
+    local version=$1
+    local download_url
+    local latest_tag
+
+    # Create temp directory
+    TMP_DIR=$(mktemp -d)
+    log "INFO" "Created temporary directory: $TMP_DIR"
+
+    if [ -z "$version" ]; then
+        log "INFO" "Fetching latest release tag..."
+        latest_tag=$(curl -s "https://api.github.com/repos/$GITHUB_REPO/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        
+        if [ -z "$latest_tag" ]; then
+            log "ERRO" "Failed to fetch latest release tag."
+            exit 1
+        fi
+        
+        log "INFO" "Latest release: $latest_tag"
+        version=$latest_tag
+    fi
+
+    # Construct download URL (assuming standard naming convention for firmware zip)
+    # Note: SideEye releases contain side-eye-<version>-firmware.zip
+    download_url="https://github.com/$GITHUB_REPO/releases/download/$version/side-eye-${version}-firmware.zip"
+    
+    log "INFO" "Downloading firmware from: $download_url"
+    
+    if [ "$DRY_RUN" = false ]; then
+        curl -L -o "$TMP_DIR/firmware.zip" "$download_url"
+        if [ $? -ne 0 ]; then
+            log "ERRO" "Download failed."
+            exit 1
+        fi
+        log "INFO" "Download complete."
+    else
+        log "INFO" "[DRY RUN] Would download: $download_url to $TMP_DIR/firmware.zip"
+    fi
+}

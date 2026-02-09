@@ -33,5 +33,9 @@ grep -q "VERSION=" "$SCRIPT" || { echo "FAIL: Missing VERSION initialization"; e
 grep -q "while" "$SCRIPT" || { echo "FAIL: Missing argument parsing loop"; exit 1; }
 grep -q "\-\-dry-run" "$SCRIPT" || { echo "FAIL: Missing dry-run flag handling"; exit 1; }
 
+# Check for download_release function
+grep -q "function download_release()" "$SCRIPT" || { echo "FAIL: Missing function keyword for download_release"; exit 1; }
+grep -q "GITHUB_REPO=" "$SCRIPT" || { echo "FAIL: Missing GITHUB_REPO constant"; exit 1; }
+
 echo "PASS: $SCRIPT has basic structure and constants"
 exit 0
