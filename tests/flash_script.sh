@@ -27,5 +27,11 @@ grep -q "grep" "$SCRIPT" || { echo "FAIL: Missing grep dependency check"; exit 1
 grep -q "unzip" "$SCRIPT" || { echo "FAIL: Missing unzip dependency check"; exit 1; }
 grep -q "esptool" "$SCRIPT" || { echo "FAIL: Missing esptool dependency check"; exit 1; }
 
+# Check for argument parsing
+grep -q "DRY_RUN=false" "$SCRIPT" || { echo "FAIL: Missing DRY_RUN initialization"; exit 1; }
+grep -q "VERSION=" "$SCRIPT" || { echo "FAIL: Missing VERSION initialization"; exit 1; }
+grep -q "while" "$SCRIPT" || { echo "FAIL: Missing argument parsing loop"; exit 1; }
+grep -q "\-\-dry-run" "$SCRIPT" || { echo "FAIL: Missing dry-run flag handling"; exit 1; }
+
 echo "PASS: $SCRIPT has basic structure and constants"
 exit 0

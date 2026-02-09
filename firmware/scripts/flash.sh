@@ -42,3 +42,25 @@ check_dependencies() {
         exit 1
     fi
 }
+
+# Configuration
+DRY_RUN=false
+VERSION=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        v*)
+            VERSION=$1
+            shift
+            ;;
+        *)
+            log "WARN" "Unknown argument: $1"
+            shift
+            ;;
+    esac
+done
