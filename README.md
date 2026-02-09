@@ -63,8 +63,8 @@ The host will automatically attempt to detect the ESP32 on your serial ports.
 #### Homebrew (Linux)
 ```bash
 brew tap nicholaswilde/homebrew-tap
-brew install side-eye
-side-eye
+brew install side-eye-host
+side-eye-host
 ```
 
 #### Manual Installation
