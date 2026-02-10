@@ -32,10 +32,16 @@ tasks:
       - coveralls report lcov.info coverage.xml -n -r {{ .COVERALLS_REPO_TOKEN }}
     silent: true
 
+  coverage:sh:
+    desc: Run shell script coverage with kcov
+    cmds:
+      - bash tests/flash_script_functional.sh
+      - echo "Coverage report generated in coverage/index.html"
+
   deps:
     desc: "Install dependencies"
     cmds:
-      - sudo apt install gcovr
+      - sudo apt install gcovr kcov
       - rustup component add llvm-tools-preview
       - cargo install cargo-llvm-cov
 
