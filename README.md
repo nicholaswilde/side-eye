@@ -93,6 +93,9 @@ Download the binaries from the [latest release](https://github.com/nicholaswilde
 task host:run
 ```
 
+> [!NOTE]
+> **Expected Behavior:** When the host agent connects to the device, the hardware will automatically restart once. This is a standard feature of the ESP32's auto-reset mechanism triggered by the serial port opening. The firmware is optimized to handle this transition quickly.
+
 ---
 
 ## :package: Components & Features

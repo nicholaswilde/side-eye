@@ -168,13 +168,13 @@ void setup() {
     
     display.drawBootScreen(FIRMWARE_VERSION);
     Serial.printf("\n--- SideEye Firmware v%s starting ---\n", FIRMWARE_VERSION);
-    delay(2000);
+    delay(500);
 
     network.begin(deviceID, FIRMWARE_VERSION, saveConfigCallback, configModeCallback, configLoopCallback);
     network.saveConfig(shouldSaveConfig);
     
     display.drawWiFiOnline();
-    delay(1000);
+    delay(200);
 
     display.drawStaticUI(state, currentPage, FIRMWARE_VERSION);
     display.updateDynamicValues(state, currentPage, true, true, FIRMWARE_VERSION);
