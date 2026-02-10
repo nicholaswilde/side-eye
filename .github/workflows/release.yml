@@ -84,7 +84,7 @@ jobs:
           tag_name="${{ needs.create-release.outputs.version }}"
           zip_name="side-eye-${tag_name}-firmware.zip"
           cd .pio/build/esp32-c6-geek
-          zip -j "../../../${zip_name}" firmware.bin bootloader.bin partitions.bin ../../../../README.md ../../../../LICENSE
+          zip -j "../../../${zip_name}" firmware.bin bootloader.bin partitions.bin ../../../../README.md ../../../../LICENSE ../../../../host/side-eye.toml.example
           cd ../../..
           shasum -a 256 "${zip_name}" > "${zip_name}.sha256"
           echo "FIRMWARE_ZIP=${zip_name}" >> $GITHUB_ENV
@@ -290,7 +290,7 @@ jobs:
         fi
 
         # Copy other files
-        cp {../README.md,../LICENSE} "$staging/"
+        cp {../README.md,../LICENSE,side-eye.toml.example} "$staging/"
         
         # Compress
         if [ "${{ matrix.os }}" = "windows-latest" ]; then

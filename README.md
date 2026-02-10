@@ -130,7 +130,7 @@ The onboard "Boot" button (GPIO 9) provides full control:
 
 ## :wrench: Configuration
 
-See [host/config.toml.example](host/config.toml.example) for a documented template.
+See [host/side-eye.toml.example](host/side-eye.toml.example) for a documented template.
 
 Precedence (highest to lowest):
 1.  **CLI Flags:** `--port`, `--baud-rate`, `--interval`, `--verbose`, `--config`, `--dry-run`, `--monitor-all`.
