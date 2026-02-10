@@ -411,9 +411,27 @@ public:
     void drawBootScreen(const char* version) {
         gfx.fillScreen(CATPPUCCIN_BASE);
         drawBanner("BOOTING...");
-        gfx.setCursor(15, start_y);
+        
+        int16_t x1, y1;
+        uint16_t w, h;
+        int screen_w = 240; // Landscape width
+        
+        // Draw SideEye name
+        gfx.setTextSize(2);
+        gfx.setTextColor(CATPPUCCIN_MAUVE);
+        const char* name = "SideEye";
+        gfx.getTextBounds(name, 0, 0, &x1, &y1, &w, &h);
+        gfx.setCursor((screen_w - w) / 2, 55);
+        gfx.println(name);
+        
+        // Draw Version
+        gfx.setTextSize(1);
         gfx.setTextColor(CATPPUCCIN_SUBTEXT0);
-        gfx.printf("v%s", version);
+        char v_str[32];
+        snprintf(v_str, sizeof(v_str), "v%s", version);
+        gfx.getTextBounds(v_str, 0, 0, &x1, &y1, &w, &h);
+        gfx.setCursor((screen_w - w) / 2, 85);
+        gfx.println(v_str);
     }
 
     void drawConfigMode(const char* apName, const String& ip) {
