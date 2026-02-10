@@ -15,11 +15,12 @@
 #
 # ==============================================================================
 
-set -euo pipefail
+set -eo pipefail
 
 # --- variables ---
 GITHUB_REPO="nicholaswilde/side-eye"
 SERIAL_PORT="${1:-/dev/ttyACM0}"
+DEBUG="false"
 
 # --- Constants ---
 readonly BLUE=$(tput setaf 4)
@@ -37,6 +38,10 @@ function log() {
   local message="$2"
   local color="$RESET"
 
+  if [ "${type}" = "DEBU" ] && [ "${DEBUG}" != "true" ]; then
+    return 0
+  fi
+
   case "$type" in
     INFO)
       color="$BLUE";;
@@ -44,11 +49,23 @@ function log() {
       color="$YELLOW";;
     ERRO)
       color="$RED";;
+    DEBU)
+      color="$PURPLE";;
+    *)
+      type="LOGS";;
   esac
 
-  echo -e "${color}${type}${RESET}[$(date +'%Y-%m-%d %H:%M:%S')] ${message}"
-}
+  local timestamp
+  timestamp=$(date +'%Y-%m-%d %H:%M:%S')
 
+  if [[ -n "${message}" ]]; then
+    echo -e "${color}${type}${RESET}[${timestamp}] ${message}"
+  else
+    while IFS= read -r line; do
+      echo -e "${color}${type}${RESET}[${timestamp}] ${line}"
+    done
+  fi
+}
 
 # Checks if a command exists.
 function commandExists() {
@@ -64,7 +81,10 @@ function check_dependencies() {
 }
 
 function download_release(){
-  RELEASE=$(curl -fsSL https://api.github.com/repos/${GITHUB_REPO}/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
+  if [ -n "${GITHUB_TOKEN}" ]; then
+    curl_args+=('-H' "Authorization: Bearer ${GITHUB_TOKEN}")
+  fi
+  RELEASE=$(curl -fsSL "${curl_args[@]}" https://api.github.com/repos/${GITHUB_REPO}/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
   log "INFO" "Latest release: ${RELEASE}"
 
   # --- get the latest release download URL ---
@@ -91,7 +111,7 @@ function flash_device() {
   log "INFO" "Ready to flash the device on port ${SERIAL_PORT}."
 
   esptool \
-    --chip esp32s3 \
+    --chip esp32c6 \
     --port "${SERIAL_PORT}" \
     --baud 921600 \
     --before default-reset \
@@ -111,8 +131,8 @@ function main() {
   check_dependencies  
   download_release
   extract_files
-  # find "${TMP_DIR}" -name "*.bin" -print
-  # flash_device
+  find "${TMP_DIR}" -name "*.bin" -print 2>&1 | log "DEBU"
+  flash_device
   log "INFO" "--- Flashing complete (simulation) ---"
 }
 
