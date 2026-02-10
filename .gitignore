@@ -45,3 +45,4 @@ lcov.info
 coverage.xml
 .env
 secrets.h
+coverage_sh.xml
