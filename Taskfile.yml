@@ -27,9 +27,9 @@ tasks:
       - sops -d --input-type dotenv --output-type dotenv .env.enc > .env
   # New task to upload all coverage reports to Coveralls
   coverage:upload:
-    desc: Upload both Host and Firmware coverage to Coveralls
+    desc: Upload all coverage reports to Coveralls
     cmds:
-      - coveralls report lcov.info coverage.xml -n -r {{ .COVERALLS_REPO_TOKEN }}
+      - coveralls report lcov.info coverage.xml coverage_sh.xml -n -r {{ .COVERALLS_REPO_TOKEN }}
     silent: true
 
   coverage:sh:
@@ -37,6 +37,13 @@ tasks:
     cmds:
       - bash tests/flash_script_functional.sh
       - echo "Coverage report generated in coverage/index.html"
+
+  coverage:sh:xml:
+    desc: Generate Cobertura XML coverage report for shell scripts
+    cmds:
+      - task: coverage:sh
+      - find coverage -name "cobertura.xml" -exec cp {} coverage_sh.xml \;
+      - echo "Shell coverage XML generated at coverage_sh.xml"
 
   deps:
     desc: "Install dependencies"

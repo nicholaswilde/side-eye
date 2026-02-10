@@ -50,7 +50,7 @@ chmod +x "$MOCK_DIR/esptool"
 # Run the script in debug mode to see trace
 export DEBUG=true
 # Use kcov to run the script and generate coverage
-kcov --include-pattern=firmware/scripts/flash.sh coverage bash firmware/scripts/flash.sh /dev/ttyTEST > test_output.log 2>&1
+kcov --include-path=. coverage firmware/scripts/flash.sh /dev/ttyTEST > test_output.log 2>&1
 
 # Check results
 if grep -q "Latest release: v0.1.3" test_output.log && 
