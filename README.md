@@ -50,12 +50,13 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/nicholaswilde/side-eye/m
 ```
 
 > [!WARNING]
-> Running a script directly from the internet with `bash -c "$(curl...)"` is a potential security risk. Always review the script's source code before executing it to ensure it is safe. You can view the script [here](https://github.com/nicholaswilde/frame-fi/blob/main/scripts/flash.sh).
+> Running a script directly from the internet with `bash -c "$(curl...)"` is a potential security risk. Always review the script's source code before executing it to ensure it is safe. You can view the script [here](https://github.com/nicholaswilde/side-eye/blob/main/firmware/scripts/flash.sh).
 
 > [!NOTE]
 > The script defaults to `/dev/ttyACM0` if no port is specified. It requires `curl`, `unzip`, and [`esptool`](https://docs.espressif.com/projects/esptool/en/latest/esp32/) to be installed.
 
 ### 3. Wi-Fi & MQTT Setup
+
 Upon first boot, the device will enter setup mode:
 1.  Connect to the Wi-Fi AP named **"SideEye-XXXXXX"** (where XXXXXX is the last part of your device's MAC) using your phone or laptop.
 2.  Navigate to `192.168.4.1`.
@@ -66,7 +67,9 @@ Upon first boot, the device will enter setup mode:
 > You can also bake in default credentials at compile-time by creating `firmware/include/secrets.h` (see `secrets.h.example`).
 
 ### 4. MQTT Usage
+
 Once connected to your broker, you can interact with the device via MQTT. For example, to manually rotate the screen:
+
 ```bash
 mosquitto_pub -h <MQTT_BROKER_IP> -t "side-eye/<DEVICE_ID>/rotate" -m "1"
 ```
@@ -82,7 +85,8 @@ side-eye-host
 ```
 
 #### Manual Installation
-Download the `.deb` or `.rpm` from the [latest release](https://github.com/nicholaswilde/side-eye/releases).
+
+Download the binaries from the [latest release](https://github.com/nicholaswilde/side-eye/releases).
 
 #### Run from Source
 ```bash
