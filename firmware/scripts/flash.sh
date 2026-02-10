@@ -15,27 +15,43 @@
 #
 # ==============================================================================
 
-set -eo pipefail
+set -euo pipefail
 
 # --- variables ---
 GITHUB_REPO="nicholaswilde/side-eye"
 SERIAL_PORT="${1:-/dev/ttyACM0}"
-DEBUG="false"
+DEBUG="${DEBUG:-false}"
+TMP_DIR=""
 
 # --- Constants ---
 readonly BLUE=$(tput setaf 4)
 readonly RED=$(tput setaf 1)
 readonly YELLOW=$(tput setaf 3)
+readonly PURPLE=$(tput setaf 5)
 readonly RESET=$(tput sgr0)
 
 readonly SCRIPT_NAME=$(basename "$0")
 
+# Source .env file if it exists
+if [ -f "$(dirname "$0")/../../.env" ]; then
+  # shellcheck source=/dev/null
+  source "$(dirname "$0")/../../.env"
+fi
+
 # --- functions ---
+
+# Cleanup function
+function cleanup() {
+  if [[ -n "${TMP_DIR:-}" && -d "${TMP_DIR}" ]]; then
+    log "INFO" "Cleaning up temporary files..."
+    rm -rf "${TMP_DIR}"
+  fi
+}
 
 # Logging function
 function log() {
   local type="$1"
-  local message="$2"
+  local message="${2:-}"
   local color="$RESET"
 
   if [ "${type}" = "DEBU" ] && [ "${DEBUG}" != "true" ]; then
@@ -81,15 +97,17 @@ function check_dependencies() {
 }
 
 function download_release(){
-  if [ -n "${GITHUB_TOKEN}" ]; then
+  local curl_args=()
+  if [ -n "${GITHUB_TOKEN:-}" ]; then
     curl_args+=('-H' "Authorization: Bearer ${GITHUB_TOKEN}")
   fi
-  RELEASE=$(curl -fsSL "${curl_args[@]}" https://api.github.com/repos/${GITHUB_REPO}/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
+  
+  RELEASE=$(curl -fsSL "${curl_args[@]}" "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
   log "INFO" "Latest release: ${RELEASE}"
 
   # --- get the latest release download URL ---
   log "INFO" "Fetching the latest release from ${GITHUB_REPO}..."
-  LATEST_RELEASE_URL=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" |  grep "browser_download_url" | grep -o 'https://[^"]*' | grep -E '/side-eye-[0-9.]+-firmware\.zip$')
+  LATEST_RELEASE_URL=$(curl -sL "${curl_args[@]}" "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" |  grep "browser_download_url" | grep -o 'https://[^"]*' | grep -E '/side-eye-[0-9.]+-firmware\.zip$')
 
   if [ -z "${LATEST_RELEASE_URL}" ]; then
     log "ERRO" "Could not find the latest release zip file." >&2
@@ -113,27 +131,31 @@ function flash_device() {
   esptool \
     --chip esp32c6 \
     --port "${SERIAL_PORT}" \
-    --baud 921600 \
+    --baud 460800 \
     --before default-reset \
     --after hard-reset \
     write-flash \
+      --no-progress \
       -z \
       --flash-mode dio \
       --flash-freq 80m \
-      --flash-size 16MB \
+      --flash-size detect \
       0x0000 "${TMP_DIR}/bootloader.bin" \
       0x8000 "${TMP_DIR}/partitions.bin" \
-      0x10000 "${TMP_DIR}/firmware.bin"
+      0x10000 "${TMP_DIR}/firmware.bin" 2>&1 | log "INFO"
 }
 
 # Downloads and flashes the latest release.
 function main() {
+  trap cleanup EXIT
   check_dependencies  
   download_release
   extract_files
-  find "${TMP_DIR}" -name "*.bin" -print 2>&1 | log "DEBU"
+  if [[ $DEBUG ]]; then
+    find "${TMP_DIR}" -name "*.bin" -print
+  fi
   flash_device
-  log "INFO" "--- Flashing complete (simulation) ---"
+  log "INFO" "--- Flashing complete ---"
 }
 
 main "$@"

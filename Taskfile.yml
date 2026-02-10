@@ -173,6 +173,12 @@ tasks:
     cmds:
       - pio run -e esp32-c6-geek -t upload
 
+  firmware:flash:script:
+    desc: Flash the Firmware (script)
+    dir: firmware
+    cmds:
+      - bash scripts/flash.sh
+
   firmware:monitor:
     desc: Start Serial Monitor (PlatformIO)
     dir: firmware

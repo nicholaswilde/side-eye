@@ -26,6 +26,7 @@ SideEye is a tiny USB-powered monitor that gives your Linux rig the "SideEye" by
 ## :stopwatch: Quick Start
 
 ### 1. Prerequisites (Linux)
+
 You will need `pkg-config` and `libudev` development headers for the serial communication library.
 
 ```bash
@@ -33,13 +34,26 @@ sudo apt install pkg-config libudev-dev
 ```
 
 ### 2. Flash the Firmware
+
 Connect your **Waveshare ESP32-C6-GEEK** and flash the receiver code. You can use `task` to build and flash locally:
 
 ```bash
 task firmware:flash
 ```
 
-Alternatively, download the pre-compiled `side-eye-<version>-firmware.zip` from the [latest release](https://github.com/nicholaswilde/side-eye/releases) and flash the included `.bin` files using `esptool.py` or your preferred ESP32 flashing tool.
+Alternatively, use the provided flash script to automatically download and flash the latest release:
+
+- **Flash:** Execute the `flash.sh` script remotely from GitHub.
+
+```shell
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/nicholaswilde/side-eye/main/firmware/scripts/flash.sh)" _ /dev/ttyACM0
+```
+
+> [!WARNING]
+> Running a script directly from the internet with `bash -c "$(curl...)"` is a potential security risk. Always review the script's source code before executing it to ensure it is safe. You can view the script [here](https://github.com/nicholaswilde/frame-fi/blob/main/scripts/flash.sh).
+
+> [!NOTE]
+> The script defaults to `/dev/ttyACM0` if no port is specified. It requires `curl`, `unzip`, and [`esptool`](https://docs.espressif.com/projects/esptool/en/latest/esp32/) to be installed.
 
 ### 3. Wi-Fi & MQTT Setup
 Upon first boot, the device will enter setup mode:
