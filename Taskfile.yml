@@ -35,14 +35,14 @@ tasks:
   coverage:sh:
     desc: Run shell script coverage with kcov
     cmds:
-      - bash tests/flash_script_functional.sh
+      - kcov --include-path=. coverage bash tests/flash_script_all_in_one.sh
       - echo "Coverage report generated in coverage/index.html"
 
   coverage:sh:xml:
     desc: Generate Cobertura XML coverage report for shell scripts
     cmds:
       - task: coverage:sh
-      - find coverage -name "cobertura.xml" -exec cp {} coverage_sh.xml \;
+      - cp coverage/kcov-merged/cobertura.xml coverage_sh.xml || find coverage -name "cobertura.xml" -exec cp {} coverage_sh.xml \;
       - echo "Shell coverage XML generated at coverage_sh.xml"
 
   deps:

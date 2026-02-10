@@ -60,15 +60,20 @@ function log() {
 
   case "$type" in
     INFO)
-      color="$BLUE";;
+      color="$BLUE"
+      ;;
     WARN)
-      color="$YELLOW";;
+      color="$YELLOW"
+      ;;
     ERRO)
-      color="$RED";;
+      color="$RED"
+      ;;
     DEBU)
-      color="$PURPLE";;
+      color="$PURPLE"
+      ;;
     *)
-      type="LOGS";;
+      type="LOGS"
+      ;;
   esac
 
   local timestamp
@@ -158,4 +163,6 @@ function main() {
   log "INFO" "--- Flashing complete ---"
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
+fi
