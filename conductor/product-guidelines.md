@@ -23,6 +23,7 @@
 - **Power Management:**
   - **Auto-Off:** Automatically turn off the backlight after 1 minute of inactivity (no data or button presses) to save power and screen life.
   - **Interactive Wake:** Ensure the screen wakes immediately on any button press or when the host resumes sending data.
+  - **Smooth Transitions:** Use PWM (analogWrite) to provide smooth fade-in and fade-out effects during backlight state changes.
   - **Manual Control:** Provide a hardware toggle (e.g., long-press) for users to override and manage screen power manually.
 
 ## Coding Standards

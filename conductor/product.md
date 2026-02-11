@@ -26,6 +26,7 @@ SideEye is a minimalist, USB-powered hardware monitor designed to provide Linux 
 - **Intelligent UI State:** Clean "Waiting for Host" mode when idle, automatically transitioning to a detailed dashboard upon connection.
 - **Orientation Support:** Physical button toggles screen rotation by 180 degrees to support any USB port orientation.
 - **USB CDC Communication:** Uses native USB serial for power and data, requiring no extra cables or HDMI ports.
+- **Dynamic Backlight:** PWM-controlled backlight with smooth fade-in/fade-out transitions for wake and sleep events.
 - **Containerized Deployment:** Official Docker support for the host agent, featuring multi-stage builds and minimal distroless runtime images.
 
 ## Success Metrics
