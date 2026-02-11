@@ -26,15 +26,15 @@ This plan outlines the steps to create a Bash script for downloading and flashin
     - [x] Ensure the temporary directory is removed on exit (using `trap`)
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Firmware Retrieval & Environment' (Protocol in workflow.md) (1684c5c)
 
-## Phase 3: Hardware Interface & Flashing
-- [ ] Task: Implement Port Auto-detection
-    - [ ] Search for active `/dev/ttyACM*` and `/dev/ttyUSB*` ports
-    - [ ] Implement fallback or selection if multiple ports are found
-- [ ] Task: Implement Flashing Logic
-    - [ ] Configure `esptool` command for `esp32c6`
-    - [ ] Set flash addresses: `0x0000` (bootloader), `0x8000` (partitions), `0x10000` (firmware)
-    - [ ] Integrate `--dry-run` logic to bypass the actual `esptool` call
-- [ ] Task: Final script refinement
-    - [ ] Ensure robust error messages and exit codes
-    - [ ] Make the script executable (`chmod +x`)
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Hardware Interface & Flashing' (Protocol in workflow.md)
+## Phase 3: Hardware Interface & Flashing [checkpoint: cab6cfa]
+- [x] Task: Implement Port Auto-detection (1684c5c)
+    - [x] Search for active \`/dev/ttyACM*\` and \`/dev/ttyUSB*\` ports
+    - [x] Implement fallback or selection if multiple ports are found
+- [x] Task: Implement Flashing Logic (1684c5c)
+    - [x] Configure \`esptool\` command for \`esp32c6\`
+    - [x] Set flash addresses: \`0x0000\` (bootloader), \`0x8000\` (partitions), \`0x10000\` (firmware)
+    - [x] Integrate \`--dry-run\` logic to bypass the actual \`esptool\` call
+- [x] Task: Final script refinement (1684c5c)
+    - [x] Ensure robust error messages and exit codes
+    - [x] Make the script executable (\`chmod +x\`)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Hardware Interface & Flashing' (Protocol in workflow.md) (cab6cfa)
