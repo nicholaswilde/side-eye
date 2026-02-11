@@ -455,6 +455,23 @@ void setup() {
 void loop() {
 }
 #else
+void test_display_backlight_pwm() {
+#ifdef NATIVE
+    DisplayManager display;
+    _mock_analogWrite_val = -1;
+    display.setBacklight(true);
+    TEST_ASSERT_EQUAL(255, _mock_analogWrite_val);
+    display.setBacklight(false);
+    TEST_ASSERT_EQUAL(0, _mock_analogWrite_val);
+    
+    // Test fade
+    display.fadeBacklight(255, 100);
+    TEST_ASSERT_EQUAL(255, _mock_analogWrite_val);
+    display.fadeBacklight(0, 100);
+    TEST_ASSERT_EQUAL(0, _mock_analogWrite_val);
+#endif
+}
+
 int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_history_push_and_get);
@@ -467,6 +484,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_format_speed);
     RUN_TEST(test_display_draw_smoke);
     RUN_TEST(test_display_sd_disconnected);
+    RUN_TEST(test_display_backlight_pwm);
     RUN_TEST(test_sync_manager_full);
     RUN_TEST(test_sync_manager_single_file);
     RUN_TEST(test_sync_manager_multi_chunk);

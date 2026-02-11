@@ -21,6 +21,13 @@ inline int digitalRead(uint8_t pin) { return _mock_digitalRead_val; }
 inline void digitalWrite(uint8_t pin, uint8_t val) {}
 inline void pinMode(uint8_t pin, uint8_t mode) {}
 
+extern int _mock_analogWrite_val;
+extern uint8_t _mock_analogWrite_pin;
+inline void analogWrite(uint8_t pin, int val) {
+    _mock_analogWrite_pin = pin;
+    _mock_analogWrite_val = val;
+}
+
 class String : public std::string {
 public:
     String(const char* s) : std::string(s) {}

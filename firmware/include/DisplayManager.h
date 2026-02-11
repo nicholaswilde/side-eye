@@ -91,7 +91,22 @@ public:
     }
 
     void setBacklight(bool on) {
-        digitalWrite(LCD_BL, on ? HIGH : LOW);
+        analogWrite(LCD_BL, on ? 255 : 0);
+    }
+
+    void fadeBacklight(uint8_t target, uint16_t duration_ms) {
+        static uint8_t current_brightness = 255;
+        int steps = 20;
+        int delay_step = duration_ms / steps;
+        int delta = (target - current_brightness) / steps;
+
+        for (int i = 0; i < steps; i++) {
+            current_brightness += delta;
+            analogWrite(LCD_BL, current_brightness);
+            delay(delay_step);
+        }
+        current_brightness = target;
+        analogWrite(LCD_BL, current_brightness);
     }
 
     void fillScreen(uint16_t color) {

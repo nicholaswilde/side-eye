@@ -180,7 +180,7 @@ public:
 private:
     void setScreenOn(bool on) {
         _isScreenOn = on;
-        _display.setBacklight(on);
+        _display.fadeBacklight(on ? 255 : 0, 500);
     }
 
     Button _button;

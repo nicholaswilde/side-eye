@@ -6,6 +6,8 @@
 
 unsigned long _mock_millis = 0;
 int _mock_digitalRead_val = HIGH;
+int _mock_analogWrite_val = 0;
+uint8_t _mock_analogWrite_pin = 0;
 SerialMock Serial;
 WiFiClass WiFi;
 ESPClass ESP;
