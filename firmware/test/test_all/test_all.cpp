@@ -52,7 +52,7 @@ void test_display_draw_identity() {
     state.ip = "1.2.3.4";
     state.mac = "AA:BB:CC:DD:EE:FF";
     
-    display.begin();
+    display.begin(state);
     display.drawIdentityPage(state, true);
     display.drawIdentityPage(state, false);
 }
@@ -71,7 +71,7 @@ void test_display_draw_smoke() {
     state.alert_level = 2; // Critical
     state.uptime = 3661;
     
-    display.begin();
+    display.begin(state);
     display.drawBanner("Test", 2);
     display.drawWiFiStatus();
     display.drawProgressBar(0, 0, 100, 10, 50.0, 0xFFFF);
@@ -100,7 +100,7 @@ void test_display_sd_disconnected() {
     SystemState state;
     state.connected = false;
     
-    display.begin();
+    display.begin(state);
     display.drawSDPage(state, true);
     display.drawSDPage(state, false);
     
@@ -113,7 +113,7 @@ void test_display_manager_extended() {
     SystemState state;
     state.connected = true;
     
-    display.begin();
+    display.begin(state);
     
     // Test all alert levels in banner
     display.drawBanner("Alert 0", 0);
@@ -312,7 +312,7 @@ public:
         
         // 2. Setup with config
         LittleFS._setFile("/config.json", "{\"mqtt_server\":\"localhost\",\"mqtt_port\":1883,\"mqtt_user\":\"user\",\"mqtt_pass\":\"pass\"}");
-        nm.begin("DEV1", "1.0.0", dummy_callback, dummy_config_callback, dummy_callback);
+        nm.begin("DEV1", "1.0.0", state, dummy_callback, dummy_config_callback, dummy_callback);
         
         // 3. Trigger reconnect
         nm._mqttClient._setConnected(false);
@@ -327,14 +327,14 @@ public:
         
         // 6. Setup without config
         SideEyeNetworkManager nm2;
-        nm2.begin("DEV2", "1.0.0", dummy_callback, dummy_config_callback, dummy_callback);
+        nm2.begin("DEV2", "1.0.0", state, dummy_callback, dummy_config_callback, dummy_callback);
         nm2._mqttClient._setConnected(false);
         nm2.reconnectMQTT(); // Test anonymous MQTT connect
         
         // 7. Save config paths
-        nm.saveConfig(true);
+        nm.saveConfig(state, true);
         LittleFS._setFailNextOpen(true);
-        nm.saveConfig(true);
+        nm.saveConfig(state, true);
 
         // 8. Reset settings
         ESP._restarted = false;
@@ -440,6 +440,7 @@ void test_input_click_disconnected(void) {
 
 #ifndef NATIVE
 void setup() {
+    SystemState state;
     delay(2000); // Wait for serial to connect
     UNITY_BEGIN();
     RUN_TEST(test_history_push_and_get);
@@ -458,10 +459,11 @@ void loop() {
 void test_display_backlight_pwm() {
 #ifdef NATIVE
     DisplayManager display;
+    SystemState state;
     _mock_analogWrite_val = -1;
-    display.setBacklight(true);
+    display.setBacklight(state, true);
     TEST_ASSERT_EQUAL(255, _mock_analogWrite_val);
-    display.setBacklight(false);
+    display.setBacklight(state, false);
     TEST_ASSERT_EQUAL(0, _mock_analogWrite_val);
     
     // Test fade

@@ -15,6 +15,7 @@ public:
     bool loop() { return true; }
     bool connected() { return _connected; }
     void setServer(const char* domain, uint16_t port) {}
+    void setCallback(std::function<void(char*, uint8_t*, unsigned int)> callback) {}
     int state() { return _state; }
     
     void _setConnected(bool c) { _connected = c; }

@@ -104,7 +104,7 @@ public:
 
         if (ev == Button::CLICK) {
             if (!_isScreenOn) {
-                setScreenOn(true);
+                setScreenOn(state, true);
                 needsStaticDraw = true; // Force redraw on wake
             } else {
                 // Next page
@@ -118,13 +118,14 @@ public:
         } else if (ev == Button::DOUBLE_CLICK) {
             int newRotation = (_display.getRotation() == 1) ? 3 : 1;
             _display.setRotation(newRotation);
+            state.rotation = newRotation;
             if (!isConfigMode) {
                 needsStaticDraw = true;
                 _display.updateDynamicValues(state, currentPage, needsStaticDraw, false, version);
             }
         } else if (ev == Button::HOLD) {
             if (!_isScreenOn) {
-                setScreenOn(true);
+                setScreenOn(state, true);
                 needsStaticDraw = true;
             } else {
                 _pendingScreenOff = true; // Defer screen off until release, unless it becomes a reset
@@ -139,7 +140,7 @@ public:
             if (duration > 2000) { // Show reset warning after 2s of holding
                 _pendingScreenOff = false; // It's a reset hold, cancel pending screen off
                 if (!_isScreenOn) {
-                    setScreenOn(true);
+                    setScreenOn(state, true);
                 }
                 int remaining = (duration < 10000) ? (10000 - duration) / 1000 : 0;
                 if (remaining >= 0 && remaining != _lastRemaining) {
@@ -151,7 +152,7 @@ public:
         } else {
             // Button released
             if (_pendingScreenOff) {
-                setScreenOn(false);
+                setScreenOn(state, false);
                 _pendingScreenOff = false;
             }
             if (_resetScreenActive) {
@@ -163,7 +164,7 @@ public:
 
         // Auto-off for screen
         if (_isScreenOn && (millis() - _lastActivityTime > _autoOffDelay)) {
-            setScreenOn(false);
+            setScreenOn(state, false);
             _pendingScreenOff = false;
         }
 
@@ -178,9 +179,9 @@ public:
     bool isResetActive() const { return _resetScreenActive; }
 
 private:
-    void setScreenOn(bool on) {
+    void setScreenOn(SystemState& state, bool on) {
         _isScreenOn = on;
-        _display.fadeBacklight(on ? 255 : 0, 500);
+        _display.fadeBacklight(on ? state.brightness : 0, 500);
     }
 
     Button _button;

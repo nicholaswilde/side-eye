@@ -53,6 +53,15 @@ struct SystemState {
     uint8_t alert_level = 0;
     bool has_data = false;
     bool connected = false;
+
+    // Configurable Settings
+    uint8_t brightness = 255;
+    int rotation = 1;
+    unsigned long cycle_duration = 5000;
+    uint8_t cpu_warning = 50;
+    uint8_t cpu_critical = 80;
+    uint8_t ram_warning = 50;
+    uint8_t ram_critical = 80;
 };
 
 class DisplayManager {
@@ -71,10 +80,10 @@ public:
     DisplayManager(const DisplayManager&) = delete;
     DisplayManager& operator=(const DisplayManager&) = delete;
 
-    void begin() {
+    void begin(const SystemState& state) {
         if (LCD_BL >= 0) {
             pinMode(LCD_BL, OUTPUT);
-            digitalWrite(LCD_BL, HIGH);
+            setBacklight(state, true);
         }
         gfx.begin();
         gfx.setRotation(currentRotation);
@@ -90,8 +99,8 @@ public:
         return currentRotation;
     }
 
-    void setBacklight(bool on) {
-        analogWrite(LCD_BL, on ? 255 : 0);
+    void setBacklight(const SystemState& state, bool on) {
+        analogWrite(LCD_BL, on ? state.brightness : 0);
     }
 
     void fadeBacklight(uint8_t target, uint16_t duration_ms) {
@@ -477,6 +486,28 @@ public:
         gfx.setCursor(15, start_y);
         gfx.setTextColor(CATPPUCCIN_GREEN);
         gfx.println("WiFi Online!");
+    }
+
+    void showNotification(const char* message) {
+        // Simple overlay notification
+        uint16_t box_w = 200;
+        uint16_t box_h = 40;
+        uint16_t box_x = (240 - box_w) / 2;
+        uint16_t box_y = (135 - box_h) / 2;
+
+        gfx.fillRect(box_x, box_y, box_w, box_h, CATPPUCCIN_SURFACE0);
+        gfx.drawRect(box_x, box_y, box_w, box_h, CATPPUCCIN_MAUVE);
+        
+        gfx.setTextColor(CATPPUCCIN_TEXT);
+        gfx.setTextSize(1);
+        
+        int16_t x1, y1;
+        uint16_t w, h;
+        gfx.getTextBounds(message, 0, 0, &x1, &y1, &w, &h);
+        gfx.setCursor(box_x + (box_w - w) / 2, box_y + (box_h - h) / 2);
+        gfx.println(message);
+        
+        delay(1500); // Hold for 1.5s
     }
 
     void drawResetScreen(int secondsRemaining, bool forceRedraw = false) {

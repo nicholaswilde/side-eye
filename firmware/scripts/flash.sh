@@ -42,9 +42,33 @@ fi
 
 # --- functions ---
 
+function show_help() {
+  cat <<EOF
+Usage: ${SCRIPT_NAME} [VERSION] [PORT] [OPTIONS]
+
+Arguments:
+  VERSION    Specific version tag to flash (e.g., v0.1.5). Defaults to 'latest'.
+  PORT       Serial port of the device (e.g., /dev/ttyACM0). Auto-detected if omitted.
+
+Options:
+  --dry-run  Show what would be done without actually flashing.
+  -h, --help Show this help message.
+
+Examples:
+  ./${SCRIPT_NAME}                   # Flash latest firmware to auto-detected port
+  ./${SCRIPT_NAME} v0.1.5            # Flash v0.1.5 to auto-detected port
+  ./${SCRIPT_NAME} /dev/ttyUSB0      # Flash latest to /dev/ttyUSB0
+  ./${SCRIPT_NAME} v0.1.5 /dev/ttyACM1 --dry-run
+EOF
+}
+
 function parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      -h|--help)
+        show_help
+        exit 0
+        ;;
       --dry-run)
         DRY_RUN=true
         shift
@@ -67,6 +91,28 @@ function parse_args() {
   if [ "$DRY_RUN" = true ]; then
     log "INFO" "Dry-run mode enabled. No changes will be made."
   fi
+}
+
+function detect_port() {
+  if [ -n "${SERIAL_PORT}" ]; then
+    return 0
+  fi
+
+  log "INFO" "Searching for serial port..."
+  # Look for ACM or USB ports
+  local ports
+  # Use ls and filter to avoid errors if no files found
+  ports=$(ls /dev/ttyACM* /dev/ttyUSB* 2>/dev/null || true)
+
+  if [ -z "${ports}" ]; then
+    log "WARN" "No serial ports found. Defaulting to /dev/ttyACM0"
+    SERIAL_PORT="/dev/ttyACM0"
+    return 0
+  fi
+
+  # Take the first one found
+  SERIAL_PORT=$(echo "${ports}" | head -n 1)
+  log "INFO" "Auto-detected port: ${SERIAL_PORT}"
 }
 
 # Cleanup function
@@ -168,17 +214,16 @@ function extract_files() {
 }
 
 function flash_device() {
-  local port="${SERIAL_PORT:-/dev/ttyACM0}"
-  log "INFO" "Ready to flash the device on port ${port}."
+  log "INFO" "Ready to flash the device on port ${SERIAL_PORT}."
 
   if [ "$DRY_RUN" = true ]; then
-    log "INFO" "[DRY-RUN] esptool --chip esp32c6 --port ${port} write-flash 0x0000 bootloader.bin 0x8000 partitions.bin 0x10000 firmware.bin"
+    log "INFO" "[DRY-RUN] esptool --chip esp32c6 --port ${SERIAL_PORT} write-flash 0x0000 bootloader.bin 0x8000 partitions.bin 0x10000 firmware.bin"
     return 0
   fi
 
   esptool \
     --chip esp32c6 \
-    --port "${port}" \
+    --port "${SERIAL_PORT}" \
     --baud 460800 \
     --before default-reset \
     --after hard-reset \
@@ -197,6 +242,7 @@ function flash_device() {
 function main() {
   trap cleanup EXIT
   parse_args "$@"
+  detect_port
   check_dependencies  
   download_release
   extract_files

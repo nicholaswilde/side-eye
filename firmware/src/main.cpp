@@ -29,6 +29,67 @@ InputHandler input(BTN_PIN, display);
 SideEyeNetworkManager network;
 SyncManager syncManager;
 
+void onMqttMessage(char* topic, uint8_t* payload, unsigned int length) {
+    String topicStr = String(topic);
+    String payloadStr = "";
+    for (unsigned int i = 0; i < length; i++) {
+        payloadStr += (char)payload[i];
+    }
+
+    Serial.println("MQTT Message: " + topicStr + " -> " + payloadStr);
+
+    // Extract the setting name from topic: side-eye/DEVICE_ID/set/SETTING
+    int lastSlash = topicStr.lastIndexOf('/');
+    if (lastSlash == -1) return;
+    String setting = topicStr.substring(lastSlash + 1);
+
+    bool changed = false;
+    if (setting == "brightness") {
+        uint8_t val = payloadStr.toInt();
+        if (val >= 0 && val <= 255) {
+            state.brightness = val;
+            display.setBacklight(state, true);
+            changed = true;
+        }
+    } else if (setting == "rotation") {
+        int val = payloadStr.toInt();
+        if (val == 1 || val == 3) {
+            state.rotation = val;
+            display.setRotation(val);
+            needsStaticDraw = true;
+            changed = true;
+        }
+    } else if (setting == "cycle_duration") {
+        long val = payloadStr.toInt();
+        if (val >= 1000) {
+            state.cycle_duration = val;
+            changed = true;
+        }
+    } else if (setting == "cpu_warning") {
+        state.cpu_warning = payloadStr.toInt();
+        changed = true;
+    } else if (setting == "cpu_critical") {
+        state.cpu_critical = payloadStr.toInt();
+        changed = true;
+    } else if (setting == "ram_warning") {
+        state.ram_warning = payloadStr.toInt();
+        changed = true;
+    } else if (setting == "ram_critical") {
+        state.ram_critical = payloadStr.toInt();
+        changed = true;
+    } else if (setting == "discovery_prefix") {
+        network.setDiscoveryPrefix(payloadStr);
+        changed = true;
+    }
+
+    if (changed) {
+        network.saveConfig(state, true);
+        network.publishState(state);
+        display.showNotification("Settings Updated");
+        needsStaticDraw = true; // Refresh UI behind the notification
+    }
+}
+
 String getDeviceID() {
     uint8_t mac[6];
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
@@ -171,15 +232,16 @@ void setup() {
     // SD Initialization (Handled by SyncManager using dedicated SPI)
     syncManager.begin();
     
-    display.begin();
+    display.begin(state);
     input.begin();
     
     display.drawBootScreen(FIRMWARE_VERSION);
     Serial.printf("\n--- SideEye Firmware v%s starting ---\n", FIRMWARE_VERSION);
     delay(500);
 
-    network.begin(deviceID, FIRMWARE_VERSION, saveConfigCallback, configModeCallback, configLoopCallback);
-    network.saveConfig(shouldSaveConfig);
+    network.setCallback(onMqttMessage);
+    network.begin(deviceID, FIRMWARE_VERSION, state, saveConfigCallback, configModeCallback, configLoopCallback);
+    network.saveConfig(state, shouldSaveConfig);
     
     display.drawWiFiOnline();
     delay(200);
@@ -223,7 +285,7 @@ void loop() {
     // Page cycling
     if (input.isScreenOn() && !input.isResetActive()) {
         unsigned long now = millis();
-        if (now - lastPageChange > PAGE_DURATION) {
+        if (now - lastPageChange > state.cycle_duration) {
             currentPage = static_cast<Page>((currentPage + 1) % NUM_PAGES);
             lastPageChange = now;
             needsStaticDraw = true;
