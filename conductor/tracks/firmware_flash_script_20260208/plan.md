@@ -18,12 +18,12 @@ This plan outlines the steps to create a Bash script for downloading and flashin
 - [x] Task: Implement GitHub Release discovery (2f210ce)
     - [ ] Implement logic to fetch latest tag if no version is provided
     - [ ] Construct download URL for the firmware zip artifact
-- [ ] Task: Implement download and extraction
-    - [ ] Create temporary directory (`mktemp -d`)
-    - [ ] Download firmware zip using `curl`
-    - [ ] Extract `bootloader.bin`, `partitions.bin`, and `firmware.bin`
-- [ ] Task: Implement Cleanup Logic
-    - [ ] Ensure the temporary directory is removed on exit (using `trap`)
+- [x] Task: Implement download and extraction (2a8135f)
+    - [x] Create temporary directory (`mktemp -d`)
+    - [x] Download firmware zip using `curl`
+    - [x] Extract `bootloader.bin`, `partitions.bin`, and `firmware.bin`
+- [x] Task: Implement Cleanup Logic (2a8135f)
+    - [x] Ensure the temporary directory is removed on exit (using `trap`)
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Firmware Retrieval & Environment' (Protocol in workflow.md)
 
 ## Phase 3: Hardware Interface & Flashing
