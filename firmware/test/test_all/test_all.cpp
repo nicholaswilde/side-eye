@@ -472,6 +472,15 @@ void test_display_backlight_pwm() {
 #endif
 }
 
+void test_sync_manager_frequency() {
+#ifdef NATIVE
+    SyncManager sync;
+    _mock_sd_frequency = 0;
+    sync.begin();
+    TEST_ASSERT_EQUAL(4000000, _mock_sd_frequency);
+#endif
+}
+
 int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_history_push_and_get);
@@ -489,6 +498,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_sync_manager_single_file);
     RUN_TEST(test_sync_manager_multi_chunk);
     RUN_TEST(test_sync_manager_nested_dir);
+    RUN_TEST(test_sync_manager_frequency);
     RUN_TEST(test_network_manager_full);
     RUN_TEST(test_input_handler_extended);
     RUN_TEST(test_display_manager_extended);

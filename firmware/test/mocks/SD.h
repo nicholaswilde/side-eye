@@ -8,9 +8,14 @@
 #define FILE_WRITE "w"
 #define FILE_APPEND "a"
 
+extern uint32_t _mock_sd_frequency;
+
 class SDClass {
 public:
-    bool begin(uint8_t ssPin, SPIClass &spi, uint32_t frequency = 4000000) { return true; }
+    bool begin(uint8_t ssPin, SPIClass &spi, uint32_t frequency = 4000000) { 
+        _mock_sd_frequency = frequency;
+        return true; 
+    }
     
     File open(const char* path, const char* mode = FILE_READ) { 
         if (std::string(path) == "/") {

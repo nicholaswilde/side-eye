@@ -22,7 +22,7 @@ public:
         pinMode(SD_MISO, INPUT_PULLUP);
         sdSPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
         
-        if (!SD.begin(SD_CS, sdSPI, 1000000)) {
+        if (!SD.begin(SD_CS, sdSPI, 4000000)) {
             Serial.println("SD Initialization failed!");
         } else {
             Serial.println("SD Initialized.");
