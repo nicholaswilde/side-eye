@@ -7,17 +7,22 @@
 #include <ArduinoJson.h>
 #include <mbedtls/base64.h>
 
-#define SD_SCK 1
-#define SD_MOSI 2
-#define SD_MISO 0
-#define SD_CS 7
+#define SD_SCK 19
+#define SD_MOSI 18
+#define SD_MISO 20
+#define SD_CS 23
 
 class SyncManager {
 public:
     SyncManager() {}
 
     void begin() {
-        if (!SD.begin(SD_CS, SPI)) {
+        // Use a dedicated SPI instance for the SD card as per Waveshare demo
+        static SPIClass sdSPI(FSPI);
+        pinMode(SD_MISO, INPUT_PULLUP);
+        sdSPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
+        
+        if (!SD.begin(SD_CS, sdSPI, 1000000)) {
             Serial.println("SD Initialization failed!");
         } else {
             Serial.println("SD Initialized.");

@@ -155,16 +155,24 @@ void setup() {
     pinMode(6, OUTPUT);
     digitalWrite(6, HIGH);
 
+    // Set all CS pins HIGH to disable SPI devices initially
+    pinMode(SD_CS, OUTPUT);
+    digitalWrite(SD_CS, HIGH);
+    pinMode(LCD_CS, OUTPUT);
+    digitalWrite(LCD_CS, HIGH);
+
     Serial.begin(115200);
     deviceID = getDeviceID();
     
-    // Explicitly initialize shared SPI bus for LCD and SD
-    SPI.begin(1, 0, 2, -1);
+    // LCD SPI initialization (Bus 1)
+    SPI.begin(1, -1, 2, -1); // SCK, MISO (NC), MOSI, CS (Handled by DisplayManager)
     delay(100); 
+    
+    // SD Initialization (Handled by SyncManager using dedicated SPI)
+    syncManager.begin();
     
     display.begin();
     input.begin();
-    syncManager.begin();
     
     display.drawBootScreen(FIRMWARE_VERSION);
     Serial.printf("\n--- SideEye Firmware v%s starting ---\n", FIRMWARE_VERSION);
