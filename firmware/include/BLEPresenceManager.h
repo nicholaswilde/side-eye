@@ -24,6 +24,7 @@ public:
 private:
     bool _enabled = false;
     bool _present = false;
+    bool _lastSentPresence = false;
     unsigned long _lastSeen = 0;
     const unsigned long PRESENCE_TIMEOUT = 10000; // 10 seconds
     String _targetMac = "";

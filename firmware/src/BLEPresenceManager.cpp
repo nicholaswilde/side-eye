@@ -56,24 +56,32 @@ void BLEPresenceManager::stopScan() {
 
 void BLEPresenceManager::onResult(BLEAdvertisedDevice advertisedDevice) {
     _lastSeen = millis();
-    if (!_present) {
-        _present = true;
-        Serial.println("{\"type\": \"Presence\", \"data\": {\"status\": true}}");
-    }
+    _present = true;
 }
 
 void BLEPresenceManager::update() {
     if (!_enabled) return;
 
+    // Presence smoothing / timeout
     if (_present && (millis() - _lastSeen > PRESENCE_TIMEOUT)) {
         _present = false;
-        Serial.println("{\"type\": \"Presence\", \"data\": {\"status\": false}}");
     }
 
-    if (_pPresenceCharacteristic) {
+    // Only send serial message on state change
+    if (_present != _lastSentPresence) {
+        _lastSentPresence = _present;
+        Serial.print("{\"type\": \"Presence\", \"data\": {\"status\": ");
+        Serial.print(_present ? "true" : "false");
+        Serial.println("}}");
+    }
+
+    // Update BLE characteristic
+    static unsigned long lastNotify = 0;
+    if (_pPresenceCharacteristic && millis() - lastNotify > 1000) {
         uint8_t val = _present ? 1 : 0;
         _pPresenceCharacteristic->setValue(&val, 1);
         _pPresenceCharacteristic->notify();
+        lastNotify = millis();
     }
 }
 
