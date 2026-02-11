@@ -1,0 +1,8 @@
+{
+  "track_id": "sd_custom_themes_20260210",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-10T21:45:00Z",
+  "updated_at": "2026-02-10T21:45:00Z",
+  "description": "Enable custom themes and background images loaded from the SD card."
+}

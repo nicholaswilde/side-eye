@@ -1,8 +1,0 @@
-{
-  "track_id": "firmware_flash_script_20260208",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-02-08T21:30:00Z",
-  "updated_at": "2026-02-08T21:30:00Z",
-  "description": "Create a flash script that can be run to download and flash the 3 bin files from the firmware release. Use this script as a starting point https://github.com/nicholaswilde/frame-fi/raw/refs/heads/main/scripts/flash.sh"
-}

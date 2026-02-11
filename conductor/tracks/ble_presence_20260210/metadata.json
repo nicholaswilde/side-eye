@@ -1,0 +1,8 @@
+{
+  "track_id": "ble_presence_20260210",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-10T21:45:00Z",
+  "updated_at": "2026-02-10T21:45:00Z",
+  "description": "Use BLE presence detection for automatic workstation locking and waking."
+}

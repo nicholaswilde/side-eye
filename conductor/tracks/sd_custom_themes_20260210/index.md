@@ -1,4 +1,4 @@
-# Track firmware_flash_script_20260208 Context
+# Track sd_custom_themes_20260210 Context
 
 - [Specification](./spec.md)
 - [Implementation Plan](./plan.md)
