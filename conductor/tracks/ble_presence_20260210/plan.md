@@ -12,10 +12,10 @@ This plan outlines the steps to implement BLE-based presence detection using the
 - [x] Task: Conductor - User Manual Verification 'Phase 1: ESP32 BLE Infrastructure' (Protocol in workflow.md)
 
 ## Phase 2: Communication & Host Logic
-- [~] Task: Expand Serial & MQTT Protocols
-    - [ ] Add the `Presence` message type to the firmware's JSON handler.
-    - [ ] Implement MQTT status publishing for BLE state (`Disabled`, `Scanning`, `Connected`).
-    - [ ] Implement MQTT publishing for presence state (`Present`, `Away`).
+- [x] Task: Expand Serial & MQTT Protocols (19c3053)
+    - [x] Add the `Presence` message type to the firmware's JSON handler.
+    - [x] Implement MQTT status publishing for BLE state (`Disabled`, `Scanning`, `Connected`).
+    - [x] Implement MQTT publishing for presence state (`Present`, `Away`).
 - [ ] Task: Update Host Agent (Rust)
     - [ ] Update the host agent's JSON handling to recognize the `Presence` message.
     - [ ] Integrate a desktop notification crate (e.g., `notify-rust`) to show presence-based alerts.
