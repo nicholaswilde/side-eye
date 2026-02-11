@@ -3,10 +3,10 @@
 This plan outlines the steps to implement BLE-based presence detection using the ESP32-C6 and integrate it with the SideEye host agent.
 
 ## Phase 1: ESP32 BLE Infrastructure
-- [ ] Task: Implement BLE Scanner & Service
-    - [ ] Initialize `NimBLE-Arduino` on the ESP32-C6.
-    - [ ] Create a scanner task to look for configured MAC addresses.
-    - [ ] Create a BLE Peripheral with a custom Presence Service and Characteristic.
+- [x] Task: Implement BLE Scanner & Service (d27e33f)
+    - [x] Initialize `NimBLE-Arduino` on the ESP32-C6. (Note: Switched to standard BLE due to compatibility)
+    - [x] Create a scanner task to look for configured MAC addresses.
+    - [x] Create a BLE Peripheral with a custom Presence Service and Characteristic.
 - [ ] Task: Implement Presence Smoothing
     - [ ] Add logic to maintain a "detected" state for X seconds after the last seen advertisement to prevent flickering.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: ESP32 BLE Infrastructure' (Protocol in workflow.md)
