@@ -3,6 +3,7 @@
 #include "InputHandler.h"
 #include "NetworkManager.h"
 #include "SyncManager.h"
+#include "BLEPresenceManager.h"
 
 /* 
  * SideEye Firmware - Orchestrator
@@ -28,6 +29,7 @@ DisplayManager display;
 InputHandler input(BTN_PIN, display);
 SideEyeNetworkManager network;
 SyncManager syncManager;
+BLEPresenceManager blePresence;
 
 void onMqttMessage(char* topic, uint8_t* payload, unsigned int length) {
     String topicStr = String(topic);
@@ -234,6 +236,7 @@ void setup() {
     
     display.begin(state);
     input.begin();
+    blePresence.begin(deviceID.c_str());
     
     display.drawBootScreen(FIRMWARE_VERSION);
     Serial.printf("\n--- SideEye Firmware v%s starting ---\n", FIRMWARE_VERSION);
@@ -265,6 +268,7 @@ void loop() {
         network.resetSettings();
     }
     network.update(lastMqttRetry);
+    blePresence.update();
 
     // Timeout for connection status
     static unsigned long lastDataReceived = 0;
