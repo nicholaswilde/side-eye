@@ -11,8 +11,8 @@ This plan outlines the steps to implement hardware-aligned backlight control and
     - [x] Update \`InputHandler\` to use fading when waking or sleeping the screen.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Backlight PWM Control' (Protocol in workflow.md) (2ebc9cc)
 
-## Phase 2: SPI Performance Optimization
+## Phase 2: SPI Performance Optimization [checkpoint: 6f735c6]
 - [x] Task: Increase SD SPI Frequency (0780c41)
     - [x] Increase frequency from 1MHz to 4MHz or higher in \`SyncManager.h\` after initialization.
     - [x] Test reliability during directory listing and file synchronization.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: SPI Performance Optimization' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: SPI Performance Optimization' (Protocol in workflow.md) (6f735c6)
