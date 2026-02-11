@@ -12,7 +12,7 @@ This plan outlines the steps to implement hardware-aligned backlight control and
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Backlight PWM Control' (Protocol in workflow.md) (2ebc9cc)
 
 ## Phase 2: SPI Performance Optimization
-- [ ] Task: Increase SD SPI Frequency
-    - [ ] Increase frequency from 1MHz to 4MHz or higher in `SyncManager.h` after initialization.
-    - [ ] Test reliability during directory listing and file synchronization.
+- [x] Task: Increase SD SPI Frequency (0780c41)
+    - [x] Increase frequency from 1MHz to 4MHz or higher in \`SyncManager.h\` after initialization.
+    - [x] Test reliability during directory listing and file synchronization.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: SPI Performance Optimization' (Protocol in workflow.md)
