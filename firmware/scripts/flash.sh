@@ -19,7 +19,9 @@ set -euo pipefail
 
 # --- variables ---
 GITHUB_REPO="nicholaswilde/side-eye"
-SERIAL_PORT="${1:-/dev/ttyACM0}"
+SERIAL_PORT=""
+VERSION="latest"
+DRY_RUN=false
 DEBUG="${DEBUG:-false}"
 TMP_DIR=""
 
@@ -39,6 +41,33 @@ if [ -f "$(dirname "$0")/../../.env" ]; then
 fi
 
 # --- functions ---
+
+function parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --dry-run)
+        DRY_RUN=true
+        shift
+        ;;
+      v[0-9]*)
+        VERSION="$1"
+        shift
+        ;;
+      /dev/*)
+        SERIAL_PORT="$1"
+        shift
+        ;;
+      *)
+        log "WARN" "Unknown argument: $1"
+        shift
+        ;;
+    esac
+  done
+
+  if [ "$DRY_RUN" = true ]; then
+    log "INFO" "Dry-run mode enabled. No changes will be made."
+  fi
+}
 
 # Cleanup function
 function cleanup() {
@@ -107,35 +136,49 @@ function download_release(){
     curl_args+=('-H' "Authorization: Bearer ${GITHUB_TOKEN}")
   fi
   
-  RELEASE=$(curl -fsSL "${curl_args[@]}" "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
-  log "INFO" "Latest release: ${RELEASE}"
+  local api_url="https://api.github.com/repos/${GITHUB_REPO}/releases/latest"
+  if [ "$VERSION" != "latest" ]; then
+    api_url="https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${VERSION}"
+  fi
 
-  # --- get the latest release download URL ---
-  log "INFO" "Fetching the latest release from ${GITHUB_REPO}..."
-  LATEST_RELEASE_URL=$(curl -sL "${curl_args[@]}" "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" |  grep "browser_download_url" | grep -o 'https://[^"]*' | grep -E '/side-eye-[0-9.]+-firmware\.zip$')
+  log "INFO" "Fetching release info from ${api_url}..."
+  local release_json
+  release_json=$(curl -fsSL "${curl_args[@]}" "$api_url")
+  
+  RELEASE=$(echo "$release_json" | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
+  log "INFO" "Selected release: ${RELEASE}"
+
+  # --- get the release download URL ---
+  LATEST_RELEASE_URL=$(echo "$release_json" |  grep "browser_download_url" | grep -o 'https://[^"]*' | grep -E '/side-eye-[0-9.]+-firmware\.zip$' | head -n 1)
 
   if [ -z "${LATEST_RELEASE_URL}" ]; then
-    log "ERRO" "Could not find the latest release zip file." >&2
+    log "ERRO" "Could not find the firmware zip file for release ${RELEASE}." >&2
     exit 1
   fi
 
   # --- download and extract the release ---
   TMP_DIR=$(mktemp -d)
-  log "INFO" "Downloading latest release from ${LATEST_RELEASE_URL}..."
-  curl -sL "${LATEST_RELEASE_URL}" -o "${TMP_DIR}/latest_release.zip"
+  log "INFO" "Downloading release from ${LATEST_RELEASE_URL}..."
+  curl -sL "${curl_args[@]}" "${LATEST_RELEASE_URL}" -o "${TMP_DIR}/release.zip"
 }
 
 function extract_files() {
   log "INFO" "Extracting bin files to ${TMP_DIR}..."
-  unzip -o "${TMP_DIR}/latest_release.zip" -d "${TMP_DIR}" "*.bin" &> /dev/null
+  unzip -o "${TMP_DIR}/release.zip" -d "${TMP_DIR}" "*.bin" &> /dev/null
 }
 
 function flash_device() {
-  log "INFO" "Ready to flash the device on port ${SERIAL_PORT}."
+  local port="${SERIAL_PORT:-/dev/ttyACM0}"
+  log "INFO" "Ready to flash the device on port ${port}."
+
+  if [ "$DRY_RUN" = true ]; then
+    log "INFO" "[DRY-RUN] esptool --chip esp32c6 --port ${port} write-flash 0x0000 bootloader.bin 0x8000 partitions.bin 0x10000 firmware.bin"
+    return 0
+  fi
 
   esptool \
     --chip esp32c6 \
-    --port "${SERIAL_PORT}" \
+    --port "${port}" \
     --baud 460800 \
     --before default-reset \
     --after hard-reset \
@@ -153,10 +196,11 @@ function flash_device() {
 # Downloads and flashes the latest release.
 function main() {
   trap cleanup EXIT
+  parse_args "$@"
   check_dependencies  
   download_release
   extract_files
-  if [[ $DEBUG ]]; then
+  if [ "${DEBUG}" = "true" ]; then
     find "${TMP_DIR}" -name "*.bin" -print
   fi
   flash_device
