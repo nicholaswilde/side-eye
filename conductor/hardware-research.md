@@ -1,5 +1,9 @@
 # Hardware Research: ESP32-C6-Geek SD Card
 
+## Official Resources
+- **Demo Package:** https://files.waveshare.com/wiki/ESP32-C6-GEEK/ESP32-C6-GEEK-Demo.zip
+- **Wiki:** https://www.waveshare.com/wiki/ESP32-C6-GEEK
+
 ## Technical Specifications
 The Waveshare ESP32-C6-Geek features an integrated microSD card slot shared on the same SPI bus as the LCD display.
 
