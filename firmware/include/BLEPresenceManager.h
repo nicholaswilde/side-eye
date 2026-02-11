@@ -8,11 +8,14 @@
 #include <BLEServer.h>
 #include <ArduinoJson.h>
 
+class SideEyeNetworkManager;
+struct SystemState;
+
 class BLEPresenceManager : public BLEAdvertisedDeviceCallbacks {
 public:
     BLEPresenceManager();
     void begin(const char* deviceId);
-    void update();
+    void update(SideEyeNetworkManager& network, SystemState& state);
     void setEnabled(bool enabled);
     bool isEnabled() const { return _enabled; }
     bool isPresent() const { return _present; }

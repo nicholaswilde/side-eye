@@ -53,6 +53,8 @@ struct SystemState {
     uint8_t alert_level = 0;
     bool has_data = false;
     bool connected = false;
+    String ble_status = "Disabled";
+    bool ble_present = false;
 
     // Configurable Settings
     uint8_t brightness = 255;

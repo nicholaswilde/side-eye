@@ -1,4 +1,5 @@
 #include "BLEPresenceManager.h"
+#include "NetworkManager.h"
 
 #define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
@@ -59,7 +60,7 @@ void BLEPresenceManager::onResult(BLEAdvertisedDevice advertisedDevice) {
     _present = true;
 }
 
-void BLEPresenceManager::update() {
+void BLEPresenceManager::update(SideEyeNetworkManager& network, SystemState& state) {
     if (!_enabled) return;
 
     // Presence smoothing / timeout
@@ -67,12 +68,17 @@ void BLEPresenceManager::update() {
         _present = false;
     }
 
-    // Only send serial message on state change
+    // Only send serial message and MQTT update on state change
     if (_present != _lastSentPresence) {
         _lastSentPresence = _present;
+        
+        // Serial message
         Serial.print("{\"type\": \"Presence\", \"data\": {\"status\": ");
         Serial.print(_present ? "true" : "false");
         Serial.println("}}");
+
+        // MQTT update
+        network.publishState(state, *this);
     }
 
     // Update BLE characteristic

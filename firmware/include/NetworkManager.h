@@ -8,6 +8,7 @@
 #include <ArduinoJson.h>
 #include <esp_mac.h>
 #include "DisplayManager.h"
+#include "BLEPresenceManager.h"
 
 #if __has_include("secrets.h")
 #include "secrets.h"
@@ -157,7 +158,7 @@ public:
         strncpy(mqtt_discovery_prefix, prefix.c_str(), sizeof(mqtt_discovery_prefix) - 1);
     }
 
-    void publishState(const SystemState& state) {
+    void publishState(const SystemState& state, const BLEPresenceManager& ble) {
         if (!_mqttClient.connected()) return;
 
         String stateTopic = String(mqtt_topic_prefix) + "/" + _deviceID + "/state";
@@ -166,6 +167,8 @@ public:
         doc["ip"] = state.ip;
         doc["mac"] = state.mac;
         doc["rssi"] = WiFi.RSSI();
+        doc["ble_status"] = ble.getStatusString();
+        doc["ble_present"] = ble.isPresent();
 
         String payload;
         serializeJson(doc, payload);
@@ -179,6 +182,8 @@ public:
         _mqttClient.publish((stateTopic + "/cpu_critical").c_str(), String(state.cpu_critical).c_str(), true);
         _mqttClient.publish((stateTopic + "/ram_warning").c_str(), String(state.ram_warning).c_str(), true);
         _mqttClient.publish((stateTopic + "/ram_critical").c_str(), String(state.ram_critical).c_str(), true);
+        _mqttClient.publish((stateTopic + "/ble_status").c_str(), ble.getStatusString(), true);
+        _mqttClient.publish((stateTopic + "/presence").c_str(), ble.isPresent() ? "present" : "away", true);
     }
 
     void reconnectMQTT() {
@@ -222,7 +227,8 @@ public:
             {"Hostname", "hostname", "mdi:label"},
             {"IP Address", "ip", "mdi:ip-network"},
             {"MAC Address", "mac", "mdi:ethernet"},
-            {"WiFi RSSI", "rssi", "mdi:wifi"}
+            {"WiFi RSSI", "rssi", "mdi:wifi"},
+            {"BLE Status", "ble_status", "mdi:bluetooth"}
         };
 
         for (const auto& s : sensors) {
@@ -245,6 +251,22 @@ public:
             serializeJson(doc, payload);
             _mqttClient.publish(topic.c_str(), payload.c_str(), true);
         }
+
+        // Presence Binary Sensor
+        JsonDocument presDoc;
+        presDoc["name"] = String("SideEye ") + _deviceID + " Presence";
+        presDoc["state_topic"] = baseTopic + "/state/presence";
+        presDoc["unique_id"] = String("side_eye_") + _deviceID + "_presence";
+        presDoc["device_class"] = "presence";
+        presDoc["payload_on"] = "present";
+        presDoc["payload_off"] = "away";
+        JsonObject presDev = presDoc["device"].to<JsonObject>();
+        presDev["identifiers"][0] = String("side_eye_") + _deviceID;
+
+        String presTopic = String(mqtt_discovery_prefix) + "/binary_sensor/side_eye_" + _deviceID + "_presence/config";
+        String presPayload;
+        serializeJson(presDoc, presPayload);
+        _mqttClient.publish(presTopic.c_str(), presPayload.c_str(), true);
 
         JsonDocument binDoc;
         binDoc["name"] = String("SideEye ") + _deviceID + " Status";

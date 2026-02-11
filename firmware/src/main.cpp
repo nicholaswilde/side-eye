@@ -86,7 +86,7 @@ void onMqttMessage(char* topic, uint8_t* payload, unsigned int length) {
 
     if (changed) {
         network.saveConfig(state, true);
-        network.publishState(state);
+        network.publishState(state, blePresence);
         display.showNotification("Settings Updated");
         needsStaticDraw = true; // Refresh UI behind the notification
     }
@@ -195,7 +195,7 @@ void handleJson(String json) {
     }
 
     if (state.connected) {
-        network.publishState(state);
+        network.publishState(state, blePresence);
     }
 
     if (strcmp(type, "GetVersion") == 0) {
@@ -268,7 +268,7 @@ void loop() {
         network.resetSettings();
     }
     network.update(lastMqttRetry);
-    blePresence.update();
+    blePresence.update(network, state);
 
     // Timeout for connection status
     static unsigned long lastDataReceived = 0;
