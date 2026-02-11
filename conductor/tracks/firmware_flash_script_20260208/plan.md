@@ -14,7 +14,7 @@ This plan outlines the steps to create a Bash script for downloading and flashin
     - [ ] Parse `--dry-run` flag
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Preparation & Scaffolding' (Protocol in workflow.md)
 
-## Phase 2: Firmware Retrieval & Environment
+## Phase 2: Firmware Retrieval & Environment [checkpoint: 1684c5c]
 - [x] Task: Implement GitHub Release discovery (2f210ce)
     - [ ] Implement logic to fetch latest tag if no version is provided
     - [ ] Construct download URL for the firmware zip artifact
@@ -24,7 +24,7 @@ This plan outlines the steps to create a Bash script for downloading and flashin
     - [x] Extract `bootloader.bin`, `partitions.bin`, and `firmware.bin`
 - [x] Task: Implement Cleanup Logic (2a8135f)
     - [x] Ensure the temporary directory is removed on exit (using `trap`)
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Firmware Retrieval & Environment' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Firmware Retrieval & Environment' (Protocol in workflow.md) (1684c5c)
 
 ## Phase 3: Hardware Interface & Flashing
 - [ ] Task: Implement Port Auto-detection
