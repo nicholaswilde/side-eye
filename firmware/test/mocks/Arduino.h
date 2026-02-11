@@ -10,6 +10,8 @@
 #define OUTPUT 1
 #define INPUT_PULLUP 2
 
+#define FSPI 1
+
 extern unsigned long _mock_millis;
 inline unsigned long millis() { return _mock_millis; }
 inline void delay(unsigned long ms) { _mock_millis += ms; }

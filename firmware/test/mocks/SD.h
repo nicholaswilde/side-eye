@@ -10,7 +10,7 @@
 
 class SDClass {
 public:
-    bool begin(uint8_t ssPin, SPIClass &spi) { return true; }
+    bool begin(uint8_t ssPin, SPIClass &spi, uint32_t frequency = 4000000) { return true; }
     
     File open(const char* path, const char* mode = FILE_READ) { 
         if (std::string(path) == "/") {
