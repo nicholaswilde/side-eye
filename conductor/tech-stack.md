@@ -39,6 +39,7 @@
 ## Build & Task Automation
 - **Task Runner:** [go-task](https://taskfile.dev/) (`Taskfile.yml`)
 - **Usage:** Used for all common project operations including building, testing, linting, and flashing.
+- **Flash Script:** Bash-based utility (`flash.sh`) for automated firmware deployment, leveraging `curl`, `grep`, `unzip`, and `esptool`.
 - **Cross-Compilation:** [`cross`](https://github.com/cross-rs/cross) for multi-architecture builds.
   - **Supported Architectures:**
     - `x86_64-unknown-linux-gnu` (AMD64)

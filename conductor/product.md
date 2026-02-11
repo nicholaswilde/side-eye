@@ -22,6 +22,7 @@ SideEye is a minimalist, USB-powered hardware monitor designed to provide Linux 
 - **Real-Time Telemetry:** Syncs rich system stats (CPU %, RAM bar, Disk usage, Uptime, Thermal info, GPU Load) every 1 second in addition to static identity info.
 - **Historical Trends:** Dedicated network page with real-time sparkline graphs for tracking download and upload throughput over time.
 - **Integrated Release Workflow:** Unified GitHub Releases containing host binaries and zipped firmware artifacts for streamlined updates.
+- **Streamlined Updates:** A native Linux flash script allows users to update firmware directly from GitHub releases with zero manual downloads or extraction.
 - **Intelligent UI State:** Clean "Waiting for Host" mode when idle, automatically transitioning to a detailed dashboard upon connection.
 - **Orientation Support:** Physical button toggles screen rotation by 180 degrees to support any USB port orientation.
 - **USB CDC Communication:** Uses native USB serial for power and data, requiring no extra cables or HDMI ports.
