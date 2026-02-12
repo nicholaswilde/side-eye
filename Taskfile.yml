@@ -67,6 +67,12 @@ tasks:
     desc: Build both Host and Firmware
     deps: [host:build, firmware:build]
 
+  clean:
+    desc: Clean all build artifacts
+    deps: [host:clean, firmware:clean]
+    cmds:
+      - rm -rf coverage coverage_sh.xml lcov.info coverage.xml
+
   check:
     desc: Run all checks (format, lint, test)
     deps: [host:check, firmware:check]
@@ -158,6 +164,12 @@ tasks:
     cmds:
       - cargo update
 
+  host:clean:
+    desc: Clean Host build artifacts
+    dir: host
+    cmds:
+      - cargo clean
+
   host:coverage:
     desc: Run code coverage for the Host project
     dir: host
@@ -237,6 +249,12 @@ tasks:
     dir: firmware
     cmds:
       - pio test -e native
+
+  firmware:clean:
+    desc: Clean Firmware build artifacts
+    dir: firmware
+    cmds:
+      - pio run -t clean
 
   firmware:coverage:
     desc: Run Firmware unit tests and generate coverage report using gcovr
