@@ -1,0 +1,17 @@
+{
+    "colors": {
+        "base": "0x0000",
+        "text": "0x07E0",
+        "subtext": "0x05A0",
+        "overlay": "0x18C3",
+        "accent": "0xF81F",
+        "green": "0x07E0",
+        "yellow": "0xFFE0",
+        "red": "0xF800",
+        "blue": "0x001F",
+        "peach": "0xFCA0",
+        "sapphire": "0x041F",
+        "teal": "0x07FF",
+        "flamingo": "0xF81F"
+    }
+}

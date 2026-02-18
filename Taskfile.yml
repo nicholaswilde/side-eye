@@ -52,6 +52,12 @@ tasks:
       - rustup component add llvm-tools-preview
       - cargo install cargo-llvm-cov
 
+  deps:dev:
+    desc: "Install development dependencies using uv"
+    cmds:
+      - uv venv
+      - uv pip install Pillow
+
   default:
     desc: List available tasks
     cmds:

@@ -87,6 +87,13 @@ Or trigger a manual GitHub update check:
 mosquitto_pub -h <MQTT_BROKER_IP> -t "side-eye/<DEVICE_ID>/set/check_update" -m "1"
 ```
 
+#### Change UI Theme via MQTT
+Switch to a custom theme stored on the SD card (e.g., `/themes/cyberpunk`):
+
+```bash
+mosquitto_pub -h <MQTT_BROKER_IP> -t "side-eye/<DEVICE_ID>/set/theme" -m "/themes/cyberpunk"
+```
+
 ### 5. Web OTA Updates
 Navigate to `http://<DEVICE_IP>/update` in your browser to upload a new firmware binary directly. The device will show a visual progress bar on the LCD during the process.
 
@@ -145,7 +152,9 @@ SideEye supports automatic **MQTT Discovery**, making it easy to add to your Hom
 - **Linux Packaging:** Officially supports Homebrew, `.deb` (Debian/Ubuntu), and `.rpm` (Fedora/RHEL) packages, plus systemd integration for auto-start.
 
 ### ESP32-C6 Firmware
-- **Catppuccin UI:** Polished, color-coded interface using the Catppuccin Mocha color palette.
+- **Custom SD Card Theming:** Load JPEG backgrounds and custom color schemes from the integrated SD card.
+- **Custom Boot Screen:** Display a personalized `boot.jpg` from the SD root during startup.
+- **Catppuccin UI:** Polished, color-coded default interface using the Catppuccin Mocha color palette.
 - **Paged UI:** Cycles through **Identity**, **Resources** (CPU/RAM bars), **Status** (Disk/Uptime), **SD Card**, **Thermal** (CPU Temp/GPU Load), and **Network** pages.
 - **Offline Access:** The **SD Card** page remains accessible via button cycle even when disconnected from the host, showing local storage usage.
 - **Intelligent UI State:** Clean "Waiting..." mode when idle, automatically transitioning to a detailed dashboard upon host connection.
@@ -161,6 +170,16 @@ SideEye supports automatic **MQTT Discovery**, making it easy to add to your Hom
   - **Visual Feedback:** Dedicated LCD update screen with real-time progress bar.
   - **Persistence:** Automatic post-update "Success" notification on boot; LittleFS settings are preserved.
 - **Automated Versioning:** Firmware version is automatically synchronized with the host's `Cargo.toml` during build.
+
+#### SD Card Theme Structure
+Themes are stored in folders under `/themes/`. A theme directory can contain:
+- `theme.json`: Color overrides in hex (e.g., `{"colors": {"base": "0x0000", "text": "0xFFFF"}}`).
+- `background.jpg`: Default background for all pages.
+- `<page_name>.jpg`: Page-specific backgrounds (e.g., `identity.jpg`, `resources.jpg`).
+- `/boot.jpg`: (SD root only) Replaces the default booting screen.
+
+> [!TIP]
+> Use the **SD Card Synchronization** feature to automatically manage your themes. Simply place your theme folders inside your local sync directory (configured in `side-eye.toml`), and they will be mirrored to the SideEye's SD card root.
 
 ---
 
