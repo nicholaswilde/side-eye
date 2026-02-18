@@ -9,6 +9,8 @@
 #include <esp_mac.h>
 #include <WebServer.h>
 #include <ElegantOTA.h>
+#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include "DisplayManager.h"
 #include "BLEPresenceManager.h"
 
@@ -146,6 +148,35 @@ public:
         });
 
         _server.begin();
+    }
+
+    void checkForUpdate() {
+        if (WiFi.status() != WL_CONNECTED) return;
+
+        WiFiClientSecure client;
+        client.setInsecure(); // GitHub API uses SSL
+        
+        HTTPClient http;
+        String url = "https://api.github.com/repos/nicholaswilde/side-eye/releases/latest";
+        
+        http.begin(client, url);
+        http.setUserAgent("SideEye-Device");
+        int httpCode = http.GET();
+        
+        if (httpCode == HTTP_CODE_OK) {
+            String payload = http.getString();
+            JsonDocument doc;
+            DeserializationError error = deserializeJson(doc, payload);
+            
+            if (!error) {
+                String latestVersion = doc["tag_name"] | "";
+                if (latestVersion.length() > 0 && latestVersion != _version) {
+                    Serial.println("New version available: " + latestVersion);
+                    // For now, just log it. Automated download comes in next task.
+                }
+            }
+        }
+        http.end();
     }
 
     void saveConfig(const SystemState& state, bool shouldSave) {
