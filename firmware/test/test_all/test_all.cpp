@@ -191,6 +191,21 @@ void test_display_background_fallback() {
 #endif
 }
 
+void test_display_theme_json_parser() {
+#ifdef NATIVE
+    DisplayManager display;
+    
+    // Theme JSON doesn't exist - should stay default
+    TEST_ASSERT_FALSE(display.loadTheme("/no-theme"));
+    
+    // Theme JSON exists
+    _mock_sd_files["/themes/test/theme.json"] = "{\"colors\":{\"base\":\"0xFF00\",\"text\":\"0x00FF\"}}";
+    TEST_ASSERT_TRUE(display.loadTheme("/themes/test"));
+    TEST_ASSERT_EQUAL(0xFF00, display.active_theme.base);
+    TEST_ASSERT_EQUAL(0x00FF, display.active_theme.text);
+#endif
+}
+
 // --- Native-Only Tests (Require Mocks) ---
 
 #ifdef NATIVE
@@ -578,6 +593,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_draw_update);
     RUN_TEST(test_display_draw_jpg);
     RUN_TEST(test_display_background_fallback);
+    RUN_TEST(test_display_theme_json_parser);
     RUN_TEST(test_display_backlight_pwm);
     RUN_TEST(test_sync_manager_full);
     RUN_TEST(test_sync_manager_single_file);

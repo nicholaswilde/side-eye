@@ -105,7 +105,7 @@ public:
         }
         gfx.begin();
         gfx.setRotation(currentRotation);
-        gfx.fillScreen(CATPPUCCIN_BASE);
+        gfx.fillScreen(active_theme.base);
 
         TJpgDec.setCallback(tjpg_callback);
         TJpgDec.setJpgScale(1);
@@ -115,6 +115,42 @@ public:
     bool drawJpg(const char* path, int x, int y) {
         if (!SD.exists(path)) return false;
         TJpgDec.drawSdJpg(x, y, path);
+        return true;
+    }
+
+    bool loadTheme(const String& themePath) {
+        String jsonPath = themePath + "/theme.json";
+        if (!SD.exists(jsonPath.c_str())) {
+            // Reset to defaults
+            active_theme = ThemeColors();
+            return false;
+        }
+
+        File file = SD.open(jsonPath.c_str());
+        if (!file) return false;
+
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, file);
+        file.close();
+
+        if (error) return false;
+
+        if (doc.containsKey("colors")) {
+            JsonObject colors = doc["colors"];
+            if (colors.containsKey("base")) active_theme.base = (uint16_t)strtol(colors["base"] | "0x1E1E2E", nullptr, 16);
+            if (colors.containsKey("text")) active_theme.text = (uint16_t)strtol(colors["text"] | "0xCDD6F4", nullptr, 16);
+            if (colors.containsKey("subtext")) active_theme.subtext = (uint16_t)strtol(colors["subtext"] | "0xA6ADC8", nullptr, 16);
+            if (colors.containsKey("overlay")) active_theme.overlay = (uint16_t)strtol(colors["overlay"] | "0x313244", nullptr, 16);
+            if (colors.containsKey("accent")) active_theme.accent = (uint16_t)strtol(colors["accent"] | "0xCBA6F7", nullptr, 16);
+            if (colors.containsKey("green")) active_theme.green = (uint16_t)strtol(colors["green"] | "0xA6E3A1", nullptr, 16);
+            if (colors.containsKey("yellow")) active_theme.yellow = (uint16_t)strtol(colors["yellow"] | "0xF9E2AF", nullptr, 16);
+            if (colors.containsKey("red")) active_theme.red = (uint16_t)strtol(colors["red"] | "0xF38BA8", nullptr, 16);
+            if (colors.containsKey("blue")) active_theme.blue = (uint16_t)strtol(colors["blue"] | "0x89B4FA", nullptr, 16);
+            if (colors.containsKey("peach")) active_theme.peach = (uint16_t)strtol(colors["peach"] | "0xFAB387", nullptr, 16);
+            if (colors.containsKey("sapphire")) active_theme.sapphire = (uint16_t)strtol(colors["sapphire"] | "0x74C7EC", nullptr, 16);
+            if (colors.containsKey("teal")) active_theme.teal = (uint16_t)strtol(colors["teal"] | "0x94E2D5", nullptr, 16);
+            if (colors.containsKey("flamingo")) active_theme.flamingo = (uint16_t)strtol(colors["flamingo"] | "0xF2CDCD", nullptr, 16);
+        }
         return true;
     }
 
@@ -151,16 +187,16 @@ public:
     }
 
     void drawBanner(const char* title, uint8_t alert_level = 0) {
-        uint16_t bg_color = CATPPUCCIN_MAUVE;
+        uint16_t bg_color = active_theme.accent;
         if (alert_level == 1) {
-            bg_color = CATPPUCCIN_YELLOW;
+            bg_color = active_theme.yellow;
         } else if (alert_level >= 2) {
             // Flash red/base if critical
-            bg_color = ((millis() / 500) % 2 == 0) ? CATPPUCCIN_RED : CATPPUCCIN_BASE;
+            bg_color = ((millis() / 500) % 2 == 0) ? active_theme.red : active_theme.base;
         }
 
         gfx.fillRect(0, 0, 240, 20, bg_color);
-        gfx.setTextColor(bg_color == CATPPUCCIN_BASE ? CATPPUCCIN_RED : CATPPUCCIN_CRUST);
+        gfx.setTextColor(bg_color == active_theme.base ? active_theme.red : CATPPUCCIN_CRUST);
         gfx.setTextSize(1);
         
         int16_t x1, y1;
@@ -174,25 +210,25 @@ public:
         int x = (currentRotation == 1) ? 225 : 15;
         int y = 10;
         if (WiFi.status() == WL_CONNECTED) {
-            gfx.fillCircle(x, y, 3, CATPPUCCIN_GREEN);
+            gfx.fillCircle(x, y, 3, active_theme.green);
         } else {
-            gfx.fillCircle(x, y, 3, CATPPUCCIN_RED);
+            gfx.fillCircle(x, y, 3, active_theme.red);
         }
     }
 
     void drawProgressBar(int x, int y, int w, int h, float percent, uint16_t color) {
-        gfx.drawRect(x, y, w, h, CATPPUCCIN_SURFACE0);
+        gfx.drawRect(x, y, w, h, active_theme.overlay);
         int fill_w = (int)((w - 2) * (percent / 100.0));
         if (fill_w < 0) fill_w = 0;
         if (fill_w > w - 2) fill_w = w - 2;
-        gfx.fillRect(x + 1, y + 1, w - 2, h - 2, CATPPUCCIN_BASE);
+        gfx.fillRect(x + 1, y + 1, w - 2, h - 2, active_theme.base);
         gfx.fillRect(x + 1, y + 1, fill_w, h - 2, color);
     }
 
     template <typename T, size_t Size>
     void drawSparkline(int x, int y, int w, int h, const HistoryBuffer<T, Size>& buffer, uint16_t color) {
-        gfx.drawRect(x, y, w, h, CATPPUCCIN_SURFACE0);
-        gfx.fillRect(x + 1, y + 1, w - 2, h - 2, CATPPUCCIN_BASE);
+        gfx.drawRect(x, y, w, h, active_theme.overlay);
+        gfx.fillRect(x + 1, y + 1, w - 2, h - 2, active_theme.base);
 
         size_t count = buffer.count();
         if (count < 2) return;
@@ -218,29 +254,29 @@ public:
 
     void drawIdentityPage(const SystemState& state, bool labelsOnly) {
         if (labelsOnly) {
-            gfx.setTextColor(CATPPUCCIN_BLUE);
+            gfx.setTextColor(active_theme.blue);
             gfx.setCursor(start_x, start_y + line_h * 1.5);
             gfx.print("Host: ");
 
             gfx.setCursor(start_x, start_y + line_h * 2.5);
-            gfx.setTextColor(CATPPUCCIN_GREEN);
+            gfx.setTextColor(active_theme.green);
             gfx.print("IP:   ");
 
             gfx.setCursor(start_x, start_y + line_h * 3.5);
-            gfx.setTextColor(CATPPUCCIN_FLAMINGO);
+            gfx.setTextColor(active_theme.flamingo);
             gfx.print("MAC:  ");
         } else {
-            gfx.setTextColor(CATPPUCCIN_TEXT);
+            gfx.setTextColor(active_theme.text);
             
-            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 1.5));
             gfx.println(state.hostname);
 
-            gfx.fillRect(value_x, (int)(start_y + line_h * 2.5), 180, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 2.5), 180, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 2.5));
             gfx.println(state.ip);
 
-            gfx.fillRect(value_x, (int)(start_y + line_h * 3.5), 180, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 3.5), 180, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 3.5));
             gfx.println(state.mac);
         }
@@ -249,29 +285,29 @@ public:
     void drawResourcesPage(const SystemState& state, bool labelsOnly) {
         if (labelsOnly) {
             gfx.setCursor(start_x, start_y + line_h * 1.5);
-            gfx.setTextColor(CATPPUCCIN_PEACH);
+            gfx.setTextColor(active_theme.peach);
             gfx.print("CPU:  ");
 
             gfx.setCursor(start_x, start_y + line_h * 3.5);
-            gfx.setTextColor(CATPPUCCIN_SAPPHIRE);
+            gfx.setTextColor(active_theme.sapphire);
             gfx.print("RAM:  ");
         } else {
-            gfx.setTextColor(CATPPUCCIN_TEXT);
+            gfx.setTextColor(active_theme.text);
 
             // CPU
-            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 100, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 100, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 1.5));
             gfx.print(state.cpu_percent, 1);
             gfx.println("%");
-            uint16_t cpu_col = (state.cpu_percent > 80) ? CATPPUCCIN_RED : (state.cpu_percent > 50) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+            uint16_t cpu_col = (state.cpu_percent > 80) ? active_theme.red : (state.cpu_percent > 50) ? active_theme.yellow : active_theme.green;
             drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, state.cpu_percent, cpu_col);
 
             // RAM
-            gfx.fillRect(value_x, (int)(start_y + line_h * 3.5), 180, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 3.5), 180, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 3.5));
             gfx.printf("%llu / %llu MB", state.ram_used / 1024 / 1024, state.ram_total / 1024 / 1024);
             float ram_p = (state.ram_total > 0) ? (float)state.ram_used / state.ram_total * 100.0 : 0;
-            uint16_t ram_col = (ram_p > 80) ? CATPPUCCIN_RED : (ram_p > 50) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+            uint16_t ram_col = (ram_p > 80) ? active_theme.red : (ram_p > 50) ? active_theme.yellow : active_theme.green;
             drawProgressBar(start_x, start_y + line_h * 4.5, 220, 8, ram_p, ram_col);
         }
     }
@@ -279,25 +315,25 @@ public:
     void drawStatusPage(const SystemState& state, bool labelsOnly) {
         if (labelsOnly) {
             gfx.setCursor(start_x, start_y + line_h * 1.5);
-            gfx.setTextColor(CATPPUCCIN_TEAL);
+            gfx.setTextColor(active_theme.teal);
             gfx.print("Disk: ");
 
             gfx.setCursor(start_x, start_y + line_h * 3.5);
-            gfx.setTextColor(CATPPUCCIN_SUBTEXT0);
+            gfx.setTextColor(active_theme.subtext);
             gfx.print("Uptime: ");
         } else {
-            gfx.setTextColor(CATPPUCCIN_TEXT);
+            gfx.setTextColor(active_theme.text);
 
             // Disk
-            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 1.5));
             gfx.printf("%llu / %llu GB", state.disk_used / 1024 / 1024 / 1024, state.disk_total / 1024 / 1024 / 1024);
             float disk_p = (state.disk_total > 0) ? (float)state.disk_used / state.disk_total * 100.0 : 0;
-            uint16_t disk_col = (disk_p > 80) ? CATPPUCCIN_RED : (disk_p > 50) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+            uint16_t disk_col = (disk_p > 80) ? active_theme.red : (disk_p > 50) ? active_theme.yellow : active_theme.green;
             drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, disk_p, disk_col);
 
             // Uptime
-            gfx.fillRect(value_x + 20, (int)(start_y + line_h * 3.5), 160, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x + 20, (int)(start_y + line_h * 3.5), 160, 8, active_theme.base);
             uint32_t h_up = state.uptime / 3600;
             uint32_t m_up = (state.uptime % 3600) / 60;
             gfx.setCursor(value_x + 20, (int)(start_y + line_h * 3.5));
@@ -308,27 +344,27 @@ public:
     void drawSDPage(const SystemState& state, bool labelsOnly) {
         if (labelsOnly) {
             gfx.setCursor(start_x, start_y + line_h * 1.5);
-            gfx.setTextColor(CATPPUCCIN_MAUVE);
+            gfx.setTextColor(active_theme.accent);
             gfx.print("SD Card:");
 
             gfx.setCursor(start_x, start_y + line_h * 3.5);
-            gfx.setTextColor(CATPPUCCIN_YELLOW);
+            gfx.setTextColor(active_theme.yellow);
             gfx.print("Sync:");
         } else {
-            gfx.setTextColor(CATPPUCCIN_TEXT);
+            gfx.setTextColor(active_theme.text);
 
             // SD Storage
             uint64_t total = SD.totalBytes();
             uint64_t used = SD.usedBytes();
-            gfx.fillRect(value_x + 20, (int)(start_y + line_h * 1.5), 160, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x + 20, (int)(start_y + line_h * 1.5), 160, 8, active_theme.base);
             gfx.setCursor(value_x + 20, (int)(start_y + line_h * 1.5));
             gfx.printf("%llu / %llu MB", used / 1024 / 1024, total / 1024 / 1024);
             // cppcheck-suppress knownConditionTrueFalse
             float sd_p = (total > 0) ? (float)used / total * 100.0 : 0;
-            drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, sd_p, CATPPUCCIN_MAUVE);
+            drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, sd_p, active_theme.accent);
 
             // Sync Status
-            gfx.fillRect(value_x + 10, (int)(start_y + line_h * 3.5), 170, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x + 10, (int)(start_y + line_h * 3.5), 170, 8, active_theme.base);
             gfx.setCursor(value_x + 10, (int)(start_y + line_h * 3.5));
             if (state.connected) {
                 gfx.print(state.sd_sync_status);
@@ -341,29 +377,29 @@ public:
     void drawThermalPage(const SystemState& state, bool labelsOnly) {
         if (labelsOnly) {
             gfx.setCursor(start_x, start_y + line_h * 1.5);
-            gfx.setTextColor(CATPPUCCIN_RED);
+            gfx.setTextColor(active_theme.red);
             gfx.print("Temp: ");
 
             gfx.setCursor(start_x, start_y + line_h * 3.5);
-            gfx.setTextColor(CATPPUCCIN_GREEN);
+            gfx.setTextColor(active_theme.green);
             gfx.print("GPU:  ");
         } else {
-            gfx.setTextColor(CATPPUCCIN_TEXT);
+            gfx.setTextColor(active_theme.text);
 
             // Thermal
-            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 100, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 100, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 1.5));
             gfx.print(state.thermal_c, 1);
             gfx.println(" C");
-            uint16_t temp_col = (state.thermal_c > 80) ? CATPPUCCIN_RED : (state.thermal_c > 65) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+            uint16_t temp_col = (state.thermal_c > 80) ? active_theme.red : (state.thermal_c > 65) ? active_theme.yellow : active_theme.green;
             drawProgressBar(start_x, start_y + line_h * 2.5, 220, 8, state.thermal_c, temp_col);
 
             // GPU
-            gfx.fillRect(value_x, (int)(start_y + line_h * 3.5), 100, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 3.5), 100, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 3.5));
             gfx.print(state.gpu_percent, 1);
             gfx.println("%");
-            uint16_t gpu_col = (state.gpu_percent > 80) ? CATPPUCCIN_RED : (state.gpu_percent > 50) ? CATPPUCCIN_YELLOW : CATPPUCCIN_GREEN;
+            uint16_t gpu_col = (state.gpu_percent > 80) ? active_theme.red : (state.gpu_percent > 50) ? active_theme.yellow : active_theme.green;
             drawProgressBar(start_x, start_y + line_h * 4.5, 220, 8, state.gpu_percent, gpu_col);
         }
     }
@@ -371,26 +407,26 @@ public:
     void drawNetworkPage(const SystemState& state, bool labelsOnly) {
         if (labelsOnly) {
             gfx.setCursor(start_x, start_y + line_h * 1.5);
-            gfx.setTextColor(CATPPUCCIN_GREEN);
+            gfx.setTextColor(active_theme.green);
             gfx.print("Down:");
 
             gfx.setCursor(start_x, start_y + line_h * 4.5);
-            gfx.setTextColor(CATPPUCCIN_MAUVE);
+            gfx.setTextColor(active_theme.accent);
             gfx.print("Up:");
         } else {
-            gfx.setTextColor(CATPPUCCIN_TEXT);
+            gfx.setTextColor(active_theme.text);
 
             // Download
-            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 1.5), 180, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 1.5));
             gfx.print(formatSpeed(state.net_down));
-            drawSparkline(start_x, start_y + line_h * 2.5, 220, 20, state.net_down_history, CATPPUCCIN_GREEN);
+            drawSparkline(start_x, start_y + line_h * 2.5, 220, 20, state.net_down_history, active_theme.green);
 
             // Upload
-            gfx.fillRect(value_x, (int)(start_y + line_h * 4.5), 180, 8, CATPPUCCIN_BASE);
+            gfx.fillRect(value_x, (int)(start_y + line_h * 4.5), 180, 8, active_theme.base);
             gfx.setCursor(value_x, (int)(start_y + line_h * 4.5));
             gfx.print(formatSpeed(state.net_up));
-            drawSparkline(start_x, start_y + line_h * 5.5, 220, 20, state.net_up_history, CATPPUCCIN_MAUVE);
+            drawSparkline(start_x, start_y + line_h * 5.5, 220, 20, state.net_up_history, active_theme.accent);
         }
     }
 
@@ -415,7 +451,7 @@ public:
 
         if (!drawJpg(path.c_str(), 0, 0)) {
             // Fallback to solid color if image fails or doesn't exist
-            gfx.fillScreen(CATPPUCCIN_BASE);
+            gfx.fillScreen(active_theme.base);
         }
 
         drawBanner("SIDEEYE MONITOR", state.alert_level);
@@ -423,7 +459,7 @@ public:
 
         gfx.setTextSize(1);
         
-        gfx.setTextColor(CATPPUCCIN_YELLOW);
+        gfx.setTextColor(active_theme.yellow);
         gfx.setCursor(start_x, start_y);
         gfx.print("Status:");
 
@@ -453,13 +489,13 @@ public:
         gfx.setTextSize(1);
 
         // Status value
-        gfx.fillRect(value_x, start_y, 140, 8, CATPPUCCIN_BASE);
+        gfx.fillRect(value_x, start_y, 140, 8, active_theme.base);
         gfx.setCursor(value_x, start_y);
         if (state.connected) {
-            gfx.setTextColor(CATPPUCCIN_GREEN);
+            gfx.setTextColor(active_theme.green);
             gfx.println("Connected");
         } else {
-            gfx.setTextColor(CATPPUCCIN_PEACH);
+            gfx.setTextColor(active_theme.peach);
             gfx.println("Waiting...");
         }
 
@@ -477,7 +513,7 @@ public:
     }
 
     void drawBootScreen(const char* version) {
-        gfx.fillScreen(CATPPUCCIN_BASE);
+        gfx.fillScreen(active_theme.base);
         drawBanner("BOOTING...");
         
         int16_t x1, y1;
@@ -486,7 +522,7 @@ public:
         
         // Draw SideEye name
         gfx.setTextSize(2);
-        gfx.setTextColor(CATPPUCCIN_MAUVE);
+        gfx.setTextColor(active_theme.accent);
         const char* name = "SideEye";
         gfx.getTextBounds(name, 0, 0, &x1, &y1, &w, &h);
         gfx.setCursor((screen_w - w) / 2, 55);
@@ -494,7 +530,7 @@ public:
         
         // Draw Version
         gfx.setTextSize(1);
-        gfx.setTextColor(CATPPUCCIN_SUBTEXT0);
+        gfx.setTextColor(active_theme.subtext);
         char v_str[32];
         snprintf(v_str, sizeof(v_str), "v%s", version);
         gfx.getTextBounds(v_str, 0, 0, &x1, &y1, &w, &h);
@@ -503,32 +539,32 @@ public:
     }
 
     void drawConfigMode(const char* apName, const String& ip) {
-        gfx.fillScreen(CATPPUCCIN_BASE);
+        gfx.fillScreen(active_theme.base);
         drawBanner("SETUP MODE", 1);
         
-        gfx.setTextColor(CATPPUCCIN_TEXT);
+        gfx.setTextColor(active_theme.text);
         gfx.setTextSize(1);
         gfx.setCursor(15, 45);
         gfx.println("Connect to WiFi AP:");
         
-        gfx.setTextColor(CATPPUCCIN_YELLOW);
+        gfx.setTextColor(active_theme.yellow);
         gfx.setCursor(15, 60);
         gfx.println(apName);
         
-        gfx.setTextColor(CATPPUCCIN_TEXT);
+        gfx.setTextColor(active_theme.text);
         gfx.setCursor(15, 90);
         gfx.print("Then visit:");
         
-        gfx.setTextColor(CATPPUCCIN_GREEN);
+        gfx.setTextColor(active_theme.green);
         gfx.setCursor(90, 90);
         gfx.println(ip);
     }
 
     void drawWiFiOnline() {
-        gfx.fillScreen(CATPPUCCIN_BASE);
+        gfx.fillScreen(active_theme.base);
         drawBanner("CONNECTED");
         gfx.setCursor(15, start_y);
-        gfx.setTextColor(CATPPUCCIN_GREEN);
+        gfx.setTextColor(active_theme.green);
         gfx.println("WiFi Online!");
     }
 
@@ -539,10 +575,10 @@ public:
         uint16_t box_x = (240 - box_w) / 2;
         uint16_t box_y = (135 - box_h) / 2;
 
-        gfx.fillRect(box_x, box_y, box_w, box_h, CATPPUCCIN_SURFACE0);
-        gfx.drawRect(box_x, box_y, box_w, box_h, CATPPUCCIN_MAUVE);
+        gfx.fillRect(box_x, box_y, box_w, box_h, active_theme.overlay);
+        gfx.drawRect(box_x, box_y, box_w, box_h, active_theme.accent);
         
-        gfx.setTextColor(CATPPUCCIN_TEXT);
+        gfx.setTextColor(active_theme.text);
         gfx.setTextSize(1);
         
         int16_t x1, y1;
@@ -556,33 +592,33 @@ public:
 
     void drawResetScreen(int secondsRemaining, bool forceRedraw = false) {
         if (forceRedraw) {
-            gfx.fillScreen(CATPPUCCIN_BASE);
+            gfx.fillScreen(active_theme.base);
             drawBanner("FACTORY RESET", 0); // Use alert 0 to avoid banner flashing
             
-            gfx.setTextColor(CATPPUCCIN_TEXT);
+            gfx.setTextColor(active_theme.text);
             gfx.setTextSize(1);
             gfx.setCursor(15, 50);
             gfx.println("Resetting in:");
             
-            gfx.setTextColor(CATPPUCCIN_SUBTEXT0);
+            gfx.setTextColor(active_theme.subtext);
             gfx.setTextSize(1);
             gfx.setCursor(15, 115);
             gfx.println("Release to cancel");
         }
         
         // Clear and update only the number area
-        gfx.fillRect(100, 75, 40, 25, CATPPUCCIN_BASE);
-        gfx.setTextColor(CATPPUCCIN_RED);
+        gfx.fillRect(100, 75, 40, 25, active_theme.base);
+        gfx.setTextColor(active_theme.red);
         gfx.setTextSize(3);
         gfx.setCursor(100, 75);
         gfx.println(secondsRemaining);
     }
 
     void drawUpdateScreen(int progress, const char* status) {
-        gfx.fillScreen(CATPPUCCIN_BASE);
+        gfx.fillScreen(active_theme.base);
         drawBanner("FIRMWARE UPDATE", 1);
         
-        gfx.setTextColor(CATPPUCCIN_TEXT);
+        gfx.setTextColor(active_theme.text);
         gfx.setTextSize(1);
         
         int16_t x1, y1;
@@ -591,15 +627,31 @@ public:
         gfx.setCursor((240 - w) / 2, 50);
         gfx.println(status);
         
-        drawProgressBar(20, 80, 200, 20, progress, CATPPUCCIN_GREEN);
+        drawProgressBar(20, 80, 200, 20, progress, active_theme.green);
         
         char p_str[10];
         snprintf(p_str, sizeof(p_str), "%d%%", progress);
         gfx.getTextBounds(p_str, 0, 0, &x1, &y1, &w, &h);
         gfx.setCursor((240 - w) / 2, 110);
-        gfx.setTextColor(CATPPUCCIN_SUBTEXT0);
+        gfx.setTextColor(active_theme.subtext);
         gfx.println(p_str);
     }
+
+    struct ThemeColors {
+        uint16_t base = CATPPUCCIN_BASE;
+        uint16_t text = CATPPUCCIN_TEXT;
+        uint16_t subtext = CATPPUCCIN_SUBTEXT0;
+        uint16_t overlay = CATPPUCCIN_SURFACE0;
+        uint16_t accent = CATPPUCCIN_MAUVE;
+        uint16_t green = CATPPUCCIN_GREEN;
+        uint16_t yellow = CATPPUCCIN_YELLOW;
+        uint16_t red = CATPPUCCIN_RED;
+        uint16_t blue = CATPPUCCIN_BLUE;
+        uint16_t peach = CATPPUCCIN_PEACH;
+        uint16_t sapphire = CATPPUCCIN_SAPPHIRE;
+        uint16_t teal = CATPPUCCIN_TEAL;
+        uint16_t flamingo = CATPPUCCIN_FLAMINGO;
+    } active_theme;
 
 private:
     static DisplayManager* _instance;
