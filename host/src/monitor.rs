@@ -59,6 +59,7 @@ pub enum DeviceMessage {
     Version { version: String },
     FileList(Vec<FileInfo>),
     OperationResult { success: bool, message: String },
+    Presence { status: bool },
 }
 
 pub trait SystemDataProvider {
@@ -392,6 +393,11 @@ mod tests {
         };
         let json_res = serde_json::to_string(&msg_res).unwrap();
         assert!(json_res.contains("OperationResult"));
+
+        let msg_pres = DeviceMessage::Presence { status: true };
+        let json_pres = serde_json::to_string(&msg_pres).unwrap();
+        assert!(json_pres.contains("Presence"));
+        assert!(json_pres.contains("true"));
     }
 
     #[test]

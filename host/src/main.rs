@@ -4,9 +4,11 @@ use side_eye_host::sync;
 
 use anyhow::{Context, Result};
 use clap::Parser;
+use notify_rust::Notification;
 use serialport::{SerialPortType, UsbPortInfo};
 use std::{
     collections::HashMap,
+    io::{BufRead, BufReader},
     sync::{Arc, Mutex},
     thread,
     time::Duration,
@@ -272,21 +274,48 @@ fn discover_and_connect(
 
                     thread::spawn(move || {
                         let mut serial = serial;
-                        while let Ok(payload) = rx.recv() {
-                            let mut final_payload = String::with_capacity(payload.len() + 1);
-                            final_payload.push('\n');
-                            final_payload.push_str(&payload);
+                        let serial_read = serial.try_clone().expect("Failed to clone serial port");
+                        let port_name_read = port_name_inner.clone();
 
-                            if let Err(e) = serial.write_all(final_payload.as_bytes()) {
-                                if verbose {
-                                    eprintln!("Write error on {}: {}", port_name_inner, e);
+                        // Write thread
+                        let write_handle = thread::spawn(move || {
+                            while let Ok(payload) = rx.recv() {
+                                let mut final_payload = String::with_capacity(payload.len() + 1);
+                                final_payload.push('\n');
+                                final_payload.push_str(&payload);
+
+                                if let Err(e) = serial.write_all(final_payload.as_bytes()) {
+                                    if verbose {
+                                        eprintln!("Write error on {}: {}", port_name_inner, e);
+                                    }
+                                    break;
                                 }
-                                break;
+                                if serial.flush().is_err() {
+                                    break;
+                                }
                             }
-                            if serial.flush().is_err() {
-                                break;
+                        });
+
+                        // Read thread
+                        let mut reader = BufReader::new(serial_read);
+                        let mut line = String::new();
+                        while reader.read_line(&mut line).is_ok() {
+                            let trimmed = line.trim();
+                            if !trimmed.is_empty() {
+                                if verbose {
+                                    println!("Received from {}: {}", port_name_read, trimmed);
+                                }
+
+                                if let Ok(msg) =
+                                    serde_json::from_str::<monitor::DeviceMessage>(trimmed)
+                                {
+                                    handle_device_message(msg);
+                                }
                             }
+                            line.clear();
                         }
+
+                        let _ = write_handle.join();
                     });
 
                     cons.insert(port_name.clone(), DeviceConnection { sender: tx });
@@ -301,6 +330,34 @@ fn discover_and_connect(
     }
 
     Ok(())
+}
+
+fn handle_device_message(msg: monitor::DeviceMessage) {
+    if let monitor::DeviceMessage::Presence { status } = msg {
+        let summary = if status { "User Present" } else { "User Away" };
+        let body = if status {
+            "SideEye detected your presence."
+        } else {
+            "SideEye no longer detects your presence."
+        };
+        let icon = if status {
+            "user-available"
+        } else {
+            "user-away"
+        };
+
+        let mut notification = Notification::new();
+        notification
+            .summary(summary)
+            .body(body)
+            .icon(icon)
+            .appname("SideEye");
+
+        #[cfg(not(test))]
+        if let Err(e) = notification.show() {
+            eprintln!("Failed to show notification: {}", e);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -451,6 +508,14 @@ mod tests {
         fn clear_break(&self) -> serialport::Result<()> {
             Ok(())
         }
+    }
+
+    #[test]
+    fn test_handle_device_message_presence() {
+        let msg = monitor::DeviceMessage::Presence { status: true };
+        handle_device_message(msg);
+        let msg_away = monitor::DeviceMessage::Presence { status: false };
+        handle_device_message(msg_away);
     }
 
     #[test]

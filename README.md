@@ -101,6 +101,7 @@ task host:run
 ## :package: Components & Features
 
 ### Rust Host Agent
+- **Presence Notifications:** Triggers native desktop notifications (User Present/Away) based on ESP32 BLE proximity detection.
 - **Multi-Format Configuration:** Supports `side-eye.{toml,yaml,yml,json}` and `.env` files.
 - **Zero-Config Discovery:** Automatically finds the ESP32-C6 by VID (0x303A) and creates a `/dev/side-eye` symlink via udev.
 - **Multi-Device Support:** Seamlessly handles connections to multiple SideEye devices simultaneously.
