@@ -5,9 +5,9 @@ This plan outlines the steps to implement a global status bar in the UI footer, 
 ## Phase 1: Core Assets & Drawing Logic
 - [x] Task: Define Icon Bitmaps (b08a82d)
     - [x] Define minimalist monochrome bitmaps (e.g., 8x8 or 10x10) for WiFi, MQTT, Host, SD, and BLE symbols.
-- [ ] Task: Implement Icon Rendering Utility
-    - [ ] Write failing tests in `test_all.cpp` for a new `drawStatusIcon` method.
-    - [ ] Implement `DisplayManager::drawStatusIcon(int x, int y, const uint8_t* bitmap, uint16_t color)` using `gfx.drawBitmap`.
+- [x] Task: Implement Icon Rendering Utility (db66d1f)
+    - [x] Write failing tests in `test_all.cpp` for a new `drawStatusIcon` method.
+    - [x] Implement `DisplayManager::drawStatusIcon(int x, int y, const uint8_t* bitmap, uint16_t color)` using `gfx.drawBitmap`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Core Assets & Drawing Logic' (Protocol in workflow.md)
 
 ## Phase 2: State Integration & Global UI
