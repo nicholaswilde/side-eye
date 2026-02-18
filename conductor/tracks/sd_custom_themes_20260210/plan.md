@@ -14,10 +14,10 @@ This plan outlines the steps to implement SD-based custom theming, including ima
 - [x] Task: Implement `theme.json` Parser (76be0b7)
     - [x] Define a standard `theme.json` schema for color overrides.
     - [x] Add logic to `DisplayManager` to load and apply these colors during the `draw` cycle.
-- [ ] Task: Implement Theme Switching
-    - [ ] Add MQTT handler for theme path updates.
-    - [ ] Update `config.json` to store the last selected theme path.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: JSON Theming & Asset Management' (Protocol in workflow.md)
+- [x] Task: Implement Theme Switching (91efc67)
+    - [x] Add MQTT handler for theme path updates.
+    - [x] Update `config.json` to store the last selected theme path.
+- [~] Task: Conductor - User Manual Verification 'Phase 2: JSON Theming & Asset Management' (Protocol in workflow.md)
 
 ## Phase 3: Boot Screen & Final Polish
 - [ ] Task: Custom Boot Screen
