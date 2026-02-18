@@ -56,6 +56,11 @@ void BLEPresenceManager::stopScan() {
 }
 
 void BLEPresenceManager::onResult(BLEAdvertisedDevice advertisedDevice) {
+    if (_targetMac.length() > 0) {
+        if (advertisedDevice.getAddress().toString() != _targetMac.c_str()) {
+            return;
+        }
+    }
     _lastSeen = millis();
     _present = true;
 }

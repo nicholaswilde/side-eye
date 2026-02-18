@@ -57,6 +57,8 @@ struct SystemState {
     bool ble_present = false;
 
     // Configurable Settings
+    bool ble_enabled = false;
+    String ble_target = "";
     uint8_t brightness = 255;
     int rotation = 1;
     unsigned long cycle_duration = 5000;

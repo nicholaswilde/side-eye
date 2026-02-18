@@ -82,6 +82,15 @@ void onMqttMessage(char* topic, uint8_t* payload, unsigned int length) {
     } else if (setting == "discovery_prefix") {
         network.setDiscoveryPrefix(payloadStr);
         changed = true;
+    } else if (setting == "ble_enabled") {
+        state.ble_enabled = (payloadStr == "1" || payloadStr == "true");
+        blePresence.setEnabled(state.ble_enabled);
+        changed = true;
+    } else if (setting == "ble_target") {
+        state.ble_target = payloadStr;
+        // In a real scenario, we might need to re-init or update the target in BLEPresenceManager
+        // For now, it will be picked up on next scan/start if we implement target filtering
+        changed = true;
     }
 
     if (changed) {
@@ -237,6 +246,8 @@ void setup() {
     display.begin(state);
     input.begin();
     blePresence.begin(deviceID.c_str());
+    blePresence.setEnabled(state.ble_enabled);
+    blePresence.setTargetMac(state.ble_target);
     
     display.drawBootScreen(FIRMWARE_VERSION);
     Serial.printf("\n--- SideEye Firmware v%s starting ---\n", FIRMWARE_VERSION);

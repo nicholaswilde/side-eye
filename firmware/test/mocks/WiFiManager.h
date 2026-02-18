@@ -13,6 +13,7 @@ enum wm_debuglevel_t {
 class WiFiManagerParameter {
 public:
     WiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length) {}
+    WiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const String& custom) {}
     const char* getValue() { return ""; }
 };
 

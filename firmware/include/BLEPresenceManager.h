@@ -17,6 +17,7 @@ public:
     void begin(const char* deviceId);
     void update(SideEyeNetworkManager& network, SystemState& state);
     void setEnabled(bool enabled);
+    void setTargetMac(const String& mac) { _targetMac = mac; }
     bool isEnabled() const { return _enabled; }
     bool isPresent() const { return _present; }
     const char* getStatusString() const;

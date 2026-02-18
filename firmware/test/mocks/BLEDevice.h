@@ -2,9 +2,17 @@
 #include <string>
 #include "Arduino.h"
 
+class BLEAddress {
+public:
+    BLEAddress(const char* addr) : _addr(addr) {}
+    String toString() { return String(_addr.c_str()); }
+private:
+    std::string _addr;
+};
+
 class BLEAdvertisedDevice {
 public:
-    std::string getAddress() { return "AA:BB:CC:DD:EE:FF"; }
+    BLEAddress getAddress() { return BLEAddress("AA:BB:CC:DD:EE:FF"); }
     int getRSSI() { return -70; }
 };
 

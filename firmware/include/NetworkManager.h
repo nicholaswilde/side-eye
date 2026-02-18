@@ -63,6 +63,8 @@ public:
                         state.cpu_critical = json["cpu_critical"] | 80;
                         state.ram_warning = json["ram_warning"] | 50;
                         state.ram_critical = json["ram_critical"] | 80;
+                        state.ble_enabled = json["ble_enabled"] | false;
+                        state.ble_target = json["ble_target"] | "";
                     }
                     configFile.close();
                 }
@@ -84,6 +86,11 @@ public:
         WiFiManagerParameter custom_mqtt_pass("pass", "mqtt pass", mqtt_pass, 40);
         WiFiManagerParameter custom_mqtt_topic_prefix("prefix", "topic prefix", mqtt_topic_prefix, 40);
         WiFiManagerParameter custom_mqtt_discovery_prefix("discovery", "discovery prefix", mqtt_discovery_prefix, 40);
+        
+        char ble_enabled_str[2] = "0";
+        if (state.ble_enabled) ble_enabled_str[0] = '1';
+        WiFiManagerParameter custom_ble_enabled("ble_enabled", "Enable BLE Presence", ble_enabled_str, 2, "type=\"checkbox\" " + String(state.ble_enabled ? "checked" : ""));
+        WiFiManagerParameter custom_ble_target("ble_target", "BLE Target (MAC/UUID)", state.ble_target.c_str(), 40);
 
         wm.addParameter(&custom_mqtt_server);
         wm.addParameter(&custom_mqtt_port);
@@ -91,6 +98,8 @@ public:
         wm.addParameter(&custom_mqtt_pass);
         wm.addParameter(&custom_mqtt_topic_prefix);
         wm.addParameter(&custom_mqtt_discovery_prefix);
+        wm.addParameter(&custom_ble_enabled);
+        wm.addParameter(&custom_ble_target);
 
         String apName = "SideEye-" + _deviceID;
         if (!wm.autoConnect(apName.c_str())) {
@@ -104,6 +113,8 @@ public:
         strcpy(mqtt_pass, custom_mqtt_pass.getValue());
         strcpy(mqtt_topic_prefix, custom_mqtt_topic_prefix.getValue());
         strcpy(mqtt_discovery_prefix, custom_mqtt_discovery_prefix.getValue());
+        state.ble_enabled = (strncmp(custom_ble_enabled.getValue(), "1", 1) == 0);
+        state.ble_target = custom_ble_target.getValue();
 
         if (strlen(mqtt_server) > 0) {
             _mqttClient.setServer(mqtt_server, atoi(mqtt_port));
@@ -128,6 +139,8 @@ public:
             json["cpu_critical"] = state.cpu_critical;
             json["ram_warning"] = state.ram_warning;
             json["ram_critical"] = state.ram_critical;
+            json["ble_enabled"] = state.ble_enabled;
+            json["ble_target"] = state.ble_target;
 
             File configFile = LittleFS.open("/config.json", "w");
             if (configFile) {
