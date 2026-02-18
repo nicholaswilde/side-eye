@@ -3,9 +3,9 @@
 This plan outlines the steps to implement SD-based custom theming, including image decoding and JSON-driven color overrides.
 
 ## Phase 1: Image Decoding & Fallback
-- [ ] Task: Integrate Image Decoder
-    - [ ] Add the `TJpg_Decoder` library to `platformio.ini`.
-    - [ ] Implement `DisplayManager::drawJpg(const char* path, int x, int y)` to render images from SD.
+- [x] Task: Integrate Image Decoder (56e75f9)
+    - [x] Add the `TJpg_Decoder` library to `platformio.ini`.
+    - [x] Implement `DisplayManager::drawJpg(const char* path, int x, int y)` to render images from SD.
 - [ ] Task: Implement Fallback Logic
     - [ ] Ensure `DisplayManager` can gracefully switch between "Image Mode" and "Solid Color Mode" if the SD card is unavailable.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Image Decoding & Fallback' (Protocol in workflow.md)
