@@ -513,6 +513,16 @@ public:
     }
 
     void drawBootScreen(const char* version) {
+        if (drawJpg("/boot.jpg", 0, 0)) {
+            // If boot.jpg exists and was drawn, we can still overlay the version if desired,
+            // or just return. Let's overlay the version in a corner.
+            gfx.setTextSize(1);
+            gfx.setTextColor(active_theme.subtext);
+            gfx.setCursor(200, 120);
+            gfx.print(version);
+            return;
+        }
+
         gfx.fillScreen(active_theme.base);
         drawBanner("BOOTING...");
         

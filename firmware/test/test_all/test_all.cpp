@@ -238,6 +238,22 @@ void test_theme_switching() {
 #endif
 }
 
+void test_display_boot_screen_custom() {
+#ifdef NATIVE
+    DisplayManager display;
+    
+    // Default boot screen (no /boot.jpg)
+    _mock_tjpg_draw_count = 0;
+    display.drawBootScreen("1.0.0");
+    TEST_ASSERT_EQUAL(0, _mock_tjpg_draw_count);
+    
+    // Custom boot screen (/boot.jpg exists)
+    _mock_sd_files["/boot.jpg"] = "fake-boot-jpg";
+    display.drawBootScreen("1.0.0");
+    TEST_ASSERT_EQUAL(1, _mock_tjpg_draw_count);
+#endif
+}
+
 // --- Native-Only Tests (Require Mocks) ---
 
 #ifdef NATIVE
@@ -627,6 +643,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_background_fallback);
     RUN_TEST(test_display_theme_json_parser);
     RUN_TEST(test_theme_switching);
+    RUN_TEST(test_display_boot_screen_custom);
     RUN_TEST(test_display_backlight_pwm);
     RUN_TEST(test_sync_manager_full);
     RUN_TEST(test_sync_manager_single_file);
