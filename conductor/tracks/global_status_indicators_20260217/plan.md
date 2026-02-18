@@ -10,7 +10,7 @@ This plan outlines the steps to implement a global status bar in the UI footer, 
     - [x] Implement `DisplayManager::drawStatusIcon(int x, int y, const uint8_t* bitmap, uint16_t color)` using `gfx.drawBitmap`.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Core Assets & Drawing Logic' (Protocol in workflow.md)
 
-## Phase 2: State Integration & Global UI
+## Phase 2: State Integration & Global UI [checkpoint: 9cdeb6b]
 - [x] Task: Implement Status Bar Mapping (f0dd14d)
     - [x] Write failing tests verifying that different `SystemState` values (e.g., `mqtt_connected`, `sd_sync_status`) map to correct icon colors.
     - [x] Implement `DisplayManager::drawStatusBar(const SystemState& state)` to render the full row of indicators.
