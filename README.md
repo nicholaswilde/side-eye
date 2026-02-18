@@ -160,6 +160,7 @@ SideEye supports automatic **MQTT Discovery**, making it easy to add to your Hom
 - **Intelligent UI State:** Clean "Waiting..." mode when idle, automatically transitioning to a detailed dashboard upon host connection.
 - **Visual Alerts:** Banner changes color based on resource usage thresholds (Mauve -> Yellow -> Flashing Red) and automatically switches to the Resources page.
 - **Network History:** Dedicated page with real-time sparklines for download and upload throughput history.
+- **Global Status Indicators:** A persistent footer row of pixel-art icons (WiFi, MQTT, Host, SD, BLE) provides real-time system status across all dashboard pages.
 - **Home Assistant Integration:** Automatic MQTT Discovery—sensors appear instantly in your HA dashboard.
 - **Power Management:** 1-minute auto-off timeout to save screen life; wakes instantly on button interaction.
 - **Integrated Releases:** Unified GitHub Releases provide synchronized host binaries and a complete firmware bundle (`firmware.bin`, `bootloader.bin`, `partitions.bin`) in a single zip.
