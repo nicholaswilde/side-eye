@@ -26,6 +26,7 @@
 - **Wi-Fi Management:** `tzapu/WiFiManager` for credential configuration.
 - **JSON Parsing:** `bblanchon/ArduinoJson` for structured data updates.
 - **UI Theming:** Custom `catppuccin_colors.h` (RGB565 Mocha palette).
+- **OTA Updates:** ElegantOTA for local updates, HTTPUpdate for remote/GitHub releases.
 - **Communication:** Native ESP32-C6 USB CDC (Serial over USB-C).
 - **Integrations:** MQTT (via `paho-mqtt` for testing/validation).
 
