@@ -94,6 +94,8 @@ void onMqttMessage(char* topic, uint8_t* payload, unsigned int length) {
     } else if (setting == "ota_url") {
         network.triggerOTAUpdate(payloadStr);
         // Does not need 'changed' to be true as it triggers reboot
+    } else if (setting == "check_update") {
+        network.checkForUpdate();
     }
 
     if (changed) {
@@ -291,6 +293,13 @@ void loop() {
     }
     network.update(lastMqttRetry);
     blePresence.update(network, state);
+
+    // Periodic Update Check (every 12 hours)
+    static unsigned long lastUpdateCheck = 0;
+    if (millis() - lastUpdateCheck > 12 * 3600 * 1000) {
+        lastUpdateCheck = millis();
+        network.checkForUpdate();
+    }
 
     // Timeout for connection status
     static unsigned long lastDataReceived = 0;

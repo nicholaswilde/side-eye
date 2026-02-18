@@ -301,6 +301,7 @@ public:
         doc["hostname"] = state.hostname;
         doc["ip"] = state.ip;
         doc["mac"] = state.mac;
+        doc["version"] = _version;
         doc["rssi"] = WiFi.RSSI();
         doc["ble_status"] = ble.getStatusString();
         doc["ble_present"] = ble.isPresent();
@@ -363,7 +364,8 @@ public:
             {"IP Address", "ip", "mdi:ip-network"},
             {"MAC Address", "mac", "mdi:ethernet"},
             {"WiFi RSSI", "rssi", "mdi:wifi"},
-            {"BLE Status", "ble_status", "mdi:bluetooth"}
+            {"BLE Status", "ble_status", "mdi:bluetooth"},
+            {"Firmware Version", "version", "mdi:tag"}
         };
 
         for (const auto& s : sensors) {
