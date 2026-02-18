@@ -266,6 +266,11 @@ void setup() {
     display.drawWiFiOnline();
     delay(200);
 
+    if (state.post_update_check) {
+        display.showNotification("Update Successful!");
+        state.post_update_check = false;
+    }
+
     display.drawStaticUI(state, currentPage, FIRMWARE_VERSION);
     display.updateDynamicValues(state, currentPage, true, true, FIRMWARE_VERSION);
     waitingMessageActive = false;

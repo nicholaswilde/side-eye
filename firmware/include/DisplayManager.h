@@ -55,6 +55,7 @@ struct SystemState {
     bool connected = false;
     String ble_status = "Disabled";
     bool ble_present = false;
+    bool post_update_check = false;
 
     // Configurable Settings
     bool ble_enabled = false;

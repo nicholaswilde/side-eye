@@ -74,6 +74,11 @@ public:
                     configFile.close();
                 }
             }
+
+            if (LittleFS.exists("/update_success")) {
+                state.post_update_check = true;
+                LittleFS.remove("/update_success");
+            }
         }
 
         WiFiManager wm;
@@ -143,7 +148,14 @@ public:
         });
         ElegantOTA.onEnd([this](bool success) {
             if (_otaProgressCallback) {
-                if (success) _otaProgressCallback(100, "Update Successful!");
+                if (success) {
+                    _otaProgressCallback(100, "Update Successful!");
+                    File flag = LittleFS.open("/update_success", "w");
+                    if (flag) {
+                        flag.print("1");
+                        flag.close();
+                    }
+                }
                 else _otaProgressCallback(0, "Update Failed!");
             }
         });
@@ -213,6 +225,13 @@ public:
 
             case HTTP_UPDATE_OK:
                 Serial.println("HTTP_UPDATE_OK");
+                {
+                    File flag = LittleFS.open("/update_success", "w");
+                    if (flag) {
+                        flag.print("1");
+                        flag.close();
+                    }
+                }
                 break;
         }
     }
