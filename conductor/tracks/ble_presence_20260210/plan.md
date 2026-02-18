@@ -26,7 +26,7 @@ This plan outlines the steps to implement BLE-based presence detection using the
     - [x] Update `config.json` in LittleFS to store target BLE MAC addresses and the enable/disable toggle state.
     - [x] Add MQTT `set` topic `ble_presence_enabled` to remotely toggle the feature.
     - [x] Add MQTT `set` topics to allow remote configuration of the presence target (MAC/UUID).
-- [ ] Task: End-to-End Testing
-    - [ ] Verify that signal drops don't cause notification spam.
-    - [ ] Verify that the host agent correctly identifies presence from multiple SideEye units.
+- [x] Task: End-to-End Testing (9ab6c2c)
+    - [x] Verify that signal drops don't cause notification spam.
+    - [x] Verify that the host agent correctly identifies presence from multiple SideEye units.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Configuration & Testing' (Protocol in workflow.md)
