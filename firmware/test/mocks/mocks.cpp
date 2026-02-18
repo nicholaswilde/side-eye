@@ -5,6 +5,8 @@
 #include "SPI.h"
 #include "ElegantOTA.h"
 #include "WebServer.h"
+#include "HTTPClient.h"
+#include "HTTPUpdate.h"
 
 unsigned long _mock_millis = 0;
 int _mock_digitalRead_val = HIGH;
@@ -18,6 +20,7 @@ SDClass SD;
 LittleFSClass LittleFS;
 SPIClass SPI;
 ElegantOTAClass ElegantOTA;
+HTTPUpdate httpUpdate;
 
 std::map<std::string, std::string> _mock_sd_files;
 std::map<std::string, std::string> _mock_lfs_files;
