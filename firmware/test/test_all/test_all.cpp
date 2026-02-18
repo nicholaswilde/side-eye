@@ -184,6 +184,21 @@ void test_display_draw_status_icon() {
 #endif
 }
 
+void test_display_draw_status_bar() {
+#ifdef NATIVE
+    DisplayManager display;
+    SystemState state;
+    display.begin(state);
+    
+    state.connected = true;
+    state.mqtt_connected = true;
+    state.sd_sync_status = "Syncing...";
+    state.ble_present = true;
+    
+    display.drawStatusBar(state);
+#endif
+}
+
 void test_display_background_fallback() {
 #ifdef NATIVE
     DisplayManager display;
@@ -652,6 +667,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_draw_update);
     RUN_TEST(test_display_draw_jpg);
     RUN_TEST(test_display_draw_status_icon);
+    RUN_TEST(test_display_draw_status_bar);
     RUN_TEST(test_display_background_fallback);
     RUN_TEST(test_display_theme_json_parser);
     RUN_TEST(test_theme_switching);

@@ -125,6 +125,34 @@ public:
         gfx.drawBitmap(x, y, bitmap, 8, 8, color, active_theme.base);
     }
 
+    void drawStatusBar(const SystemState& state) {
+        int x = 10;
+        int y = 120;
+        int spacing = 12;
+
+        // WiFi
+        drawStatusIcon(x, y, icon_wifi, (WiFi.status() == WL_CONNECTED) ? active_theme.green : active_theme.red);
+        x += spacing;
+
+        // MQTT
+        drawStatusIcon(x, y, icon_mqtt, state.mqtt_connected ? active_theme.green : active_theme.overlay);
+        x += spacing;
+
+        // Host
+        drawStatusIcon(x, y, icon_host, state.connected ? active_theme.green : active_theme.peach);
+        x += spacing;
+
+        // SD
+        uint16_t sd_col = active_theme.green;
+        if (state.sd_sync_status == "Syncing...") sd_col = active_theme.blue;
+        if (state.sd_sync_status == "Error!") sd_col = active_theme.red;
+        drawStatusIcon(x, y, icon_sd, sd_col);
+        x += spacing;
+
+        // BLE
+        drawStatusIcon(x, y, icon_ble, state.ble_present ? active_theme.green : active_theme.blue);
+    }
+
     bool loadTheme(const String& themePath) {
         String jsonPath = themePath + "/theme.json";
         if (!SD.exists(jsonPath.c_str())) {
