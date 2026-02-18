@@ -3,6 +3,8 @@
 #include "SD.h"
 #include "LittleFS.h"
 #include "SPI.h"
+#include "ElegantOTA.h"
+#include "WebServer.h"
 
 unsigned long _mock_millis = 0;
 int _mock_digitalRead_val = HIGH;
@@ -15,6 +17,7 @@ ESPClass ESP;
 SDClass SD;
 LittleFSClass LittleFS;
 SPIClass SPI;
+ElegantOTAClass ElegantOTA;
 
 std::map<std::string, std::string> _mock_sd_files;
 std::map<std::string, std::string> _mock_lfs_files;

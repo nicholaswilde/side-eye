@@ -109,6 +109,11 @@ void test_display_sd_disconnected() {
     display.updateDynamicValues(state, PAGE_SD, true, false, "1.0.0");
 }
 
+void test_display_draw_update() {
+    DisplayManager display;
+    display.drawUpdateScreen(50, "Downloading...");
+}
+
 void test_display_manager_extended() {
     DisplayManager display;
     SystemState state;
@@ -451,6 +456,7 @@ void setup() {
     RUN_TEST(test_display_format_speed);
     RUN_TEST(test_display_draw_smoke);
     RUN_TEST(test_display_sd_disconnected);
+    RUN_TEST(test_display_draw_update);
     RUN_TEST(test_display_manager_extended);
     UNITY_END();
 }
@@ -534,6 +540,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_format_speed);
     RUN_TEST(test_display_draw_smoke);
     RUN_TEST(test_display_sd_disconnected);
+    RUN_TEST(test_display_draw_update);
     RUN_TEST(test_display_backlight_pwm);
     RUN_TEST(test_sync_manager_full);
     RUN_TEST(test_sync_manager_single_file);
