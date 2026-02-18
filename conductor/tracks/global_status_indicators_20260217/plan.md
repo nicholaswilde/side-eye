@@ -19,8 +19,8 @@ This plan outlines the steps to implement a global status bar in the UI footer, 
     - [x] Update `DisplayManager::updateDynamicValues` to refresh icons during every update cycle.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: State Integration & Global UI' (Protocol in workflow.md)
 
-## Phase 3: Layout Polish & Verification
+## Phase 3: Layout Polish & Verification [checkpoint: 5d45f9d]
 - [x] Task: Layout Refinement (97bbf0c)
     - [x] Fine-tune the positioning of the status bar to ensure perfect alignment opposite the version string.
     - [x] Verify visibility and layout integrity across all 6 dashboard pages.
-- [~] Task: Conductor - User Manual Verification 'Phase 3: Layout Polish & Verification' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Layout Polish & Verification' (Protocol in workflow.md)
