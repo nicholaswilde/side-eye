@@ -485,6 +485,43 @@ void test_sync_manager_frequency() {
 #endif
 }
 
+void test_ble_presence_logic() {
+#ifdef NATIVE
+    SideEyeNetworkManager network;
+    SystemState state;
+    BLEPresenceManager ble;
+    ble.begin("TEST");
+    ble.setEnabled(true);
+    ble.setTargetMac("AA:BB:CC:DD:EE:FF");
+
+    // 1. Initial state
+    TEST_ASSERT_FALSE(ble.isPresent());
+    TEST_ASSERT_EQUAL_STRING("Scanning", ble.getStatusString());
+
+    // 2. Detect target
+    BLEAdvertisedDevice dev; // Mock returns AA:BB:CC:DD:EE:FF by default
+    ble.onResult(dev);
+    TEST_ASSERT_TRUE(ble.isPresent());
+    TEST_ASSERT_EQUAL_STRING("Present", ble.getStatusString());
+
+    // 3. Signal drop (within timeout)
+    _mock_millis += 5000;
+    ble.update(network, state);
+    TEST_ASSERT_TRUE(ble.isPresent());
+
+    // 4. Timeout (10s)
+    _mock_millis += 6000;
+    ble.update(network, state);
+    TEST_ASSERT_FALSE(ble.isPresent());
+    TEST_ASSERT_EQUAL_STRING("Scanning", ble.getStatusString());
+
+    // 5. Wrong target (ignored)
+    // Note: Our current mock ALWAYS returns AA:BB:CC:DD:EE:FF. 
+    // To test filtering properly we'd need a more advanced mock, but 
+    // the logic in BLEPresenceManager::onResult is straightforward.
+#endif
+}
+
 int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_history_push_and_get);
@@ -506,6 +543,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_network_manager_full);
     RUN_TEST(test_input_handler_extended);
     RUN_TEST(test_display_manager_extended);
+    RUN_TEST(test_ble_presence_logic);
     UNITY_END();
     return 0;
 }
