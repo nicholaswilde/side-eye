@@ -20,7 +20,7 @@ This plan outlines the steps to implement a global status bar in the UI footer, 
 - [x] Task: Conductor - User Manual Verification 'Phase 2: State Integration & Global UI' (Protocol in workflow.md)
 
 ## Phase 3: Layout Polish & Verification
-- [ ] Task: Layout Refinement
-    - [ ] Fine-tune the positioning of the status bar to ensure perfect alignment opposite the version string.
-    - [ ] Verify visibility and layout integrity across all 6 dashboard pages.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Layout Polish & Verification' (Protocol in workflow.md)
+- [x] Task: Layout Refinement (97bbf0c)
+    - [x] Fine-tune the positioning of the status bar to ensure perfect alignment opposite the version string.
+    - [x] Verify visibility and layout integrity across all 6 dashboard pages.
+- [~] Task: Conductor - User Manual Verification 'Phase 3: Layout Polish & Verification' (Protocol in workflow.md)
