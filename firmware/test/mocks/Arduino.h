@@ -10,6 +10,8 @@
 #define OUTPUT 1
 #define INPUT_PULLUP 2
 
+#define PROGMEM
+
 #define FSPI 1
 
 extern unsigned long _mock_millis;

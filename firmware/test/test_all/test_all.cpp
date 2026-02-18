@@ -173,6 +173,17 @@ void test_display_draw_jpg() {
 #endif
 }
 
+void test_display_draw_status_icon() {
+#ifdef NATIVE
+    DisplayManager display;
+    SystemState state;
+    display.begin(state);
+    
+    uint8_t dummy_bitmap[8] = {0xFF, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xFF};
+    display.drawStatusIcon(10, 10, dummy_bitmap, 0xFFFF);
+#endif
+}
+
 void test_display_background_fallback() {
 #ifdef NATIVE
     DisplayManager display;
@@ -640,6 +651,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_sd_disconnected);
     RUN_TEST(test_display_draw_update);
     RUN_TEST(test_display_draw_jpg);
+    RUN_TEST(test_display_draw_status_icon);
     RUN_TEST(test_display_background_fallback);
     RUN_TEST(test_display_theme_json_parser);
     RUN_TEST(test_theme_switching);

@@ -8,6 +8,7 @@
 #include <ArduinoJson.h>
 #include "catppuccin_colors.h"
 #include "HistoryBuffer.h"
+#include "status_icons.h"
 #include <SD.h>
 
 /* 
@@ -55,6 +56,7 @@ struct SystemState {
     uint8_t alert_level = 0;
     bool has_data = false;
     bool connected = false;
+    bool mqtt_connected = false;
     String ble_status = "Disabled";
     bool ble_present = false;
     bool post_update_check = false;
@@ -117,6 +119,10 @@ public:
         if (!SD.exists(path)) return false;
         TJpgDec.drawSdJpg(x, y, path);
         return true;
+    }
+
+    void drawStatusIcon(int x, int y, const uint8_t* bitmap, uint16_t color) {
+        gfx.drawBitmap(x, y, bitmap, 8, 8, color);
     }
 
     bool loadTheme(const String& themePath) {
