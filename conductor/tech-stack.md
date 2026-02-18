@@ -23,9 +23,10 @@
 - **Storage:** Integrated Micro SD card support via `SD` and `SPI` libraries.
 - **Wireless:** Built-in Wi-Fi and Bluetooth 5.0 (BLE) for presence detection.
 - **Display Driver:** `Moon On Our Nation / GFX Library for Arduino` (ST7789).
+- **Image Decoding:** `bodmer/TJpg_Decoder` for high-performance JPEG rendering from SD.
 - **Wi-Fi Management:** `tzapu/WiFiManager` for credential configuration.
 - **JSON Parsing:** `bblanchon/ArduinoJson` for structured data updates.
-- **UI Theming:** Custom `catppuccin_colors.h` (RGB565 Mocha palette).
+- **UI Theming:** Custom JSON-driven color overrides with a fallback to the internal `catppuccin_colors.h` (RGB565 Mocha palette).
 - **OTA Updates:** ElegantOTA for local updates, HTTPUpdate for remote/GitHub releases.
 - **Communication:** Native ESP32-C6 USB CDC (Serial over USB-C).
 - **Integrations:** MQTT (via `paho-mqtt` for testing/validation).

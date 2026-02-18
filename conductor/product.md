@@ -24,6 +24,8 @@ SideEye is a minimalist, USB-powered hardware monitor designed to provide Linux 
 - **Historical Trends:** Dedicated network page with real-time sparkline graphs for tracking download and upload throughput over time.
 - **Integrated Release Workflow:** Unified GitHub Releases containing host binaries and zipped firmware artifacts for streamlined updates.
 - **OTA Updates:** Easy firmware maintenance via browser upload or remote MQTT commands.
+- **Custom Theming:** Load custom JPEG backgrounds and JSON-defined color schemes from the SD card. Supports per-page backgrounds and dynamic theme switching via MQTT.
+- **Custom Boot Screen:** Display a personalized `boot.jpg` from the SD card root during the device startup sequence.
 - **Streamlined Updates:** A native Linux flash script allows users to update firmware directly from GitHub releases with zero manual downloads or extraction.
 - **Intelligent UI State:** Clean "Waiting for Host" mode when idle, automatically transitioning to a detailed dashboard upon connection.
 - **Orientation Support:** Physical button toggles screen rotation by 180 degrees to support any USB port orientation.
