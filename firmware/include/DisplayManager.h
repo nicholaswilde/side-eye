@@ -5,6 +5,7 @@
 #include <Arduino_GFX_Library.h>
 #include <WiFi.h>
 #include <TJpg_Decoder.h>
+#include <ArduinoJson.h>
 #include "catppuccin_colors.h"
 #include "HistoryBuffer.h"
 #include <SD.h>
@@ -135,21 +136,21 @@ public:
 
         if (error) return false;
 
-        if (doc.containsKey("colors")) {
+        if (doc["colors"].is<JsonObject>()) {
             JsonObject colors = doc["colors"];
-            if (colors.containsKey("base")) active_theme.base = (uint16_t)strtol(colors["base"] | "0x1E1E2E", nullptr, 16);
-            if (colors.containsKey("text")) active_theme.text = (uint16_t)strtol(colors["text"] | "0xCDD6F4", nullptr, 16);
-            if (colors.containsKey("subtext")) active_theme.subtext = (uint16_t)strtol(colors["subtext"] | "0xA6ADC8", nullptr, 16);
-            if (colors.containsKey("overlay")) active_theme.overlay = (uint16_t)strtol(colors["overlay"] | "0x313244", nullptr, 16);
-            if (colors.containsKey("accent")) active_theme.accent = (uint16_t)strtol(colors["accent"] | "0xCBA6F7", nullptr, 16);
-            if (colors.containsKey("green")) active_theme.green = (uint16_t)strtol(colors["green"] | "0xA6E3A1", nullptr, 16);
-            if (colors.containsKey("yellow")) active_theme.yellow = (uint16_t)strtol(colors["yellow"] | "0xF9E2AF", nullptr, 16);
-            if (colors.containsKey("red")) active_theme.red = (uint16_t)strtol(colors["red"] | "0xF38BA8", nullptr, 16);
-            if (colors.containsKey("blue")) active_theme.blue = (uint16_t)strtol(colors["blue"] | "0x89B4FA", nullptr, 16);
-            if (colors.containsKey("peach")) active_theme.peach = (uint16_t)strtol(colors["peach"] | "0xFAB387", nullptr, 16);
-            if (colors.containsKey("sapphire")) active_theme.sapphire = (uint16_t)strtol(colors["sapphire"] | "0x74C7EC", nullptr, 16);
-            if (colors.containsKey("teal")) active_theme.teal = (uint16_t)strtol(colors["teal"] | "0x94E2D5", nullptr, 16);
-            if (colors.containsKey("flamingo")) active_theme.flamingo = (uint16_t)strtol(colors["flamingo"] | "0xF2CDCD", nullptr, 16);
+            if (colors["base"].is<const char*>()) active_theme.base = (uint16_t)strtol(colors["base"], nullptr, 16);
+            if (colors["text"].is<const char*>()) active_theme.text = (uint16_t)strtol(colors["text"], nullptr, 16);
+            if (colors["subtext"].is<const char*>()) active_theme.subtext = (uint16_t)strtol(colors["subtext"], nullptr, 16);
+            if (colors["overlay"].is<const char*>()) active_theme.overlay = (uint16_t)strtol(colors["overlay"], nullptr, 16);
+            if (colors["accent"].is<const char*>()) active_theme.accent = (uint16_t)strtol(colors["accent"], nullptr, 16);
+            if (colors["green"].is<const char*>()) active_theme.green = (uint16_t)strtol(colors["green"], nullptr, 16);
+            if (colors["yellow"].is<const char*>()) active_theme.yellow = (uint16_t)strtol(colors["yellow"], nullptr, 16);
+            if (colors["red"].is<const char*>()) active_theme.red = (uint16_t)strtol(colors["red"], nullptr, 16);
+            if (colors["blue"].is<const char*>()) active_theme.blue = (uint16_t)strtol(colors["blue"], nullptr, 16);
+            if (colors["peach"].is<const char*>()) active_theme.peach = (uint16_t)strtol(colors["peach"], nullptr, 16);
+            if (colors["sapphire"].is<const char*>()) active_theme.sapphire = (uint16_t)strtol(colors["sapphire"], nullptr, 16);
+            if (colors["teal"].is<const char*>()) active_theme.teal = (uint16_t)strtol(colors["teal"], nullptr, 16);
+            if (colors["flamingo"].is<const char*>()) active_theme.flamingo = (uint16_t)strtol(colors["flamingo"], nullptr, 16);
         }
         return true;
     }
