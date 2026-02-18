@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <Arduino.h>
 
+extern int _mock_tjpg_draw_count;
+
 class TJpg_Decoder {
 public:
     typedef bool (*TJpg_Callback)(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap);
@@ -11,6 +13,7 @@ public:
     void setSwapBytes(bool swap) { _swap = swap; }
 
     bool drawSdJpg(int16_t x, int16_t y, const char* path) {
+        _mock_tjpg_draw_count++;
         // In mock, just call the callback once with a dummy bitmap if the file exists
         if (_cb) {
             uint16_t dummy_bitmap[1] = {0xFFFF};
@@ -26,3 +29,4 @@ private:
 };
 
 extern TJpg_Decoder TJpgDec;
+extern int _mock_tjpg_draw_count;

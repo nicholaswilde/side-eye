@@ -173,6 +173,24 @@ void test_display_draw_jpg() {
 #endif
 }
 
+void test_display_background_fallback() {
+#ifdef NATIVE
+    DisplayManager display;
+    SystemState state;
+    display.begin(state);
+    
+    // Background doesn't exist - draw count should not increase (beyond initial if any)
+    _mock_tjpg_draw_count = 0;
+    display.drawStaticUI(state, PAGE_IDENTITY, "1.0.0");
+    TEST_ASSERT_EQUAL(0, _mock_tjpg_draw_count);
+    
+    // Background exists
+    _mock_sd_files["/themes/active/identity.jpg"] = "fake-jpg";
+    display.drawStaticUI(state, PAGE_IDENTITY, "1.0.0");
+    TEST_ASSERT_EQUAL(1, _mock_tjpg_draw_count);
+#endif
+}
+
 // --- Native-Only Tests (Require Mocks) ---
 
 #ifdef NATIVE
@@ -559,6 +577,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_sd_disconnected);
     RUN_TEST(test_display_draw_update);
     RUN_TEST(test_display_draw_jpg);
+    RUN_TEST(test_display_background_fallback);
     RUN_TEST(test_display_backlight_pwm);
     RUN_TEST(test_sync_manager_full);
     RUN_TEST(test_sync_manager_single_file);

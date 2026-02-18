@@ -14,6 +14,7 @@ int _mock_digitalRead_val = HIGH;
 int _mock_analogWrite_val = 0;
 uint8_t _mock_analogWrite_pin = 0;
 uint32_t _mock_sd_frequency = 0;
+int _mock_tjpg_draw_count = 0;
 SerialMock Serial;
 WiFiClass WiFi;
 ESPClass ESP;

@@ -68,6 +68,7 @@ struct SystemState {
     uint8_t cpu_critical = 80;
     uint8_t ram_warning = 50;
     uint8_t ram_critical = 80;
+    String theme_path = "/themes/active";
 };
 
 class DisplayManager {
@@ -400,7 +401,23 @@ public:
     }
 
     void drawStaticUI(const SystemState& state, Page currentPage, const char* version) {
-        gfx.fillScreen(CATPPUCCIN_BASE);
+        // Try to draw background image from SD
+        String path = state.theme_path + "/";
+        switch (currentPage) {
+            case PAGE_IDENTITY:  path += "identity.jpg"; break;
+            case PAGE_RESOURCES: path += "resources.jpg"; break;
+            case PAGE_STATUS:    path += "status.jpg"; break;
+            case PAGE_SD:        path += "sd.jpg"; break;
+            case PAGE_THERMAL:   path += "thermal.jpg"; break;
+            case PAGE_NETWORK:   path += "network.jpg"; break;
+            default:             path += "background.jpg"; break;
+        }
+
+        if (!drawJpg(path.c_str(), 0, 0)) {
+            // Fallback to solid color if image fails or doesn't exist
+            gfx.fillScreen(CATPPUCCIN_BASE);
+        }
+
         drawBanner("SIDEEYE MONITOR", state.alert_level);
         drawWiFiStatus();
 
