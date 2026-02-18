@@ -1,0 +1,8 @@
+{
+  "track_id": "global_status_indicators_20260217",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-17T21:55:00Z",
+  "updated_at": "2026-02-17T21:55:00Z",
+  "description": "Create a track to have status indicators on all pages. there is already a wifi symbol of a circle. Add other symbols for MQTT status. Use your best judgement for other statuses"
+}
