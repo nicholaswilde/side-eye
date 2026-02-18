@@ -21,7 +21,7 @@ This plan outlines the steps to implement BLE-based presence detection using the
     - [x] Integrate a desktop notification crate (e.g., `notify-rust`) to show presence-based alerts.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Communication & Host Logic' (Protocol in workflow.md)
 
-## Phase 3: Configuration & Testing
+## Phase 3: Configuration & Testing [checkpoint: a394223]
 - [x] Task: Implement BLE Config Persistence & Control (7e86271)
     - [x] Update `config.json` in LittleFS to store target BLE MAC addresses and the enable/disable toggle state.
     - [x] Add MQTT `set` topic `ble_presence_enabled` to remotely toggle the feature.
@@ -29,4 +29,4 @@ This plan outlines the steps to implement BLE-based presence detection using the
 - [x] Task: End-to-End Testing (9ab6c2c)
     - [x] Verify that signal drops don't cause notification spam.
     - [x] Verify that the host agent correctly identifies presence from multiple SideEye units.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Configuration & Testing' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Configuration & Testing' (Protocol in workflow.md)
