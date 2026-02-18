@@ -14,10 +14,10 @@ This plan outlines the steps to implement a global status bar in the UI footer, 
 - [x] Task: Implement Status Bar Mapping (f0dd14d)
     - [x] Write failing tests verifying that different `SystemState` values (e.g., `mqtt_connected`, `sd_sync_status`) map to correct icon colors.
     - [x] Implement `DisplayManager::drawStatusBar(const SystemState& state)` to render the full row of indicators.
-- [~] Task: Integrate into Dashboard Cycle
-    - [ ] Update `DisplayManager::drawStaticUI` to reserve footer space and draw the initial status bar.
-    - [ ] Update `DisplayManager::updateDynamicValues` to refresh icons during every update cycle.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: State Integration & Global UI' (Protocol in workflow.md)
+- [x] Task: Integrate into Dashboard Cycle (4a33040)
+    - [x] Update `DisplayManager::drawStaticUI` to reserve footer space and draw the initial status bar.
+    - [x] Update `DisplayManager::updateDynamicValues` to refresh icons during every update cycle.
+- [x] Task: Conductor - User Manual Verification 'Phase 2: State Integration & Global UI' (Protocol in workflow.md)
 
 ## Phase 3: Layout Polish & Verification
 - [ ] Task: Layout Refinement
