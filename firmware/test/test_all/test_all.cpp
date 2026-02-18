@@ -9,6 +9,7 @@
 
 #ifdef NATIVE
 #include "../../test/mocks/mocks.cpp"
+#include "../../src/BLEPresenceManager.cpp"
 #endif
 
 #include "HistoryBuffer.h"
@@ -303,12 +304,13 @@ class NetworkManagerTest {
 public:
     static void test() {
         SideEyeNetworkManager nm;
+        BLEPresenceManager ble;
         SystemState state;
         unsigned long retry = 0;
         
         // 1. Initial state (disconnected)
         nm.update(retry); 
-        nm.publishState(state);
+        nm.publishState(state, ble);
         
         // 2. Setup with config
         LittleFS._setFile("/config.json", "{\"mqtt_server\":\"localhost\",\"mqtt_port\":1883,\"mqtt_user\":\"user\",\"mqtt_pass\":\"pass\"}");
@@ -320,7 +322,7 @@ public:
         
         // 4. Publish while connected
         nm._mqttClient._setConnected(true);
-        nm.publishState(state);
+        nm.publishState(state, ble);
         
         // 5. Discovery
         nm.publishHADiscovery();
