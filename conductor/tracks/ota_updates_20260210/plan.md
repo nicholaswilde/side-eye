@@ -2,7 +2,7 @@
 
 This plan outlines the steps to implement multi-channel Over-the-Air (OTA) firmware updates, including GitHub integration, a local web server, and MQTT control.
 
-## Phase 1: Local Web Update & Progress UI
+## Phase 1: Local Web Update & Progress UI [checkpoint: a4172dd]
 - [x] Task: Implement Web Update Server [3993b51]
     - [x] Integrate `ElegantOTA` or `ESP8266HTTPUpdateServer` (adapted for ESP32) into `SideEyeNetworkManager`.
     - [x] Create a `/update` route for binary uploads.
