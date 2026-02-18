@@ -19,9 +19,9 @@ This plan outlines the steps to implement SD-based custom theming, including ima
     - [x] Update `config.json` to store the last selected theme path.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: JSON Theming & Asset Management' (Protocol in workflow.md)
 
-## Phase 3: Boot Screen & Final Polish
+## Phase 3: Boot Screen & Final Polish [checkpoint: 2922114]
 - [x] Task: Custom Boot Screen (a3b84b7)
     - [x] Update `DisplayManager::drawBootScreen` to look for `/boot.jpg` on the SD card before drawing the default.
 - [x] Task: Performance Optimization (3bfcab5)
     - [x] Optimize image loading speed to ensure page transitions remain smooth (~500ms target).
-- [~] Task: Conductor - User Manual Verification 'Phase 3: Boot Screen & Final Polish' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Boot Screen & Final Polish' (Protocol in workflow.md)
