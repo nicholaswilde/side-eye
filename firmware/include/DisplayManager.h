@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 #include <WiFi.h>
+#include <TJpg_Decoder.h>
 #include "catppuccin_colors.h"
 #include "HistoryBuffer.h"
 #include <SD.h>
@@ -71,15 +72,26 @@ struct SystemState {
 
 class DisplayManager {
 public:
+    static bool tjpg_callback(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
+        if (_instance) {
+            _instance->gfx.draw16bitRGBBitmap(x, y, bitmap, w, h);
+        }
+        return true;
+    }
+
     DisplayManager() : 
         bus(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI, LCD_MISO),
         gfx(&bus, LCD_RST, 0 /* rotation */, true /* IPS */,
             135 /* width */, 240 /* height */,
             52 /* col offset 1 */, 40 /* row offset 1 */,
             53 /* col offset 2 */, 40 /* row offset 2 */)
-    {}
+    {
+        _instance = this;
+    }
 
-    ~DisplayManager() {}
+    ~DisplayManager() {
+        if (_instance == this) _instance = nullptr;
+    }
 
     // Disable copy and assignment
     DisplayManager(const DisplayManager&) = delete;
@@ -93,6 +105,16 @@ public:
         gfx.begin();
         gfx.setRotation(currentRotation);
         gfx.fillScreen(CATPPUCCIN_BASE);
+
+        TJpgDec.setCallback(tjpg_callback);
+        TJpgDec.setJpgScale(1);
+        TJpgDec.setSwapBytes(true);
+    }
+
+    bool drawJpg(const char* path, int x, int y) {
+        if (!SD.exists(path)) return false;
+        TJpgDec.drawSdJpg(x, y, path);
+        return true;
     }
 
     void setRotation(int rotation) {
@@ -563,6 +585,7 @@ public:
     }
 
 private:
+    static DisplayManager* _instance;
     Arduino_HWSPI bus;
     Arduino_ST7789 gfx;
     int currentRotation = 1;

@@ -25,6 +25,7 @@ bool shouldSaveConfig = false;
 unsigned long lastMqttRetry = 0;
 String deviceID = "";
 
+DisplayManager* DisplayManager::_instance = nullptr;
 DisplayManager display;
 InputHandler input(BTN_PIN, display);
 SideEyeNetworkManager network;

@@ -18,6 +18,8 @@
 #include "SyncManager.h"
 #include "NetworkManager.h"
 
+DisplayManager* DisplayManager::_instance = nullptr;
+
 void setUp(void) {
 #ifdef NATIVE
     _mock_millis = 0;
@@ -154,6 +156,21 @@ void test_display_manager_extended() {
     // Test updateDynamicValues with disconnected state
     state.connected = false;
     display.updateDynamicValues(state, PAGE_IDENTITY, true, false, "1.0.0");
+}
+
+void test_display_draw_jpg() {
+#ifdef NATIVE
+    DisplayManager display;
+    SystemState state;
+    display.begin(state);
+    
+    // File doesn't exist
+    TEST_ASSERT_FALSE(display.drawJpg("/test.jpg", 0, 0));
+    
+    // File exists
+    _mock_sd_files["/test.jpg"] = "fake-jpg-data";
+    TEST_ASSERT_TRUE(display.drawJpg("/test.jpg", 0, 0));
+#endif
 }
 
 // --- Native-Only Tests (Require Mocks) ---
@@ -541,6 +558,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_draw_smoke);
     RUN_TEST(test_display_sd_disconnected);
     RUN_TEST(test_display_draw_update);
+    RUN_TEST(test_display_draw_jpg);
     RUN_TEST(test_display_backlight_pwm);
     RUN_TEST(test_sync_manager_full);
     RUN_TEST(test_sync_manager_single_file);

@@ -7,6 +7,7 @@
 #include "WebServer.h"
 #include "HTTPClient.h"
 #include "HTTPUpdate.h"
+#include "TJpg_Decoder.h"
 
 unsigned long _mock_millis = 0;
 int _mock_digitalRead_val = HIGH;
@@ -21,6 +22,7 @@ LittleFSClass LittleFS;
 SPIClass SPI;
 ElegantOTAClass ElegantOTA;
 HTTPUpdate httpUpdate;
+TJpg_Decoder TJpgDec;
 
 std::map<std::string, std::string> _mock_sd_files;
 std::map<std::string, std::string> _mock_lfs_files;

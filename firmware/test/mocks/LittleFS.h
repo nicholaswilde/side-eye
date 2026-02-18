@@ -3,6 +3,7 @@
 #include <map>
 #include <stdint.h>
 #include <vector>
+#include <cstring>
 
 extern std::map<std::string, std::string> _mock_sd_files;
 extern std::map<std::string, std::string> _mock_lfs_files;
@@ -58,6 +59,9 @@ public:
     }
     
     size_t write(uint8_t c) { return write(&c, 1); }
+
+    size_t print(const char* s) { return write((const uint8_t*)s, strlen(s)); }
+    size_t print(String s) { return write((const uint8_t*)s.c_str(), s.length()); }
     
     void close() {}
     
