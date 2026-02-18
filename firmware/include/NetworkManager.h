@@ -11,6 +11,7 @@
 #include <ElegantOTA.h>
 #include <HTTPClient.h>
 #include <WiFiClientSecure.h>
+#include <HTTPUpdate.h>
 #include "DisplayManager.h"
 #include "BLEPresenceManager.h"
 
@@ -177,6 +178,43 @@ public:
             }
         }
         http.end();
+    }
+
+    void triggerOTAUpdate(const String& url) {
+        if (WiFi.status() != WL_CONNECTED) return;
+        
+        Serial.println("Starting OTA from: " + url);
+        WiFiClientSecure client;
+        client.setInsecure(); // GitHub/external URL SSL
+        
+        // Use ElegantOTA callbacks for visual feedback if possible,
+        // but httpUpdate has its own mechanism. 
+        // We'll manually trigger the display update if we can't hook httpUpdate easily.
+        if (_otaProgressCallback) _otaProgressCallback(0, "Starting OTA...");
+        
+        httpUpdate.onProgress([this](int cur, int total) {
+            if (_otaProgressCallback) {
+                int progress = (cur * 100) / total;
+                _otaProgressCallback(progress, "Downloading...");
+            }
+        });
+
+        t_httpUpdate_return ret = httpUpdate.update(client, url);
+
+        switch (ret) {
+            case HTTP_UPDATE_FAILED:
+                Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
+                if (_otaProgressCallback) _otaProgressCallback(0, "Update Failed!");
+                break;
+
+            case HTTP_UPDATE_NO_UPDATES:
+                Serial.println("HTTP_UPDATE_NO_UPDATES");
+                break;
+
+            case HTTP_UPDATE_OK:
+                Serial.println("HTTP_UPDATE_OK");
+                break;
+        }
     }
 
     void saveConfig(const SystemState& state, bool shouldSave) {

@@ -91,6 +91,9 @@ void onMqttMessage(char* topic, uint8_t* payload, unsigned int length) {
         // In a real scenario, we might need to re-init or update the target in BLEPresenceManager
         // For now, it will be picked up on next scan/start if we implement target filtering
         changed = true;
+    } else if (setting == "ota_url") {
+        network.triggerOTAUpdate(payloadStr);
+        // Does not need 'changed' to be true as it triggers reboot
     }
 
     if (changed) {
