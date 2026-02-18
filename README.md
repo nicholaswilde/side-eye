@@ -71,10 +71,30 @@ Upon first boot, the device will enter setup mode:
 Once connected to your broker, you can interact with the device via MQTT. For example, to manually rotate the screen:
 
 ```bash
-mosquitto_pub -h <MQTT_BROKER_IP> -t "side-eye/<DEVICE_ID>/rotate" -m "1"
+mosquitto_pub -h <MQTT_BROKER_IP> -t "side-eye/<DEVICE_ID>/set/rotation" -m "3"
 ```
 
-### 5. Install & Run the Host Binary
+#### OTA Update via MQTT
+Trigger a remote firmware update by publishing a direct `.bin` URL:
+
+```bash
+mosquitto_pub -h <MQTT_BROKER_IP> -t "side-eye/<DEVICE_ID>/set/ota_url" -m "https://example.com/firmware.bin"
+```
+
+Or trigger a manual GitHub update check:
+
+```bash
+mosquitto_pub -h <MQTT_BROKER_IP> -t "side-eye/<DEVICE_ID>/set/check_update" -m "1"
+```
+
+### 5. Web OTA Updates
+Navigate to `http://<DEVICE_IP>/update` in your browser to upload a new firmware binary directly. The device will show a visual progress bar on the LCD during the process.
+
+---
+
+## :computer: Host Agent Setup
+
+### 6. Install & Run the Host Agent
 The host will automatically attempt to detect the ESP32 on your serial ports.
 
 #### Homebrew (Linux)
@@ -118,6 +138,12 @@ task host:run
 - **Home Assistant Integration:** Automatic MQTT Discovery—sensors appear instantly in your HA dashboard.
 - **Power Management:** 1-minute auto-off timeout to save screen life; wakes instantly on button interaction.
 - **Integrated Releases:** Unified GitHub Releases provide synchronized host binaries and a complete firmware bundle (`firmware.bin`, `bootloader.bin`, `partitions.bin`) in a single zip.
+- **OTA Updates (Multi-Channel):**
+  - **Web Update:** Built-in web server at `/update` for browser uploads.
+  - **GitHub Auto-Update:** Periodic 12-hour checks against the GitHub Releases API.
+  - **MQTT Triggered:** Direct URL flash via MQTT command.
+  - **Visual Feedback:** Dedicated LCD update screen with real-time progress bar.
+  - **Persistence:** Automatic post-update "Success" notification on boot; LittleFS settings are preserved.
 - **Automated Versioning:** Firmware version is automatically synchronized with the host's `Cargo.toml` during build.
 
 ---
