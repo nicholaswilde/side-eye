@@ -11,15 +11,17 @@
   - `anyhow`: Context-aware error handling.
   - `clap`: CLI argument parsing and auto-documentation.
   - `serde`, `toml`, `yaml`, `json`: Data serialization and multi-format support.
-  - `figment`: Flexible, multi-layered configuration management.
-  - `dotenvy`: Environment variable loading from `.env` files.
-  - `home`: Cross-platform directory discovery.
+    -   `figment`: Flexible, multi-layered configuration management.
+    -   `dotenvy`: Environment variable loading from `.env` files.
+    -   `notify-rust`: Native Linux desktop notifications for presence alerts.
+    -   `home`: Cross-platform directory discovery.
   - `std::thread` & `mpsc`: Concurrent multi-device management.
 
 ## Firmware (The Receiver)
 - **Framework:** Arduino / ESP-IDF via PlatformIO.
 - **Hardware Platform:** ESP32-C6 (Waveshare ESP32-C6-GEEK).
 - **Storage:** Integrated Micro SD card support via `SD` and `SPI` libraries.
+- **Wireless:** Built-in Wi-Fi and Bluetooth 5.0 (BLE) for presence detection.
 - **Display Driver:** `Moon On Our Nation / GFX Library for Arduino` (ST7789).
 - **Wi-Fi Management:** `tzapu/WiFiManager` for credential configuration.
 - **JSON Parsing:** `bblanchon/ArduinoJson` for structured data updates.
@@ -33,6 +35,7 @@
 - **Data Format:** Structured JSON using `ArduinoJson`.
   - **Identity:** `{"type": "Identity", "data": {"hostname": "...", "ip": "...", ...}}`
   - **Stats:** `{"type": "Stats", "data": {"cpu_percent": 12.5, "ram_used": 1024, ..., "alert_level": 0}}`
+  - **Presence:** `{"type": "Presence", "data": {"status": true/false}}`
   - **Version Request:** `{"type": "GetVersion"}`
 - **Versioning:** Automated synchronization between Host (`Cargo.toml`) and Firmware (via PlatformIO `extra_scripts`).
 

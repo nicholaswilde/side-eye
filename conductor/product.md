@@ -11,6 +11,7 @@ SideEye is a minimalist, USB-powered hardware monitor designed to provide Linux 
 ## Core Features
 - **Plug-and-Play Hardware:** Utilizes the Waveshare ESP32-C6-GEEK with a built-in 1.14" LCD.
 - **Wi-Fi Configuration:** Integrated `WiFiManager` for user-friendly network setup via a unique captive portal SSID (`SideEye-XXXXXX`).
+- **BLE Presence Detection:** Leverage the ESP32-C6's Bluetooth 5.0 to detect user proximity (phone/watch) and trigger native host desktop notifications.
 - **SD Card Synchronization:** Synchronize local host directories with the device's integrated SD card over USB serial.
 - **Linux System Integration:** Native systemd service for automatic startup and lifecycle management.
 - **Smart Home Integration:** MQTT support for seamless integration with Home Assistant and other automation platforms.
