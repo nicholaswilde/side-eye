@@ -512,8 +512,10 @@ public:
 
         // Version back in bottom right corner
         gfx.setTextColor(CATPPUCCIN_SURFACE1);
-        gfx.setCursor(200, 120);
+        gfx.setCursor(185, 120);
         gfx.print(version);
+
+        drawStatusBar(state);
     }
 
     void updateDynamicValues(const SystemState& state, Page currentPage, bool forceRedraw, bool waitingMessageActive, const char* version) {
@@ -545,6 +547,8 @@ public:
                 default: break;
             }
         }
+
+        drawStatusBar(state);
     }
 
     void drawBootScreen(const char* version) {
