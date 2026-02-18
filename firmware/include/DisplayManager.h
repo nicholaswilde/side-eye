@@ -127,7 +127,7 @@ public:
 
     void drawStatusBar(const SystemState& state) {
         int x = 10;
-        int y = 120;
+        int y = 122; // Slightly lower
         int spacing = 12;
 
         // WiFi
