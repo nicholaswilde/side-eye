@@ -254,6 +254,9 @@ void setup() {
     delay(500);
 
     network.setCallback(onMqttMessage);
+    network.setOTAProgressCallback([](int progress, const char* status) {
+        display.drawUpdateScreen(progress, status);
+    });
     network.begin(deviceID, FIRMWARE_VERSION, state, saveConfigCallback, configModeCallback, configLoopCallback);
     network.saveConfig(state, shouldSaveConfig);
     

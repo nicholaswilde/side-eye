@@ -538,6 +538,29 @@ public:
         gfx.println(secondsRemaining);
     }
 
+    void drawUpdateScreen(int progress, const char* status) {
+        gfx.fillScreen(CATPPUCCIN_BASE);
+        drawBanner("FIRMWARE UPDATE", 1);
+        
+        gfx.setTextColor(CATPPUCCIN_TEXT);
+        gfx.setTextSize(1);
+        
+        int16_t x1, y1;
+        uint16_t w, h;
+        gfx.getTextBounds(status, 0, 0, &x1, &y1, &w, &h);
+        gfx.setCursor((240 - w) / 2, 50);
+        gfx.println(status);
+        
+        drawProgressBar(20, 80, 200, 20, progress, CATPPUCCIN_GREEN);
+        
+        char p_str[10];
+        snprintf(p_str, sizeof(p_str), "%d%%", progress);
+        gfx.getTextBounds(p_str, 0, 0, &x1, &y1, &w, &h);
+        gfx.setCursor((240 - w) / 2, 110);
+        gfx.setTextColor(CATPPUCCIN_SUBTEXT0);
+        gfx.println(p_str);
+    }
+
 private:
     Arduino_HWSPI bus;
     Arduino_ST7789 gfx;

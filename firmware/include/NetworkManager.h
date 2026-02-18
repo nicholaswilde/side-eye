@@ -7,6 +7,8 @@
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <esp_mac.h>
+#include <WebServer.h>
+#include <ElegantOTA.h>
 #include "DisplayManager.h"
 #include "BLEPresenceManager.h"
 
@@ -17,7 +19,7 @@
 class SideEyeNetworkManager {
 public:
     friend class NetworkManagerTest;
-    SideEyeNetworkManager() : _mqttClient(_espClient) {
+    SideEyeNetworkManager() : _mqttClient(_espClient), _server(80) {
 #ifdef MQTT_HOST
         strncpy(mqtt_server, MQTT_HOST, sizeof(mqtt_server) - 1);
 #endif
@@ -89,7 +91,8 @@ public:
         
         char ble_enabled_str[2] = "0";
         if (state.ble_enabled) ble_enabled_str[0] = '1';
-        WiFiManagerParameter custom_ble_enabled("ble_enabled", "Enable BLE Presence", ble_enabled_str, 2, "type=\"checkbox\" " + String(state.ble_enabled ? "checked" : ""));
+        String ble_checkbox_custom = "type=\"checkbox\" " + String(state.ble_enabled ? "checked" : "");
+        WiFiManagerParameter custom_ble_enabled("ble_enabled", "Enable BLE Presence", ble_enabled_str, 2, ble_checkbox_custom.c_str());
         WiFiManagerParameter custom_ble_target("ble_target", "BLE Target (MAC/UUID)", state.ble_target.c_str(), 40);
 
         wm.addParameter(&custom_mqtt_server);
@@ -119,6 +122,30 @@ public:
         if (strlen(mqtt_server) > 0) {
             _mqttClient.setServer(mqtt_server, atoi(mqtt_port));
         }
+
+        // Setup OTA
+        _server.on("/", [this]() {
+            _server.send(200, "text/plain", "SideEye v" + _version + " is running. Go to /update for OTA.");
+        });
+        
+        ElegantOTA.begin(&_server);
+        ElegantOTA.onStart([this]() {
+            if (_otaProgressCallback) _otaProgressCallback(0, "Update Started");
+        });
+        ElegantOTA.onProgress([this](size_t current, size_t total) {
+            if (_otaProgressCallback) {
+                int progress = (current * 100) / total;
+                _otaProgressCallback(progress, "Downloading...");
+            }
+        });
+        ElegantOTA.onEnd([this](bool success) {
+            if (_otaProgressCallback) {
+                if (success) _otaProgressCallback(100, "Update Successful!");
+                else _otaProgressCallback(0, "Update Failed!");
+            }
+        });
+
+        _server.begin();
     }
 
     void saveConfig(const SystemState& state, bool shouldSave) {
@@ -151,6 +178,9 @@ public:
     }
 
     void update(unsigned long& lastMqttRetry) {
+        _server.handleClient();
+        ElegantOTA.loop();
+
         if (strlen(mqtt_server) > 0) {
             if (!_mqttClient.connected()) {
                 unsigned long now = millis();
@@ -165,6 +195,10 @@ public:
 
     void setCallback(std::function<void(char*, uint8_t*, unsigned int)> callback) {
         _mqttClient.setCallback(callback);
+    }
+
+    void setOTAProgressCallback(std::function<void(int, const char*)> callback) {
+        _otaProgressCallback = callback;
     }
 
     void setDiscoveryPrefix(const String& prefix) {
@@ -312,8 +346,10 @@ public:
 private:
     WiFiClient _espClient;
     PubSubClient _mqttClient;
+    WebServer _server;
     String _deviceID;
     String _version;
+    std::function<void(int, const char*)> _otaProgressCallback;
 
     char mqtt_server[40] = "";
     char mqtt_port[6] = "1883";
