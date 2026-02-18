@@ -122,7 +122,7 @@ public:
     }
 
     void drawStatusIcon(int x, int y, const uint8_t* bitmap, uint16_t color) {
-        gfx.drawBitmap(x, y, bitmap, 8, 8, color);
+        gfx.drawBitmap(x, y, bitmap, 8, 8, color, active_theme.base);
     }
 
     bool loadTheme(const String& themePath) {
