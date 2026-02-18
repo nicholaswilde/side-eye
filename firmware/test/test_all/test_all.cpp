@@ -585,7 +585,7 @@ void test_sync_manager_frequency() {
     SyncManager sync;
     _mock_sd_frequency = 0;
     sync.begin();
-    TEST_ASSERT_EQUAL(4000000, _mock_sd_frequency);
+    TEST_ASSERT_EQUAL(20000000, _mock_sd_frequency);
 #endif
 }
 
