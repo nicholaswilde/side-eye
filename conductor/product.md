@@ -23,6 +23,7 @@ SideEye is a minimalist, USB-powered hardware monitor designed to provide Linux 
 - **Real-Time Telemetry:** Syncs rich system stats (CPU %, RAM bar, Disk usage, Uptime, Thermal info, GPU Load) every 1 second in addition to static identity info.
 - **Historical Trends:** Dedicated network page with real-time sparkline graphs for tracking download and upload throughput over time.
 - **Integrated Release Workflow:** Unified GitHub Releases containing host binaries and zipped firmware artifacts for streamlined updates.
+- **Global Status Indicators:** A persistent footer row of pixel-art icons (WiFi, MQTT, Host, SD, BLE) provides real-time system status across all dashboard pages.
 - **OTA Updates:** Easy firmware maintenance via browser upload or remote MQTT commands.
 - **Custom Theming:** Load custom JPEG backgrounds and JSON-defined color schemes from the SD card. Supports per-page backgrounds and dynamic theme switching via MQTT.
 - **Custom Boot Screen:** Display a personalized `boot.jpg` from the SD card root during the device startup sequence.
