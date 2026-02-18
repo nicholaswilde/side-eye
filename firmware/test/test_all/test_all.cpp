@@ -206,6 +206,38 @@ void test_display_theme_json_parser() {
 #endif
 }
 
+void test_theme_switching() {
+#ifdef NATIVE
+    DisplayManager display;
+    SystemState state;
+    SideEyeNetworkManager nm;
+    
+    // Initial theme
+    state.theme_path = "/themes/old";
+    _mock_sd_files["/themes/old/theme.json"] = "{\"colors\":{\"base\":\"0x1111\"}}";
+    display.loadTheme(state.theme_path);
+    TEST_ASSERT_EQUAL(0x1111, display.active_theme.base);
+    
+    // Update theme path
+    state.theme_path = "/themes/new";
+    _mock_sd_files["/themes/new/theme.json"] = "{\"colors\":{\"base\":\"0x2222\"}}";
+    display.loadTheme(state.theme_path);
+    TEST_ASSERT_EQUAL(0x2222, display.active_theme.base);
+    
+    // Verify save/load from config
+    nm.saveConfig(state, true);
+    TEST_ASSERT_TRUE(LittleFS.exists("/config.json"));
+    
+    SystemState state2;
+    // nm.begin would load it, but we can just check if theme_path is in the JSON
+    File f = LittleFS.open("/config.json", "r");
+    String content = "";
+    while(f.available()) content += (char)f.read();
+    f.close();
+    TEST_ASSERT_NOT_EQUAL(std::string::npos, content.find("/themes/new"));
+#endif
+}
+
 // --- Native-Only Tests (Require Mocks) ---
 
 #ifdef NATIVE
@@ -594,6 +626,7 @@ int main(int argc, char **argv) {
     RUN_TEST(test_display_draw_jpg);
     RUN_TEST(test_display_background_fallback);
     RUN_TEST(test_display_theme_json_parser);
+    RUN_TEST(test_theme_switching);
     RUN_TEST(test_display_backlight_pwm);
     RUN_TEST(test_sync_manager_full);
     RUN_TEST(test_sync_manager_single_file);

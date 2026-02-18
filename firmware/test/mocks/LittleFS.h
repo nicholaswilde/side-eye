@@ -65,6 +65,11 @@ public:
     
     void close() {}
     
+    int available() {
+        if (!_valid) return 0;
+        return (int)(_content.length() - _pos);
+    }
+    
     int read() { 
         if (!_valid) return -1;
         if (_pos < _content.length()) return (uint8_t)_content[_pos++];

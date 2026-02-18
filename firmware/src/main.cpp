@@ -92,6 +92,11 @@ void onMqttMessage(char* topic, uint8_t* payload, unsigned int length) {
         // In a real scenario, we might need to re-init or update the target in BLEPresenceManager
         // For now, it will be picked up on next scan/start if we implement target filtering
         changed = true;
+    } else if (setting == "theme") {
+        state.theme_path = payloadStr;
+        display.loadTheme(state.theme_path);
+        needsStaticDraw = true;
+        changed = true;
     } else if (setting == "ota_url") {
         network.triggerOTAUpdate(payloadStr);
         // Does not need 'changed' to be true as it triggers reboot
@@ -250,6 +255,7 @@ void setup() {
     syncManager.begin();
     
     display.begin(state);
+    display.loadTheme(state.theme_path);
     input.begin();
     blePresence.begin(deviceID.c_str());
     blePresence.setEnabled(state.ble_enabled);

@@ -70,6 +70,7 @@ public:
                         state.ram_critical = json["ram_critical"] | 80;
                         state.ble_enabled = json["ble_enabled"] | false;
                         state.ble_target = json["ble_target"] | "";
+                        state.theme_path = json["theme_path"] | "/themes/active";
                     }
                     configFile.close();
                 }
@@ -256,6 +257,7 @@ public:
             json["ram_critical"] = state.ram_critical;
             json["ble_enabled"] = state.ble_enabled;
             json["ble_target"] = state.ble_target;
+            json["theme_path"] = state.theme_path;
 
             File configFile = LittleFS.open("/config.json", "w");
             if (configFile) {
