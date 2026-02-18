@@ -16,9 +16,9 @@ This plan outlines the steps to implement BLE-based presence detection using the
     - [x] Add the `Presence` message type to the firmware's JSON handler.
     - [x] Implement MQTT status publishing for BLE state (`Disabled`, `Scanning`, `Connected`).
     - [x] Implement MQTT publishing for presence state (`Present`, `Away`).
-- [ ] Task: Update Host Agent (Rust)
-    - [ ] Update the host agent's JSON handling to recognize the `Presence` message.
-    - [ ] Integrate a desktop notification crate (e.g., `notify-rust`) to show presence-based alerts.
+- [x] Task: Update Host Agent (Rust) (9025c5f)
+    - [x] Update the host agent's JSON handling to recognize the `Presence` message.
+    - [x] Integrate a desktop notification crate (e.g., `notify-rust`) to show presence-based alerts.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Communication & Host Logic' (Protocol in workflow.md)
 
 ## Phase 3: Configuration & Testing
