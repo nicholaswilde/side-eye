@@ -118,6 +118,22 @@ task host:run
 
 ---
 
+## :house: Home Assistant Integration
+
+SideEye supports automatic **MQTT Discovery**, making it easy to add to your Home Assistant dashboard.
+
+1.  **Configure MQTT in HA:** Ensure you have the [MQTT integration](https://www.home-assistant.io/integrations/mqtt/) installed and configured in Home Assistant.
+2.  **Device Setup:** During the [Wi-Fi & MQTT Setup](#3-wi-fi--mqtt-setup), enter your Home Assistant's MQTT broker IP address and credentials.
+3.  **Automatic Discovery:** Once SideEye connects to the broker, it will automatically announce itself.
+4.  **Add to Dashboard:** Navigate to **Settings > Devices & Services > MQTT** in Home Assistant. You should see a new "SideEye" device with sensors for:
+    -   **Hostname, IP, and MAC Address**
+    -   **WiFi RSSI** (Signal Strength)
+    -   **BLE Presence Status** (User proximity)
+    -   **Firmware Version** (with update check support)
+    -   **Device Connectivity Status** (Online/Offline)
+
+---
+
 ## :package: Components & Features
 
 ### Rust Host Agent
