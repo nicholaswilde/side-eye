@@ -12,12 +12,12 @@ This plan outlines the steps to implement multi-channel Over-the-Air (OTA) firmw
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Local Web Update & Progress UI' (Protocol in workflow.md)
 
 ## Phase 2: GitHub & MQTT Integration
-- [ ] Task: Implement GitHub Version Check
-    - [ ] Create a service in `SideEyeNetworkManager` to query the GitHub Tags/Releases API using `HTTPClient`.
-    - [ ] Compare the local `FIRMWARE_VERSION` with the latest remote tag.
-- [ ] Task: Implement MQTT Triggered Update
-    - [ ] Add a handler for the `ota_url` topic in the MQTT callback.
-    - [ ] Use `httpUpdate.update(client, url)` to perform the flash from a remote URL.
+- [x] Task: Implement GitHub Version Check [939e6f0]
+    - [x] Create a service in `SideEyeNetworkManager` to query the GitHub Tags/Releases API using `HTTPClient`.
+    - [x] Compare the local `FIRMWARE_VERSION` with the latest remote tag.
+- [x] Task: Implement MQTT Triggered Update [e24085d]
+    - [x] Add a handler for the `ota_url` topic in the MQTT callback.
+    - [x] Use `httpUpdate.update(client, url)` to perform the flash from a remote URL.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: GitHub & MQTT Integration' (Protocol in workflow.md)
 
 ## Phase 3: Safety & Persistence
